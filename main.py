@@ -1,7 +1,7 @@
 
 import pygame
 from polybius.abstractGame import AbstractGame
-from polybius.graphics import Button
+from polybius.graphics import Button, TextInput
 from polybius.utils import EventWrapper
 from export import Interface
 
@@ -13,11 +13,12 @@ class Game(AbstractGame):
 
         self._font2Name = {}
         self._name2Font = {}
-        self._button2Font = {}
+        self._widget2Font = {}
 
         self.addFont("font1","Arial",16)
         
         self._buttons = []
+        self._textInputs = []
         self._dragging = None
 
         self._testMode = False
@@ -27,6 +28,9 @@ class Game(AbstractGame):
 
         self._toggleModeEvent = EventWrapper(pygame.KEYDOWN, pygame.K_m)
 
+        self._makeButtonEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 3)
+        self._makeTextInputEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 3, [pygame.KMOD_CTRL])
+
         self._count = 0
 
         self._i = Interface()
@@ -35,6 +39,8 @@ class Game(AbstractGame):
         self.getScreen().fill((255,0,0))
         for b in self._buttons:
             b.draw(screen)
+        for t in self._textInputs:
+            t.draw(screen)
         self._i.draw(screen)
 
     def handleEvent(self, event):
@@ -49,17 +55,20 @@ class Game(AbstractGame):
     def handleTestModeEvents(self, event):
         for b in self._buttons:
             b.handleEvent(event, self.doNothing)
+        for t in self._textInputs:
+            t.handleEvent(event)
         self._i.handleEvent(event)
 
-    def handleCreateModeEvents(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN and \
-           event.button == 3:
+    def handleCreateModeEvents(self, event): 
+        if self._makeTextInputEvent.check(event):
+            self.makeTextInput(event.pos)
+        elif self._makeButtonEvent.check(event):
             self.makeButton(event.pos)
         if event.type == pygame.MOUSEBUTTONDOWN and \
            event.button == 1:
-            for b in self._buttons:
-                if b.getCollideRect().collidepoint(event.pos):
-                    self._dragging = (b, event.pos)
+            for w in self._buttons + self._textInputs:
+                if w.getCollideRect().collidepoint(event.pos):
+                    self._dragging = (w, event.pos)
         if self._exportEvent.check(event):
             self.export()
               
@@ -87,8 +96,14 @@ class Game(AbstractGame):
         b = Button(text, pos, font,
                    (100,120,80), (5,0))
         self._buttons.append(b)
-        self._button2Font[b] = font
+        self._widget2Font[b] = font
         self._count += 1
+
+    def makeTextInput(self, pos):
+        font = self._name2Font["font1"]
+        t = TextInput(pos, font, (100,25))
+        self._textInputs.append(t)
+        self._widget2Font[t] = font
 
     def addFont(self, name, font, size):
         f = pygame.font.SysFont(font, size)
@@ -114,16 +129,19 @@ class Game(AbstractGame):
     def writeImports(self):
         retString = "import pygame\n"
         retString += "from polybius.abstractInterface import AbstractInterface\n"
-        retString += "from polybius.graphics import Button\n\n"
+        retString += "from polybius.graphics import Button, TextInput\n\n"
         return retString
 
     def writeWidgetsList(self):
         retString = ""
-        for w in self._buttons:
+        for b in self._buttons:
             retString += "self._buttons.append("
-            retString += self.getButtonDeclaration(w)
+            retString += self.getButtonDeclaration(b)
             retString += ")\n"
-        print(retString)
+        for t in self._textInputs:
+            retString += "self._textInputs.append("
+            retString += self.getTextInputDeclaration(t)
+            retString += ")\n"
         return retString
 
     def getButtonDeclaration(self, button):
@@ -132,9 +150,16 @@ class Game(AbstractGame):
         pos = ("(%d,%d)" % (pos[0], pos[1]))
         backgroundColor = "backgroundColor=" + str(button._backgroundColor)
         padding = "padding=" + str(button._padding)
-        font = ("self._%s" % (self._font2Name[self._button2Font[button]][0],))
+        font = ("self._%s" % (self._font2Name[self._widget2Font[button]][0],))
         return ("Button('%s', %s, %s, %s, %s)" %
                 (txt, pos, font, backgroundColor, padding))
+
+    def getTextInputDeclaration(self, tinput):
+        dims = (tinput.getWidth(), tinput.getHeight())
+        pos = tinput.getPosition()
+        pos = ("(%d,%d)" % (pos[0], pos[1]))
+        font = ("self._%s" % (self._font2Name[self._widget2Font[tinput]][0],))
+        return ("TextInput(%s, %s, %s)" % (pos, font, dims))
 
 g = Game()
 g.run()
