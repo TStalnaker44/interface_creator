@@ -13,6 +13,9 @@ class Game(AbstractGame):
 
         self._design = DesignWindow(pos=(200,10), dims=(590,580))
 
+        self._widgetTypes = [("Button",self._design.makeButton),
+                             ("Text Input",self._design.makeTextInput)]
+
         self._design.addFont("font1","Arial",16)
 
         self._testMode = False
@@ -22,21 +25,32 @@ class Game(AbstractGame):
         self.createUI()
         
     def createUI(self):
-        
-        exportFont = pygame.font.SysFont("Impact", 24)
+        self.createModeButton()
+        self.createExportButton()
+        self.createAddButtons()
 
-        dims = exportFont.size("Enter Create Mode")
-        padding = (10,0)
-        dims = (dims[0]+padding[0], dims[1]+padding[1])
-        x = (self._design._pos[0] // 2) - (dims[0])//2
-        y = 10
-        self._modeButton = Button("Enter Test Mode", (x,y), exportFont,
-                                    padding=padding,
-                                    backgroundColor=(180,180,180),
-                                    borderColor=(100,100,100),
-                                    borderWidth=2,
-                                    dims=dims)
-        
+    def createAddButtons(self):
+        addFont = pygame.font.SysFont("Impact", 20)
+        buttonHeight = addFont.size("A")[1]
+        buttonWidth = 150
+        x = self._design._pos[0] // 2 - buttonWidth // 2
+        y = 75
+        self._addButtons = []
+        for i, k in enumerate(self._widgetTypes):
+            k = k[0]
+            y += i * (buttonHeight + 10)
+            b = Button("Add " + k,
+                       (x,y),
+                       addFont,
+                       padding=(5,0),
+                       backgroundColor=(140,140,140),
+                       borderColor=(80,80,80),
+                       borderWidth=2,
+                       dims=(buttonWidth, buttonHeight))
+            self._addButtons.append(b)
+
+    def createExportButton(self):
+        exportFont = pygame.font.SysFont("Impact", 24)
         x = (self._design._pos[0] // 2) - (exportFont.size("Export")[0]+10)//2
         y = self.getScreen().get_height()-exportFont.size("Export")[1]-10
         self._exportButton = Button("Export", (x,y), exportFont,
@@ -45,12 +59,26 @@ class Game(AbstractGame):
                                     borderColor=(100,0,0),
                                     borderWidth=2)
 
-        
+    def createModeButton(self):
+        exportFont = pygame.font.SysFont("Impact", 24)
+        dims = exportFont.size("Enter Create Mode")
+        padding = (10,0)
+        dims = (dims[0]+padding[0], dims[1]+padding[1])
+        x = (self._design._pos[0] // 2) - (dims[0])//2
+        y = 15
+        self._modeButton = Button("Enter Test Mode", (x,y), exportFont,
+                                    padding=padding,
+                                    backgroundColor=(180,180,180),
+                                    borderColor=(100,100,100),
+                                    borderWidth=2,
+                                    dims=dims)
 
     def draw(self, screen):
         self._design.draw(screen)
         self._exportButton.draw(screen)
         self._modeButton.draw(screen)
+        for b in self._addButtons:
+            b.draw(screen)
 
     def handleEvent(self, event):
         # Toggle between test and create modes
@@ -58,9 +86,10 @@ class Game(AbstractGame):
         if self._testMode:
             self._design.handleTestModeEvents(event)
         else:
-            self._design.handleCreateModeEvents(event)
-            
+            self._design.handleCreateModeEvents(event)      
         self._exportButton.handleEvent(event, self.export)
+        for i, b in enumerate(self._addButtons):
+            b.handleEvent(event, self._widgetTypes[i][1], ((100,100),))
 
     def toggleModes(self):
         self._testMode = not self._testMode
