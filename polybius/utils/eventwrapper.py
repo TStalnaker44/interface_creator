@@ -35,4 +35,7 @@ class EventWrapper():
         return "Event type: " + str(self._type) + \
                "\nEvent key: " + str(self._key) + \
                "\nEvent mods: " + str(self._mods)
+
+    def __repr__(self):
+        return ("EventWrapper(%d, %d, %s)" % (self._type, self._key, self._mods))
             
