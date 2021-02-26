@@ -44,10 +44,6 @@ class DesignWindow():
             point = (event.pos[0] - self._pos[0],
                      event.pos[1] - self._pos[1])
             if rect.collidepoint(point):
-                if self._makeTextInputEvent.check(event):
-                    self.makeTextInput(point)
-                elif self._makeButtonEvent.check(event):
-                    self.makeButton(point)
                 if self._dragEvent.check(event):
                     for w in self._buttons + self._textInputs:
                         if w.getCollideRect().collidepoint(point):

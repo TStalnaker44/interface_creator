@@ -5,7 +5,8 @@ from polybius.graphics.utils.textgraphic import TextGraphic
 
 class MultiLineTextBox(TextGraphic):
 
-    def __init__(self, text, position, font, fontColor, backgroundColor=None,
+    def __init__(self, text, position, font, fontColor=(0,0,0),
+                 backgroundColor=None,
                  padding=(0,0), linespacing=0, antialias=True,
                  alignment="center"):
 
@@ -107,18 +108,26 @@ class MultiLineTextBox(TextGraphic):
             self._alignment = alignment.lower()
         self.updateGraphic()
 
+    def _getLineWidth(self, line):
+        return self._font.size(line)[0]
+
+        
     def updateGraphic(self):
         """Update the textbox after parameters have been changed"""
+
+        
         
         lines = self._text.split("\n")
-        self._lineHeight = self._font.get_height() + self._lineSpacing 
-        self._width = self._font.size(max(lines, key=len))[0] + \
-                      (self._hpadding * 2)
+        self._lineHeight = self._font.get_height() + self._lineSpacing
+        maxWidth = 0
+        for line in lines:
+            lineWidth = self._font.size(line)[0]
+            if maxWidth < lineWidth:
+                maxWidth = lineWidth
+        self._width = maxWidth + (self._hpadding * 2)
         self._height = (self._lineHeight * len(self._lines)) + \
                        (self._vpadding * 2)
-        
-        surf = pygame.Surface((self._width, self._height))
-        
+
         # Apply the background color or make transparent
         if self._backgroundColor == None:
             surf = pygame.Surface((self._width, self._height), pygame.SRCALPHA)

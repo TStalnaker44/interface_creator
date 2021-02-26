@@ -9,7 +9,7 @@ from polybius.graphics.utils.textgraphic import TextGraphic
 
 class TextBox(TextGraphic):
 
-    def __init__(self, text, position, font, fontColor,
+    def __init__(self, text, position, font, fontColor=(0,0,0),
                  antialias=True, highlight=None):
         """
         Initializes a textbox object with text, position, font, and

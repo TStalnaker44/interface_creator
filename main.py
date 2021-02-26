@@ -4,11 +4,12 @@ from polybius.abstractGame import AbstractGame
 from polybius.graphics import Button, TextInput
 from polybius.utils import EventWrapper
 from designwindow import DesignWindow
+from parameterDisplay import ParameterDisplay
 
 class Game(AbstractGame):
 
     def __init__(self):
-        AbstractGame.__init__(self, (800,600), "New Game")
+        AbstractGame.__init__(self, (1000,600), "New Game")
         self.getScreen().fill((50,50,50))
 
         self._design = DesignWindow(pos=(200,10), dims=(590,580))
@@ -23,6 +24,8 @@ class Game(AbstractGame):
         self._toggleModeEvent = EventWrapper(pygame.KEYDOWN, pygame.K_m)
 
         self.createUI()
+
+        self._p = ParameterDisplay((800, 15))
         
     def createUI(self):
         self.createModeButton()
@@ -79,6 +82,7 @@ class Game(AbstractGame):
         self._modeButton.draw(screen)
         for b in self._addButtons:
             b.draw(screen)
+        self._p.draw(screen)
 
     def handleEvent(self, event):
         # Toggle between test and create modes
@@ -90,6 +94,7 @@ class Game(AbstractGame):
         self._exportButton.handleEvent(event, self.export)
         for i, b in enumerate(self._addButtons):
             b.handleEvent(event, self._widgetTypes[i][1], ((100,100),))
+        self._p.handleEvent(event)
 
     def toggleModes(self):
         self._testMode = not self._testMode
