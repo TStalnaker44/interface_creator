@@ -23,7 +23,8 @@ class DesignWindow():
         self._copyTemplate = None
 
         self._snap = True
-        self._snappingLine = None
+        self._snapSensitivity = 5
+        self._snappingLines = [None, None]
 
         self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
         self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
@@ -37,15 +38,23 @@ class DesignWindow():
             t.draw(self._window)
         for t in self._textBoxes:
             t.draw(self._window)
-        if self._snappingLine != None:
-            pygame.draw.line(self._window,
-                             (0,0,255),
-                             self._snappingLine[0],
-                             self._snappingLine[1],
-                             1)
-            self._window
+        self.drawSnappingLines()
+        self.drawBoxAroundSelected()
         screen.blit(self._window, self._pos)
         self._p.draw(screen)
+
+    def drawSnappingLines(self):
+        for line in self._snappingLines:
+            if line != None:
+                pygame.draw.line(self._window, (0,0,255),
+                                 line[0], line[1], 1)
+    def drawBoxAroundSelected(self):
+        if self._selected != None:
+            rect = pygame.Rect(self._selected.getX()-5,
+                               self._selected.getY()-5,
+                               self._selected.getWidth()+10,
+                               self._selected.getHeight()+10)
+            pygame.draw.rect(self._window, (255,0,0), rect, 4)
         
 
     def handleTestModeEvents(self, event):
@@ -110,21 +119,34 @@ class DesignWindow():
                 self.handleSnapping()
             if not pygame.mouse.get_pressed()[0]:
                 self._dragging = None
-                self._snappingLine = None
+                self._snappingLines = [None, None]
 
     def handleSnapping(self):
-        wCenter = self.findCenter(self._selected)
         widgets = self._buttons + self._textInputs + self._textBoxes
+        self._snappingLines[0] = self.verticalLineSnapping(widgets)
+        self._snappingLines[1] = self.horizontalLineSnapping(widgets)
+
+    def verticalLineSnapping(self, widgets):
+        wCenter = self.findCenter(self._selected)
         for w in widgets:
             if w != self._selected:
                 center = self.findCenter(w)
-                if abs(wCenter[0] - center[0]) < 5:
+                if abs(wCenter[0] - center[0]) < self._snapSensitivity:
                     x = center[0] - (self._selected.getWidth()//2)
                     self._selected.setPosition((x,self._selected.getY()))
-                    self._snappingLine = ((wCenter[0],0),
-                                          (wCenter[0],self._dims[1]))
-                    return
-        self._snappingLine = None
+                    return ((wCenter[0],0),(wCenter[0],self._dims[1]))
+        return None
+
+    def horizontalLineSnapping(self, widgets):
+        wCenter = self.findCenter(self._selected)
+        for w in widgets:
+            if w != self._selected:
+                center = self.findCenter(w)
+                if abs(wCenter[1] - center[1]) < self._snapSensitivity:
+                    y = center[1] - (self._selected.getHeight()//2)
+                    self._selected.setPosition((self._selected.getX(),y))
+                    return ((0,wCenter[1]), (self._dims[0],wCenter[1]))
+        return None
 
     def findCenter(self, widget):
         x = widget.getX() + (widget.getWidth()//2)

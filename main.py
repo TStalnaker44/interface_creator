@@ -19,8 +19,6 @@ class Game(AbstractGame):
 
         self._testMode = False
         
-        self._toggleModeEvent = EventWrapper(pygame.KEYDOWN, pygame.K_m)
-
         self.createUI()
         
     def createUI(self):
