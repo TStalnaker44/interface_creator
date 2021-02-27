@@ -8,11 +8,17 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                       "Border Width"],
               TextInput:[]}
 
-VALUES = {Button:["widget.getText()", "self._fontDict[widget.getFont()][1]",
-                  "self._fontDict[widget.getFont()][2]",
-                  "widget.getX()", "widget.getY()","widget._backgroundColor",
-                  "widget._padding[0]", "widget._padding[1]","widget._fontColor",
-                  "widget._borderColor", "widget._borderWidth"]}
+VALUES = {"Text":"widget.getText()",
+          "Font":"widget.getFont().getFontName()",
+          "Font Size":"widget.getFont().getFontSize()",
+          "X Coordinate":"widget.getX()",
+          "Y Coordinate":"widget.getY()",
+          "BG Color":"widget._backgroundColor",
+          "Horizontal Padding":"widget._padding[0]",
+          "Vertical Padding":"widget._padding[1]",
+          "Font Color":"widget._fontColor",
+          "Border Color":"widget._borderColor",
+          "Border Width":"widget._borderWidth"}
 
 NORMAL_INPUT = ("Text", "Font")
 INT_ONLY = ("Font Size","X Coordinate", "Y Coordinate", "Border Width",
@@ -21,14 +27,12 @@ COLOR_INPUT = ("BG Color", "Font Color", "Border Color")
 
 class ParameterDisplay():
 
-    def __init__(self, pos=(0,0), fontDict={}):
+    def __init__(self, pos=(0,0)):
 
         self._pos = pos 
 
         self._backdrop = pygame.Surface((190,570))
         self._backdrop.fill((200,200,200))
-
-        self._fontDict = fontDict
 
         self._labels = []
         self._inputFields = []
@@ -37,13 +41,15 @@ class ParameterDisplay():
         
 
     def createLabels(self, widget):
+        self._labels = []
+        self._inputFields = []
         widgetType = type(widget)        
         labelx, labely = self._pos[0] + 5, self._pos[1] + 10
         font = pygame.font.SysFont("Arial", 16)
         rgbFont = pygame.font.SysFont("Arial", 16)
         dimensions = (100,font.size("A")[1]+5)
         num_dims = (50, font.size("A")[1]+5)
-        for i, label in enumerate(PARAMETERS[widgetType]):
+        for label in PARAMETERS[widgetType]:
             
             t = MultiLineTextBox(label,(labelx,labely),font)
             self._labels.append(t)
@@ -55,20 +61,20 @@ class ParameterDisplay():
                               font.size("A")[1]+5)
                 field = TextInput((fieldx,labely), font, dimensions,
                                   maxLen=20,
-                                  defaultText=eval(VALUES[widgetType][i]))
+                                  defaultText=eval(VALUES[label]))
                 
             if label in INT_ONLY:
                 fieldx = t.getWidth() + t.getX() + 10
                 containerWidth = self._pos[0] + self._backdrop.get_width()
                 dimensions = (containerWidth - fieldx - 5,
                               font.size("A")[1]+5)
-                default = str(eval(VALUES[widgetType][i]))
+                default = str(eval(VALUES[label]))
                 field = TextInput((fieldx,labely), font, dimensions,
                                   maxLen=4, numerical=True, defaultText=default)
                 
             if label in COLOR_INPUT:
                 fieldx = t.getWidth() + t.getX() + 10
-                defaults = eval(VALUES[widgetType][i])
+                defaults = eval(VALUES[label])
                 field = RGBInput((fieldx, labely), rgbFont, defaults)
             self._inputFields.append(field)
             labely += dimensions[1] + 6
@@ -90,8 +96,8 @@ class ParameterDisplay():
 
     def update(self, ticks):
         for field in self._inputFields:
-            if type(field) == RGBInput:
-                field.update(ticks)
+##            if type(field) == RGBInput:
+            field.update(ticks)
 
 class RGBInput():
 

@@ -4,7 +4,6 @@ from polybius.abstractGame import AbstractGame
 from polybius.graphics import Button, TextInput
 from polybius.utils import EventWrapper
 from designwindow import DesignWindow
-from parameterDisplay import ParameterDisplay
 
 class Game(AbstractGame):
 
@@ -24,10 +23,6 @@ class Game(AbstractGame):
         self._toggleModeEvent = EventWrapper(pygame.KEYDOWN, pygame.K_m)
 
         self.createUI()
-
-        self._p = ParameterDisplay((800, 15), self._design._font2Name)
-
-        self._selected = None
         
     def createUI(self):
         self.createModeButton()
@@ -84,7 +79,6 @@ class Game(AbstractGame):
         self._modeButton.draw(screen)
         for b in self._addButtons:
             b.draw(screen)
-        self._p.draw(screen)
 
     def handleEvent(self, event):
         # Toggle between test and create modes
@@ -96,7 +90,7 @@ class Game(AbstractGame):
         self._exportButton.handleEvent(event, self.export)
         for i, b in enumerate(self._addButtons):
             b.handleEvent(event, self._widgetTypes[i][1], ((100,100),))
-        self._p.handleEvent(event)
+        
 
     def toggleModes(self):
         self._testMode = not self._testMode
@@ -106,15 +100,7 @@ class Game(AbstractGame):
             self._modeButton.setText("Enter Test Mode")
             
     def update(self, ticks):
-        self._design.updateElementDragging()
-        self._p.update(ticks)
-        if self._design._selected != None and \
-           self._selected != self._design._selected:
-            self._p.createLabels(self._design._selected)
-            self._selected = self._design._selected
-        elif self._design._selected == None:
-            self._selected = None
-            self._p.reset()
+        self._design.update(ticks)
 
     def export(self):
         self._design.export()

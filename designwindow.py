@@ -1,7 +1,8 @@
 
 import pygame
 from polybius.graphics import Button, TextInput
-from polybius.utils import EventWrapper
+from polybius.utils import EventWrapper, Font
+from parameterDisplay import ParameterDisplay
 
 class DesignWindow():
 
@@ -10,6 +11,8 @@ class DesignWindow():
         self._pos = pos
         self._dims = dims
         self._window = pygame.Surface(self._dims)
+
+        self._p = ParameterDisplay((800, 15))
 
         # Create font dictionaries
         self._font2Name = {}
@@ -30,6 +33,7 @@ class DesignWindow():
         for t in self._textInputs:
             t.draw(self._window)
         screen.blit(self._window, self._pos)
+        self._p.draw(screen)
 
     def handleTestModeEvents(self, event):
         for b in self._buttons:
@@ -50,6 +54,14 @@ class DesignWindow():
                         if w.getCollideRect().collidepoint(point):
                             self._dragging = (w, event.pos)
                             self._selected = w
+        self._p.handleEvent(event)
+
+    def update(self, ticks):
+        self.updateElementDragging()
+        if self._selected == None:
+            self._p.reset()
+        else:
+            self._p.update(ticks)
 
     def updateElementDragging(self):
         if self._dragging != None:
@@ -60,6 +72,7 @@ class DesignWindow():
             b.setPosition((b.getX()+delta_x,
                           b.getY()+delta_y))
             self._dragging = (b, current)
+            self._p.createLabels(self._selected)
             if not pygame.mouse.get_pressed()[0]:
                 self._dragging = None
 
@@ -78,9 +91,10 @@ class DesignWindow():
         self._widget2Font[t] = font
 
     def addFont(self, name, font, size):
-        f = pygame.font.SysFont(font, size)
+        f = Font(font, size)#pygame.font.SysFont(font, size)
         self._font2Name[f] = (name, font, size)
         self._name2Font[name] = f
+        print(type(f))
 
     def export(self):
         retString = self.writeImports()
