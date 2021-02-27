@@ -14,11 +14,6 @@ class DesignWindow():
 
         self._p = ParameterDisplay((800, 15))
 
-        # Create font dictionaries
-        self._font2Name = {}
-        self._name2Font = {}
-        self._widget2Font = {}
-
         self._buttons = []
         self._textInputs = []
         self._textBoxes = []
@@ -26,6 +21,9 @@ class DesignWindow():
         self._dragging = None
         self._selected = None
         self._copyTemplate = None
+
+        self._snap = True
+        self._snappingLine = None
 
         self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
         self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
@@ -39,8 +37,16 @@ class DesignWindow():
             t.draw(self._window)
         for t in self._textBoxes:
             t.draw(self._window)
+        if self._snappingLine != None:
+            pygame.draw.line(self._window,
+                             (0,0,255),
+                             self._snappingLine[0],
+                             self._snappingLine[1],
+                             1)
+            self._window
         screen.blit(self._window, self._pos)
         self._p.draw(screen)
+        
 
     def handleTestModeEvents(self, event):
         for b in self._buttons:
@@ -100,9 +106,31 @@ class DesignWindow():
                           b.getY()+delta_y))
             self._dragging = (b, current)
             self._p.createLabels(self._selected)
+            if self._snap:
+                self.handleSnapping()
             if not pygame.mouse.get_pressed()[0]:
                 self._dragging = None
+                self._snappingLine = None
 
+    def handleSnapping(self):
+        wCenter = self.findCenter(self._selected)
+        widgets = self._buttons + self._textInputs + self._textBoxes
+        for w in widgets:
+            if w != self._selected:
+                center = self.findCenter(w)
+                if abs(wCenter[0] - center[0]) < 5:
+                    x = center[0] - (self._selected.getWidth()//2)
+                    self._selected.setPosition((x,self._selected.getY()))
+                    self._snappingLine = ((wCenter[0],0),
+                                          (wCenter[0],self._dims[1]))
+                    return
+        self._snappingLine = None
+
+    def findCenter(self, widget):
+        x = widget.getX() + (widget.getWidth()//2)
+        y = widget.getY() + (widget.getHeight()//2)
+        return (x,y)
+        
     def makeButton(self, pos):
         text = "Button"
         font = Font("Arial", 16)
