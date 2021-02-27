@@ -1,6 +1,6 @@
 
-import pygame
-from polybius.graphics import Button, TextInput
+import pygame, copy
+from polybius.graphics import Button, TextInput, TextBox
 from polybius.utils import EventWrapper, Font
 from parameterDisplay import ParameterDisplay
 
@@ -21,16 +21,23 @@ class DesignWindow():
 
         self._buttons = []
         self._textInputs = []
+        self._textBoxes = []
+        
         self._dragging = None
         self._selected = None
+        self._copyTemplate = None
 
         self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
+        self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
+        self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
 
     def draw(self, screen):
         self._window.fill((255,255,255))
         for b in self._buttons:
             b.draw(self._window)
         for t in self._textInputs:
+            t.draw(self._window)
+        for t in self._textBoxes:
             t.draw(self._window)
         screen.blit(self._window, self._pos)
         self._p.draw(screen)
@@ -42,6 +49,13 @@ class DesignWindow():
             t.handleEvent(event, offset=self._pos)
 
     def handleCreateModeEvents(self, event):
+
+        if self._copyEvent.check(event):
+            if self._selected != None:
+                self._copyTemplate = self._selected
+        if self._pasteEvent.check(event):
+            if self._copyTemplate != None:
+                self.paste()
         
         if event.type == pygame.MOUSEBUTTONDOWN:
             rect = self._window.get_rect()
@@ -50,11 +64,20 @@ class DesignWindow():
             if rect.collidepoint(point):
                 if self._dragEvent.check(event):
                     self._selected = None
-                    for w in self._buttons + self._textInputs:
+                    widgets = self._buttons + self._textInputs + self._textBoxes
+                    for w in widgets:
                         if w.getCollideRect().collidepoint(point):
                             self._dragging = (w, event.pos)
                             self._selected = w
         self._p.handleEvent(event)
+
+    def paste(self):
+        w = copy.copy(self._copyTemplate)
+        w.setPosition((100,100))
+        t = type(w)
+        if t == Button: self._buttons.append(w)
+        elif t == TextInput: self._textInputs.append(w)
+        elif t == TextBox: self._textBoxes.append(w)
 
     def update(self, ticks):
         self.updateElementDragging()
@@ -86,13 +109,15 @@ class DesignWindow():
         b = Button(text, pos, font,
                    (100,120,80), (5,0))
         self._buttons.append(b)
-        self._widget2Font[b] = font
 
     def makeTextInput(self, pos):
         font = Font("Arial", 16)
         t = TextInput(pos, font, (100,25))
         self._textInputs.append(t)
-        self._widget2Font[t] = font
+
+    def makeTextBox(self, pos):
+        t = TextBox("Text", pos, Font("Arial", 16))
+        self._textBoxes.append(t)
 
     def export(self):
         retString = self.writeImports()
@@ -109,7 +134,7 @@ class DesignWindow():
     def writeImports(self):
         retString = "import pygame\n"
         retString += "from polybius.abstractInterface import AbstractInterface\n"
-        retString += "from polybius.graphics import Button, TextInput\n"
+        retString += "from polybius.graphics import Button, TextInput, TextBox\n"
         retString += "from polybius.utils import Font\n\n"
         return retString
 
@@ -118,10 +143,14 @@ class DesignWindow():
         for b in self._buttons:
             retString += "self._buttons.append("
             retString += self.getButtonDeclaration(b)
-            retString += ")\n"
+        retString += "\n"
         for t in self._textInputs:
             retString += "self._textInputs.append("
             retString += self.getTextInputDeclaration(t)
+            retString += ")\n"
+        for t in self._textBoxes:
+            retString += "self._textBoxes.append("
+            retString += self.getTextBoxDeclaration(t)
             retString += ")\n"
         return retString
 
@@ -144,8 +173,32 @@ class DesignWindow():
         dims = (tinput.getWidth(), tinput.getHeight())
         pos = tinput.getPosition()
         pos = ("(%d,%d)" % (pos[0], pos[1]))
-        font = ("self._%s" % (self._font2Name[self._widget2Font[tinput]][0],))
-        return ("TextInput(%s, %s, %s)" % (pos, font, dims))
+        backgroundColor = "backgroundColor=" + str(tinput.getBackgroundColor())
+        fontColor = "color=" + str(tinput.getFontColor())
+        borderColor = "borderColor=" + str(tinput.getBorderColor())
+        borderWidth = "borderWidth=" + str(tinput.getBorderWidth())
+        borderHighlight = "borderHighlight=" + str(tinput._borderHighlight)
+        backgroundHighlight = "backgroundHighlight=" + str(tinput._backgroundHighlight)
+        maxlen = "maxLen=" + str(tinput._maxLen)
+        text = "defaultText='" + tinput.getInput() + "'"
+        font = ("Font('%s',%s)" % (tinput.getFont().getFontName(),
+                                   tinput.getFont().getFontSize()))
+        template = "TextInput(" + ("%s,\n\t"*11)[:-3] + ")"
+        return (template % (pos, font, dims,
+                           backgroundColor,
+                           fontColor, borderColor,
+                           borderWidth, borderHighlight,
+                           backgroundHighlight, maxlen,
+                           text))
+
+    def getTextBoxDeclaration(self, tbox):
+        text = tbox.getText()
+        pos = tbox.getPosition()
+        pos = ("(%d,%d)" % (pos[0], pos[1]))
+        font = ("Font('%s',%s)" % (tbox.getFont().getFontName(),
+                                   tbox.getFont().getFontSize()))
+        fontColor = "fontColor=" + str(tbox.getFontColor())
+        return ("TextBox('%s',\n\t%s,\n\t%s)" % (text, pos, font))
         
 
     

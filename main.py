@@ -14,7 +14,8 @@ class Game(AbstractGame):
         self._design = DesignWindow(pos=(200,10), dims=(590,580))
 
         self._widgetTypes = [("Button",self._design.makeButton),
-                             ("Text Input",self._design.makeTextInput)]
+                             ("Text Input",self._design.makeTextInput),
+                             ("Text Box",self._design.makeTextBox)]
 
         self._testMode = False
         
@@ -32,11 +33,11 @@ class Game(AbstractGame):
         buttonHeight = addFont.size("A")[1]
         buttonWidth = 150
         x = self._design._pos[0] // 2 - buttonWidth // 2
-        y = 75
+        start = 75
         self._addButtons = []
         for i, k in enumerate(self._widgetTypes):
             k = k[0]
-            y += i * (buttonHeight + 10)
+            y = start + (i * (buttonHeight + 10))
             b = Button("Add " + k,
                        (x,y),
                        addFont,

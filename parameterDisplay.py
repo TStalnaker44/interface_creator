@@ -1,6 +1,6 @@
 
 import pygame
-from polybius.graphics import MultiLineTextBox, Button, TextInput
+from polybius.graphics import MultiLineTextBox, Button, TextInput, TextBox
 from polybius.utils import Font
 
 PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
@@ -11,7 +11,9 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                          "X Coordinate", "Y Coordinate",
                          "Height", "Width",
                          "Font Color","BG Color", "Border Color",
-                         "BG Sel.", "Border Sel.", "Border Width", "Max Length"]}
+                         "BG Sel.", "Border Sel.", "Border Width", "Max Length"],
+              TextBox:["Text","Font","Font Size", "Font Color",
+                       "X Coordinate", "Y Coordinate"]}
 
 VALUES = {"Text":"widget.getText()",
           "Font":"widget.getFont().getFontName()",
@@ -131,6 +133,21 @@ class ParameterDisplay():
             self.updateButton(self._widget)
         if type(self._widget) == TextInput:
             self.updateTextInput(self._widget)
+        if type(self._widget) == TextBox:
+            self.updateTextBox(self._widget)
+
+    def updateTextBox(self, tbox):
+        text = self._inputFields["Text"].getInput()
+        xpos = int(self._inputFields["X Coordinate"].getInput())
+        ypos = int(self._inputFields["Y Coordinate"].getInput())
+        fontname = self._inputFields["Font"].getInput()
+        fontsize = int(self._inputFields["Font Size"].getInput())
+        fontcolor = self._inputFields["Font Color"].getRGBValues()
+
+        tbox.setText(text)
+        tbox.setPosition((xpos,ypos))
+        tbox.setFontColor(fontcolor)
+        tbox.setFont(Font(fontname, fontsize))
 
     def updateTextInput(self, tinput):
         text = self._inputFields["Default Text"].getInput()

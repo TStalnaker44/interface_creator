@@ -6,11 +6,14 @@ class AbstractInterface():
 
         self._buttons = []
         self._textInputs = []
+        self._textBoxes = []
 
     def draw(self, screen):
         for b in self._buttons:
             b.draw(screen)
         for t in self._textInputs:
+            t.draw(screen)
+        for t in self._textBoxes:
             t.draw(screen)
 
     def handleEvent(self, event):
