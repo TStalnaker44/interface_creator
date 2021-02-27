@@ -160,6 +160,51 @@ class TextInput(AbstractGraphic):
     def getFontColor(self):
         return self._color
 
+    def getBorderColor(self):
+        return self._defaultBorderColor
+
+    def getBorderWidth(self):
+        return self._defaultBorderWidth
+
+    def getBackgroundColor(self):
+        return self._defaultBackgroundColor
+
+    def setFontColor(self, color):
+        self._color = color
+        self._textbox.setFontColor(color)
+        self.updateGraphic()
+
+    def setFont(self, font):
+        self._font = font
+        self._textbox.setFont(font)
+        self.updateGraphic()
+
+    def setBackgroundColor(self, color):
+        self._defaultBackgroundColor = color
+        self._backgroundColor = color
+        self.updateGraphic()
+
+    def setBorderColor(self, color):
+        self._defaultBorderColor = color
+        self._borderColor = color
+        self.updateGraphic()
+
+    def setBorderWidth(self, width):
+        self._defaultBorderWidth = width
+        self._borderWidth = width
+        self.updateGraphic()
+
+    def setBorderHighlight(self, color):
+        self._borderHighlight = color
+
+    def setBackgroundHighlight(self, color):
+        self._backgroundHighlight = color
+
+    def setDimensions(self, dims):
+        self._width = dims[0]
+        self._height = dims[1]
+        self.updateGraphic()
+
     def update(self, ticks):
         self._cursorTimer.update(ticks, self.toggleCursor)
 

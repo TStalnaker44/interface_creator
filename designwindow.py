@@ -63,6 +63,10 @@ class DesignWindow():
         else:
             self._p.update(ticks)
 
+    def updateInterface(self, ticks):
+        for t in self._textInputs:
+            t.update(ticks)
+
     def updateElementDragging(self):
         if self._dragging != None:
             b, previous = self._dragging

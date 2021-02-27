@@ -11,7 +11,7 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                          "X Coordinate", "Y Coordinate",
                          "Height", "Width",
                          "Font Color","BG Color", "Border Color",
-                         "Border Sel.", "Border Width", "Max Length"]}
+                         "BG Sel.", "Border Sel.", "Border Width", "Max Length"]}
 
 VALUES = {"Text":"widget.getText()",
           "Font":"widget.getFont().getFontName()",
@@ -22,19 +22,20 @@ VALUES = {"Text":"widget.getText()",
           "Horizontal Padding":"widget._padding[0]",
           "Vertical Padding":"widget._padding[1]",
           "Font Color":"widget.getFontColor()",
-          "Border Color":"widget._borderColor",
-          "Border Width":"widget._borderWidth",
+          "Border Color":"widget.getBorderColor()",
+          "Border Width":"widget.getBorderWidth()",
           "Default Text":"widget.getInput()",
           "Max Length":"widget._maxLen",
           "Border Sel.":"widget._borderHighlight",
           "Height":"widget.getHeight()",
-          "Width":"widget.getWidth()"}
+          "Width":"widget.getWidth()",
+          "BG Sel.":"widget._backgroundHighlight"}
 
 NORMAL_INPUT = ("Text", "Font", "Default Text")
 INT_ONLY = ("Font Size","X Coordinate", "Y Coordinate", "Border Width",
             "Horizontal Padding", "Vertical Padding", "Max Length",
             "Height", "Width")
-COLOR_INPUT = ("BG Color", "Font Color", "Border Color","Border Sel.")
+COLOR_INPUT = ("BG Color", "Font Color", "Border Color","Border Sel.","BG Sel.")
 
 class ParameterDisplay():
 
@@ -128,6 +129,36 @@ class ParameterDisplay():
     def updateWidget(self):
         if type(self._widget) == Button:
             self.updateButton(self._widget)
+        if type(self._widget) == TextInput:
+            self.updateTextInput(self._widget)
+
+    def updateTextInput(self, tinput):
+        text = self._inputFields["Default Text"].getInput()
+        xpos = int(self._inputFields["X Coordinate"].getInput())
+        ypos = int(self._inputFields["Y Coordinate"].getInput())
+        width = int(self._inputFields["Width"].getInput())
+        height = int(self._inputFields["Height"].getInput())
+        bgcolor = self._inputFields["BG Color"].getRGBValues()
+        fontcolor = self._inputFields["Font Color"].getRGBValues()
+        bordercolor = self._inputFields["Border Color"].getRGBValues()
+        bg_sel = self._inputFields["BG Sel."].getRGBValues()
+        border_sel = self._inputFields["Border Sel."].getRGBValues()
+        borderwidth = int(self._inputFields["Border Width"].getInput())
+        fontname = self._inputFields["Font"].getInput()
+        fontsize = int(self._inputFields["Font Size"].getInput())
+        maxlen = int(self._inputFields["Max Length"].getInput())
+        
+        tinput.setText(text)
+        tinput.setPosition((xpos,ypos))
+        tinput.setBackgroundColor(bgcolor)
+        tinput.setFontColor(fontcolor)
+        tinput.setBorderColor(bordercolor)
+        tinput.setBorderWidth(borderwidth)
+        tinput.setBackgroundHighlight(bg_sel)
+        tinput.setBorderHighlight(border_sel)
+        tinput.setFont(Font(fontname, fontsize))
+        tinput._maxLen = maxlen
+        tinput.setDimensions((width,height))
             
 
     def updateButton(self, button):

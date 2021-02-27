@@ -90,6 +90,12 @@ class Button(TextGraphic):
         self.updateDimensionsOnChange()
         self.updateGraphic()
 
+    def getBorderColor(self):
+        return self._borderColor
+
+    def getBorderWidth(self):
+        return self._borderWidth
+
     def buttonPressed(self):
         """Updates the button styling when button is pressed"""
         self._currentFontColor = self.shiftRGBValues(self._fontColor,

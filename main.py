@@ -99,6 +99,8 @@ class Game(AbstractGame):
             
     def update(self, ticks):
         self._design.update(ticks)
+        if self._testMode:
+            self._design.updateInterface(ticks)
 
     def export(self):
         self._design.export()
