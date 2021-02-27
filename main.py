@@ -25,7 +25,9 @@ class Game(AbstractGame):
 
         self.createUI()
 
-        self._p = ParameterDisplay((800, 15))
+        self._p = ParameterDisplay((800, 15), self._design._font2Name)
+
+        self._selected = None
         
     def createUI(self):
         self.createModeButton()
@@ -105,6 +107,14 @@ class Game(AbstractGame):
             
     def update(self, ticks):
         self._design.updateElementDragging()
+        self._p.update(ticks)
+        if self._design._selected != None and \
+           self._selected != self._design._selected:
+            self._p.createLabels(self._design._selected)
+            self._selected = self._design._selected
+        elif self._design._selected == None:
+            self._selected = None
+            self._p.reset()
 
     def export(self):
         self._design.export()

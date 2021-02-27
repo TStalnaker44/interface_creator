@@ -2,53 +2,128 @@
 import pygame
 from polybius.graphics import MultiLineTextBox, Button, TextInput
 
-PARAMETERS = {Button:["Text","Font","Position","BG Color","Padding",
-                      "Font Color","Border Color", "Border Width"],
+PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
+                      "Y Coordinate", "BG Color","Horizontal Padding",
+                      "Vertical Padding", "Font Color","Border Color",
+                      "Border Width"],
               TextInput:[]}
+
+VALUES = {Button:["widget.getText()", "self._fontDict[widget.getFont()][1]",
+                  "self._fontDict[widget.getFont()][2]",
+                  "widget.getX()", "widget.getY()","widget._backgroundColor",
+                  "widget._padding[0]", "widget._padding[1]","widget._fontColor",
+                  "widget._borderColor", "widget._borderWidth"]}
+
+NORMAL_INPUT = ("Text", "Font")
+INT_ONLY = ("Font Size","X Coordinate", "Y Coordinate", "Border Width",
+            "Horizontal Padding", "Vertical Padding")
+COLOR_INPUT = ("BG Color", "Font Color", "Border Color")
 
 class ParameterDisplay():
 
-    def __init__(self, pos=(0,0)):
+    def __init__(self, pos=(0,0), fontDict={}):
 
         self._pos = pos 
 
         self._backdrop = pygame.Surface((190,570))
         self._backdrop.fill((200,200,200))
 
-        
-        self.createLabels(Button)
-        
+        self._fontDict = fontDict
 
-    def createLabels(self, widgetType):
+        self._labels = []
         self._inputFields = []
-        x, y = self._pos[0] + 5, self._pos[1] + 10
-        font = pygame.font.SysFont("Arial", 16)
-        text = "\n".join(PARAMETERS[widgetType])    
-        self._labels = MultiLineTextBox(text,
-                                        (x,y),
-                                        font,
-                                        alignment="center",
-                                        linespacing=11,
-                                        antialias=True)
 
-        x = self._labels.getX() + self._labels.get_width() + 5
-        y = self._labels.getY()
+        #self.createLabels(Button("This is TEXT",(0,0),pygame.font.SysFont("Arial",22)))
+        
+
+    def createLabels(self, widget):
+        widgetType = type(widget)        
+        labelx, labely = self._pos[0] + 5, self._pos[1] + 10
+        font = pygame.font.SysFont("Arial", 16)
+        rgbFont = pygame.font.SysFont("Arial", 16)
         dimensions = (100,font.size("A")[1]+5)
-        for label in PARAMETERS[widgetType]:
-            field = TextInput((x,y),
-                              font,
-                              dimensions)
+        num_dims = (50, font.size("A")[1]+5)
+        for i, label in enumerate(PARAMETERS[widgetType]):
+            
+            t = MultiLineTextBox(label,(labelx,labely),font)
+            self._labels.append(t)
+            
+            if label in NORMAL_INPUT:
+                fieldx = font.size("Font")[0] + t.getX() + 10
+                containerWidth = self._pos[0] + self._backdrop.get_width()
+                dimensions = (containerWidth - fieldx - 5,
+                              font.size("A")[1]+5)
+                field = TextInput((fieldx,labely), font, dimensions,
+                                  maxLen=20,
+                                  defaultText=eval(VALUES[widgetType][i]))
+                
+            if label in INT_ONLY:
+                fieldx = t.getWidth() + t.getX() + 10
+                containerWidth = self._pos[0] + self._backdrop.get_width()
+                dimensions = (containerWidth - fieldx - 5,
+                              font.size("A")[1]+5)
+                default = str(eval(VALUES[widgetType][i]))
+                field = TextInput((fieldx,labely), font, dimensions,
+                                  maxLen=4, numerical=True, defaultText=default)
+                
+            if label in COLOR_INPUT:
+                fieldx = t.getWidth() + t.getX() + 10
+                defaults = eval(VALUES[widgetType][i])
+                field = RGBInput((fieldx, labely), rgbFont, defaults)
             self._inputFields.append(field)
-            y += dimensions[1] + 6
+            labely += dimensions[1] + 6
+
+    def reset(self):
+        self._labels = []
+        self._inputFields = []
             
     def draw(self, screen):
         screen.blit(self._backdrop, self._pos)
-        self._labels.draw(screen)
+        for label in self._labels:
+            label.draw(screen)
         for field in self._inputFields:
             field.draw(screen)
 
     def handleEvent(self, event):
         for field in self._inputFields:
             field.handleEvent(event)
+
+    def update(self, ticks):
+        for field in self._inputFields:
+            if type(field) == RGBInput:
+                field.update(ticks)
+
+class RGBInput():
+
+    def __init__(self, pos, font, defaultValues=(0,0,0)):
+
+        x = pos[0]
+        y = pos[1]
+        dims = font.size("255")
+        dims = (dims[0]+8, dims[1]+5)
+        self._r = TextInput((x,y), font, dims,
+                            maxLen=3, numerical=True,
+                            defaultText=str(defaultValues[0]))
+        self._g = TextInput((x+dims[0]+2,y), font, dims,
+                            maxLen=3, numerical=True,
+                            defaultText=str(defaultValues[1]))
+        self._b = TextInput((x+(2*(dims[0]+2)),y), font, dims,
+                            maxLen=3, numerical=True,
+                            defaultText=str(defaultValues[2]))
+
+    def draw(self, screen):
+        self._r.draw(screen)
+        self._g.draw(screen)
+        self._b.draw(screen)
+
+    def handleEvent(self, event):
+        self._r.handleEvent(event)
+        self._g.handleEvent(event)
+        self._b.handleEvent(event)
+
+    def update(self, ticks):
+        self._r.update(ticks)
+        self._g.update(ticks)
+        self._b.update(ticks)
 
         

@@ -19,9 +19,8 @@ class DesignWindow():
         self._buttons = []
         self._textInputs = []
         self._dragging = None
+        self._selected = None
 
-        self._makeButtonEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 3)
-        self._makeTextInputEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 3, [pygame.KMOD_CTRL])
         self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
 
     def draw(self, screen):
@@ -39,15 +38,18 @@ class DesignWindow():
             t.handleEvent(event, offset=self._pos)
 
     def handleCreateModeEvents(self, event):
+        
         if event.type == pygame.MOUSEBUTTONDOWN:
             rect = self._window.get_rect()
             point = (event.pos[0] - self._pos[0],
                      event.pos[1] - self._pos[1])
             if rect.collidepoint(point):
                 if self._dragEvent.check(event):
+                    self._selected = None
                     for w in self._buttons + self._textInputs:
                         if w.getCollideRect().collidepoint(point):
                             self._dragging = (w, event.pos)
+                            self._selected = w
 
     def updateElementDragging(self):
         if self._dragging != None:
