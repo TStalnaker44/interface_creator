@@ -78,32 +78,23 @@ class DesignWindow():
 
     def makeButton(self, pos):
         text = "Button"
-        font = self._name2Font["font1"]
+        font = Font("Arial", 16)
         b = Button(text, pos, font,
                    (100,120,80), (5,0))
         self._buttons.append(b)
         self._widget2Font[b] = font
 
     def makeTextInput(self, pos):
-        font = self._name2Font["font1"]
+        font = Font("Arial", 16)
         t = TextInput(pos, font, (100,25))
         self._textInputs.append(t)
         self._widget2Font[t] = font
-
-    def addFont(self, name, font, size):
-        f = Font(font, size)#pygame.font.SysFont(font, size)
-        self._font2Name[f] = (name, font, size)
-        self._name2Font[name] = f
 
     def export(self):
         retString = self.writeImports()
         retString += "class Interface(AbstractInterface):\n\n"
         retString += "\tdef __init__(self):\n"
-        retString += "\t\tAbstractInterface.__init__(self)\n"
-        for name, font, size in self._font2Name.values():
-            retString += ("\t\t%s = pygame.font.SysFont('%s', %s)\n" %
-                          ("self._"+name, font, size))
-        
+        retString += "\t\tAbstractInterface.__init__(self)\n"        
         for line in self.writeWidgetsList().split("\n"):
             retString += "\t\t" + line + "\n"
         with open("export.py", "w") as file:
@@ -114,7 +105,8 @@ class DesignWindow():
     def writeImports(self):
         retString = "import pygame\n"
         retString += "from polybius.abstractInterface import AbstractInterface\n"
-        retString += "from polybius.graphics import Button, TextInput\n\n"
+        retString += "from polybius.graphics import Button, TextInput\n"
+        retString += "from polybius.utils import Font\n\n"
         return retString
 
     def writeWidgetsList(self):
@@ -134,10 +126,15 @@ class DesignWindow():
         pos = button.getPosition()
         pos = ("(%d,%d)" % (pos[0], pos[1]))
         backgroundColor = "backgroundColor=" + str(button._backgroundColor)
+        fontColor = "fontColor=" + str(button._fontColor)
+        borderColor = "borderColor=" + str(button._borderColor)
+        borderWidth = "borderWidth=" + str(button._borderWidth)
         padding = "padding=" + str(button._padding)
-        font = ("self._%s" % (self._font2Name[self._widget2Font[button]][0],))
-        return ("Button('%s', %s, %s, %s, %s)" %
-                (txt, pos, font, backgroundColor, padding))
+        font = ("Font('%s',%s)" % (button.getFont().getFontName(),
+                                   button.getFont().getFontSize()))
+        return ("Button('%s',\n\t%s,\n\t%s,\n\t%s,\n\t%s,\n\t%s,\n\t%s,\n\t%s)" %
+                (txt, pos, font, backgroundColor, fontColor, borderColor,
+                 borderWidth, padding))
 
     def getTextInputDeclaration(self, tinput):
         dims = (tinput.getWidth(), tinput.getHeight())

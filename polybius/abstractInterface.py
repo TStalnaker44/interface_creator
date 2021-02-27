@@ -18,3 +18,7 @@ class AbstractInterface():
             b.handleEvent(event,lambda: None)
         for t in self._textInputs:
             t.handleEvent(event,lambda: None)
+
+    def update(self, ticks):
+        for t in self._textInputs:
+            t.update(ticks)

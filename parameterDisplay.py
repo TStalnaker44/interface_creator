@@ -7,7 +7,11 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                       "Y Coordinate", "BG Color","Horizontal Padding",
                       "Vertical Padding", "Font Color","Border Color",
                       "Border Width"],
-              TextInput:[]}
+              TextInput:["Default Text","Font", "Font Size",
+                         "X Coordinate", "Y Coordinate",
+                         "Height", "Width",
+                         "Font Color","BG Color", "Border Color",
+                         "Border Sel.", "Border Width", "Max Length"]}
 
 VALUES = {"Text":"widget.getText()",
           "Font":"widget.getFont().getFontName()",
@@ -17,14 +21,20 @@ VALUES = {"Text":"widget.getText()",
           "BG Color":"widget._backgroundColor",
           "Horizontal Padding":"widget._padding[0]",
           "Vertical Padding":"widget._padding[1]",
-          "Font Color":"widget._fontColor",
+          "Font Color":"widget.getFontColor()",
           "Border Color":"widget._borderColor",
-          "Border Width":"widget._borderWidth"}
+          "Border Width":"widget._borderWidth",
+          "Default Text":"widget.getInput()",
+          "Max Length":"widget._maxLen",
+          "Border Sel.":"widget._borderHighlight",
+          "Height":"widget.getHeight()",
+          "Width":"widget.getWidth()"}
 
-NORMAL_INPUT = ("Text", "Font")
+NORMAL_INPUT = ("Text", "Font", "Default Text")
 INT_ONLY = ("Font Size","X Coordinate", "Y Coordinate", "Border Width",
-            "Horizontal Padding", "Vertical Padding")
-COLOR_INPUT = ("BG Color", "Font Color", "Border Color")
+            "Horizontal Padding", "Vertical Padding", "Max Length",
+            "Height", "Width")
+COLOR_INPUT = ("BG Color", "Font Color", "Border Color","Border Sel.")
 
 class ParameterDisplay():
 
@@ -67,7 +77,7 @@ class ParameterDisplay():
             self._labels.append(t)
             
             if label in NORMAL_INPUT:
-                fieldx = font.size("Font")[0] + t.getX() + 10
+                fieldx = font.size(label)[0] + t.getX() + 10
                 containerWidth = self._pos[0] + self._backdrop.get_width()
                 dimensions = (containerWidth - fieldx - 5,
                               font.size("A")[1]+5)
@@ -107,7 +117,7 @@ class ParameterDisplay():
 
     def handleEvent(self, event):
         for field in self._inputFields.values():
-            field.handleEvent(event)
+            field.handleEvent(event, func=self.updateWidget)
         if self._widget != None:
             self._updateButton.handleEvent(event, self.updateWidget)
 
@@ -117,27 +127,30 @@ class ParameterDisplay():
 
     def updateWidget(self):
         if type(self._widget) == Button:
+            self.updateButton(self._widget)
             
-            text = self._inputFields["Text"].getInput()
-            xpos = int(self._inputFields["X Coordinate"].getInput())
-            ypos = int(self._inputFields["Y Coordinate"].getInput())
-            bgcolor = self._inputFields["BG Color"].getRGBValues()
-            fontcolor = self._inputFields["Font Color"].getRGBValues()
-            bordercolor = self._inputFields["Border Color"].getRGBValues()
-            hpadding = int(self._inputFields["Horizontal Padding"].getInput())
-            vpadding = int(self._inputFields["Vertical Padding"].getInput())
-            borderwidth = int(self._inputFields["Border Width"].getInput())
-            fontname = self._inputFields["Font"].getInput()
-            fontsize = int(self._inputFields["Font Size"].getInput())
-            
-            self._widget.setText(text)
-            self._widget.setPosition((xpos,ypos))
-            self._widget.setBackgroundColor(bgcolor)
-            self._widget.setFontColor(fontcolor)
-            self._widget.setBorderColor(bordercolor)
-            self._widget.setPadding((hpadding, vpadding))
-            self._widget.setBorderWidth(borderwidth)
-            self._widget.setFont(Font(fontname, fontsize))
+
+    def updateButton(self, button):
+        text = self._inputFields["Text"].getInput()
+        xpos = int(self._inputFields["X Coordinate"].getInput())
+        ypos = int(self._inputFields["Y Coordinate"].getInput())
+        bgcolor = self._inputFields["BG Color"].getRGBValues()
+        fontcolor = self._inputFields["Font Color"].getRGBValues()
+        bordercolor = self._inputFields["Border Color"].getRGBValues()
+        hpadding = int(self._inputFields["Horizontal Padding"].getInput())
+        vpadding = int(self._inputFields["Vertical Padding"].getInput())
+        borderwidth = int(self._inputFields["Border Width"].getInput())
+        fontname = self._inputFields["Font"].getInput()
+        fontsize = int(self._inputFields["Font Size"].getInput())
+        
+        button.setText(text)
+        button.setPosition((xpos,ypos))
+        button.setBackgroundColor(bgcolor)
+        button.setFontColor(fontcolor)
+        button.setBorderColor(bordercolor)
+        button.setPadding((hpadding, vpadding))
+        button.setBorderWidth(borderwidth)
+        button.setFont(Font(fontname, fontsize))
 
 class RGBInput():
 
@@ -162,10 +175,10 @@ class RGBInput():
         self._g.draw(screen)
         self._b.draw(screen)
 
-    def handleEvent(self, event):
-        self._r.handleEvent(event)
-        self._g.handleEvent(event)
-        self._b.handleEvent(event)
+    def handleEvent(self, event, func=None):
+        self._r.handleEvent(event, func=func)
+        self._g.handleEvent(event, func=func)
+        self._b.handleEvent(event, func=func)
 
     def update(self, ticks):
         self._r.update(ticks)

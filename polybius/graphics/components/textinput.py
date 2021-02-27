@@ -154,6 +154,12 @@ class TextInput(AbstractGraphic):
         self._pointer = len(text)
         self.updateGraphic()
 
+    def getFont(self):
+        return self._font
+
+    def getFontColor(self):
+        return self._color
+
     def update(self, ticks):
         self._cursorTimer.update(ticks, self.toggleCursor)
 

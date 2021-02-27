@@ -16,8 +16,6 @@ class Game(AbstractGame):
         self._widgetTypes = [("Button",self._design.makeButton),
                              ("Text Input",self._design.makeTextInput)]
 
-        self._design.addFont("font1","Arial",16)
-
         self._testMode = False
         
         self._toggleModeEvent = EventWrapper(pygame.KEYDOWN, pygame.K_m)
