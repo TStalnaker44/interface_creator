@@ -1,6 +1,7 @@
 
 import pygame
 from polybius.graphics import MultiLineTextBox, Button, TextInput
+from polybius.utils import Font
 
 PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                       "Y Coordinate", "BG Color","Horizontal Padding",
@@ -35,14 +36,25 @@ class ParameterDisplay():
         self._backdrop.fill((200,200,200))
 
         self._labels = []
-        self._inputFields = []
+        self._inputFields = {}
 
-        #self.createLabels(Button("This is TEXT",(0,0),pygame.font.SysFont("Arial",22)))
-        
+        self._widget = None
+
+        font = Font("Impact", 20)
+        x = self._pos[0] + (self._backdrop.get_width() // 2 - font.size("Update")[0] // 2)
+        y = self._pos[1] + self._backdrop.get_height() - font.get_height() - 15
+        self._updateButton = Button("Update",
+                                    (x,y),
+                                    font,
+                                    backgroundColor=(160,160,160),
+                                    borderColor=(100,100,100),
+                                    borderWidth=2,
+                                    padding=(10,5))
 
     def createLabels(self, widget):
         self._labels = []
-        self._inputFields = []
+        self._inputFields = {}
+        self._widget = widget
         widgetType = type(widget)        
         labelx, labely = self._pos[0] + 5, self._pos[1] + 10
         font = pygame.font.SysFont("Arial", 16)
@@ -76,28 +88,56 @@ class ParameterDisplay():
                 fieldx = t.getWidth() + t.getX() + 10
                 defaults = eval(VALUES[label])
                 field = RGBInput((fieldx, labely), rgbFont, defaults)
-            self._inputFields.append(field)
+            self._inputFields[label] = field
             labely += dimensions[1] + 6
 
     def reset(self):
         self._labels = []
-        self._inputFields = []
+        self._inputFields = {}
+        self._widget = None
             
     def draw(self, screen):
         screen.blit(self._backdrop, self._pos)
+        if self._widget != None:
+            self._updateButton.draw(screen)
         for label in self._labels:
             label.draw(screen)
-        for field in self._inputFields:
+        for field in self._inputFields.values():
             field.draw(screen)
 
     def handleEvent(self, event):
-        for field in self._inputFields:
+        for field in self._inputFields.values():
             field.handleEvent(event)
+        if self._widget != None:
+            self._updateButton.handleEvent(event, self.updateWidget)
 
     def update(self, ticks):
-        for field in self._inputFields:
-##            if type(field) == RGBInput:
+        for field in self._inputFields.values():
             field.update(ticks)
+
+    def updateWidget(self):
+        if type(self._widget) == Button:
+            
+            text = self._inputFields["Text"].getInput()
+            xpos = int(self._inputFields["X Coordinate"].getInput())
+            ypos = int(self._inputFields["Y Coordinate"].getInput())
+            bgcolor = self._inputFields["BG Color"].getRGBValues()
+            fontcolor = self._inputFields["Font Color"].getRGBValues()
+            bordercolor = self._inputFields["Border Color"].getRGBValues()
+            hpadding = int(self._inputFields["Horizontal Padding"].getInput())
+            vpadding = int(self._inputFields["Vertical Padding"].getInput())
+            borderwidth = int(self._inputFields["Border Width"].getInput())
+            fontname = self._inputFields["Font"].getInput()
+            fontsize = int(self._inputFields["Font Size"].getInput())
+            
+            self._widget.setText(text)
+            self._widget.setPosition((xpos,ypos))
+            self._widget.setBackgroundColor(bgcolor)
+            self._widget.setFontColor(fontcolor)
+            self._widget.setBorderColor(bordercolor)
+            self._widget.setPadding((hpadding, vpadding))
+            self._widget.setBorderWidth(borderwidth)
+            self._widget.setFont(Font(fontname, fontsize))
 
 class RGBInput():
 
@@ -131,5 +171,11 @@ class RGBInput():
         self._r.update(ticks)
         self._g.update(ticks)
         self._b.update(ticks)
+
+    def getRGBValues(self):
+        r = int(self._r.getInput())
+        g = int(self._g.getInput())
+        b = int(self._b.getInput())
+        return (r,g,b)
 
         

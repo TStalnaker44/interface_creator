@@ -22,6 +22,7 @@ class Button(TextGraphic):
         super().__init__(position, text, font, fontColor, antialias)
 
         self.setButtonDimensions(font, text, dims, padding)
+        self._dims = dims
         
         self._backgroundColor = backgroundColor
         self._borderColor = borderColor
@@ -60,19 +61,33 @@ class Button(TextGraphic):
             self._height = dims[1]
             self._padding = padding
 
+    def updateDimensionsOnChange(self):
+        self.setButtonDimensions(self._font, self._text,
+                                 self._dims, self._padding)
+
     def setBackgroundColor(self, backgroundColor):
         """Sets the button's background color"""
         self._backgroundColor = backgroundColor
+        self._currentBackgroundColor = backgroundColor
         self.updateGraphic()
+
+    def setFontColor(self, color):
+        self._currentFontColor = color
+        super().setFontColor(color)
 
     def setBorderColor(self, color):
         """Sets the button's border color"""
-        self._borderColor = borderColor
+        self._borderColor = color
         self.updateGraphic()
 
     def setBorderWidth(self, width):
         """Set's the button's border width"""
         self._borderWidth = width
+        self.updateGraphic()
+
+    def setPadding(self, padding):
+        self._padding = padding
+        self.updateDimensionsOnChange()
         self.updateGraphic()
 
     def buttonPressed(self):

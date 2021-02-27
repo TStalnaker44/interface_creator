@@ -94,7 +94,6 @@ class DesignWindow():
         f = Font(font, size)#pygame.font.SysFont(font, size)
         self._font2Name[f] = (name, font, size)
         self._name2Font[name] = f
-        print(type(f))
 
     def export(self):
         retString = self.writeImports()

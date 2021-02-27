@@ -19,7 +19,11 @@ class TextGraphic(AbstractGraphic):
     def setText(self, text):
         """Sets the text of a textbox"""
         self._text = text
+        self.updateDimensionsOnChange()
         self.updateGraphic()
+
+    def updateDimensionsOnChange(self):
+        pass
 
     def getFont(self):
         """Returns the current font of the textbox"""
@@ -28,6 +32,7 @@ class TextGraphic(AbstractGraphic):
     def setFont(self, font):
         """Sets the font of the textbox"""
         self._font = font
+        self.updateDimensionsOnChange()
         self.updateGraphic()
 
     def getFontColor(self):
