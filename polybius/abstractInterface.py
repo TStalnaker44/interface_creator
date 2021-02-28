@@ -1,31 +1,23 @@
 
+from polybius.graphics import Button, TextInput
+
 class AbstractInterface():
 
 
     def __init__(self):
 
-        self._buttons = []
-        self._textInputs = []
-        self._textBoxes = []
-        self._multiTextBoxes = []
-        self._progressBars = []
-        self._panels = []
-
-    def getWidgets(self):
-        return self._panels + self._buttons + self._textInputs + \
-               self._textBoxes + self._multiTextBoxes +\
-               self._progressBars
+        self._widgets = []
 
     def draw(self, screen):
-        for w in self.getWidgets():
+        for w in self._widgets:
             w.draw(screen)
 
     def handleEvent(self, event):
-        for b in self._buttons:
-            b.handleEvent(event,lambda: None)
-        for t in self._textInputs:
-            t.handleEvent(event,lambda: None)
+        for w in self._widgets:
+            if type(w) in (Button, TextInput):
+                w.handleEvent(event,lambda: None)
 
     def update(self, ticks):
-        for t in self._textInputs:
-            t.update(ticks)
+        for w in self._widgets:
+            if type(w) == TextInput:
+                w.update(ticks)

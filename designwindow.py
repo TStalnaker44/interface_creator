@@ -19,7 +19,6 @@ class DesignWindow():
         
         self._widgets = []
 
-        self.makeTypeToListDictionary()
         self.makeParametersDictionary()
         
         self._dragging = None
@@ -33,14 +32,6 @@ class DesignWindow():
         self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
         self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
         self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
-
-    def makeTypeToListDictionary(self):
-        self._types2lists = {Button:"self._buttons",
-                             TextInput:"self._textInputs",
-                             TextBox:"self._textBoxes",
-                             MultiLineTextBox:"self._multiTextBoxes",
-                             ProgressBar:"self._progressBars",
-                             Panel:"self._panels"}
 
     def makeParametersDictionary(self):
         font = Font("Arial", 16)
@@ -203,22 +194,19 @@ class DesignWindow():
         retString = "import pygame\n"
         retString += "from polybius.abstractInterface import AbstractInterface\n"
         retString += "from polybius.utils import Font\n"
-        for value in self._types2lists.values():
-            lyst = eval(value)
-            if len(lyst) > 0:
-                className = type(lyst[0]).__name__
-                retString += ("from polybius.graphics import %s\n" % (className,))
+        types = set([type(w) for w in self._widgets])
+        for t in types:
+            className = t.__name__
+            retString += ("from polybius.graphics import %s\n" % (className,))
         retString += "\n"
         return retString
 
     def writeWidgetsList(self):
         retString = ""
-        for key, value in self._types2lists.items():
-            lyst = eval(value)
-            template = "%s.append(%s)\n"
-            for w in lyst:
-                dec = declarations.getDeclaration(w)
-                retString += (template % (value, dec))
+        for w in self._widgets:
+            template = "self._widgets.append(%s)\n"
+            dec = declarations.getDeclaration(w)
+            retString += (template % (dec,))
         return retString
 
     
