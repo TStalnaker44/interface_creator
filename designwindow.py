@@ -23,7 +23,8 @@ class DesignWindow():
         self._multiTextBoxes = []
         self._progressBars = []
 
-        self.makeTypeToListDict()
+        self.makeTypeToListDictionary()
+        self.makeTypeToDeclarationDict()
         
         self._dragging = None
         self._selected = None
@@ -37,13 +38,21 @@ class DesignWindow():
         self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
         self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
 
-    def makeTypeToListDict(self):
-        self._types = {Button:self._buttons,
-                     TextInput:self._textInputs,
-                     TextBox:self._textBoxes,
-                     MultiLineTextBox:self._multiTextBoxes,
-                     ProgressBar:self._progressBars,
-                     Panel:self._panels}
+    def makeTypeToListDictionary(self):
+        self._types2lists = {Button:"self._buttons",
+                             TextInput:"self._textInputs",
+                             TextBox:"self._textBoxes",
+                             MultiLineTextBox:"self._multiTextBoxes",
+                             ProgressBar:"self._progressBars",
+                             Panel:"self._panels"}
+
+    def makeTypeToDeclarationDict(self):
+        self._type2declare = {Button:self.getButtonDeclaration,
+                             TextInput:self.getTextInputDeclaration,
+                             TextBox:self.getTextBoxDeclaration,
+                             MultiLineTextBox:self.getMultiLineTextBoxDeclaration,
+                             ProgressBar:self.getProgressBarDeclaration,
+                             Panel:self.getPanelDeclaration}
 
     def draw(self, screen):
         self._window.fill((255,255,255))
@@ -119,7 +128,7 @@ class DesignWindow():
 
     def deleteWidget(self):
         w = self._selected
-        self._types[type(w)].remove(w)
+        eval(self._types2lists[type(w)]).remove(w)
         self._selected = None
 
     def updateInterface(self, ticks):
@@ -218,37 +227,26 @@ class DesignWindow():
             for line in retString:
                 file.write(line)
         
-
     def writeImports(self):
         retString = "import pygame\n"
         retString += "from polybius.abstractInterface import AbstractInterface\n"
-        retString += "from polybius.graphics import Button, TextInput, TextBox\n"
-        retString += "from polybius.graphics import MultiLineTextBox, ProgressBar\n"
-        retString += "from polybius.utils import Font\n\n"
+        retString += "from polybius.utils import Font\n"
+        for value in self._types2lists.values():
+            lyst = eval(value)
+            if len(lyst) > 0:
+                className = type(lyst[0]).__name__
+                retString += ("from polybius.graphics import %s\n" % (className,))
+        retString += "\n"
         return retString
 
     def writeWidgetsList(self):
         retString = ""
-        for b in self._buttons:
-            retString += "self._buttons.append("
-            retString += self.getButtonDeclaration(b)
-            retString += ")\n"
-        for t in self._textInputs:
-            retString += "self._textInputs.append("
-            retString += self.getTextInputDeclaration(t)
-            retString += ")\n"
-        for t in self._textBoxes:
-            retString += "self._textBoxes.append("
-            retString += self.getTextBoxDeclaration(t)
-            retString += ")\n"
-        for t in self._multiTextBoxes:
-            retString += "self._multiTextBoxes.append("
-            retString += self.getMultiLineTextBoxDeclaration(t)
-            retString += ")\n"
-        for bar in self._progressBars:
-            retString += "self._progressBars.append("
-            retString += self.getProgressBarDeclaration(bar)
-            retString += ")\n"
+        for key, value in self._types2lists.items():
+            lyst = eval(value)
+            template = "%s.append(%s)\n"
+            for w in lyst:
+                dec = self._type2declare[key](w)
+                retString += (template % (value, dec))
         return retString
 
     def getButtonDeclaration(self, button):
@@ -328,7 +326,16 @@ class DesignWindow():
         return (template % (pos, length, maxStat, actStat, borderWidth,
                             borderColor, backgroundColor, barColor,
                             height, alignment))
-        
+
+    def getPanelDeclaration(self, pan):
+        pos = pan.getPosition()
+        pos = ("(%d,%d)" % (pos[0], pos[1]))
+        dims = ("dims=(%d,%d)" % (pan.getWidth(), pan.getHeight()))
+        color = "color=" + str(pan._backgroundColor)
+        borderColor = "borderColor=" + str(pan.getBorderColor())
+        borderWidth = "borderWidth=" + str(pan.getBorderWidth())
+        template = "Panel(" + ("%s,\n\t"*5)[:-3] + ")"
+        return (template % (pos, dims, color, borderColor, borderWidth))
         
 
     

@@ -9,9 +9,10 @@ class AbstractInterface():
         self._textBoxes = []
         self._multiTextBoxes = []
         self._progressBars = []
+        self._panels = []
 
     def getWidgets(self):
-        return self._buttons + self._textInputs + \
+        return self._panels + self._buttons + self._textInputs + \
                self._textBoxes + self._multiTextBoxes +\
                self._progressBars
 
