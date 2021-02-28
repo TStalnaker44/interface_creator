@@ -94,6 +94,27 @@ class AbstractGraphic(Drawable):
         # Update the centering on the graphic
         self.updateCentering()
 
+    def getBackgroundColor(self):
+        return self._backgroundColor
+
+    def getBorderColor(self):
+        return self._borderColor
+
+    def getBorderWidth(self):
+        return self._borderWidth
+
+    def setBackgroundColor(self, color):
+        self._backgroundColor = color
+        self.updateGraphic()
+
+    def setBorderColor(self, color):
+        self._borderColor = color
+        self.updateGraphic()
+
+    def setBorderWidth(self, width):
+        self._borderWidth = width
+        self.updateGraphic()
+
     def internalUpdate(self, surf):
         """A placeholder method that can be replaced in child classes"""
         pass

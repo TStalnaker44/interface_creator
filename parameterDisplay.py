@@ -1,7 +1,7 @@
 
 import pygame
 from polybius.graphics import MultiLineTextBox, Button, TextInput, TextBox
-from polybius.graphics import ProgressBar
+from polybius.graphics import ProgressBar, Panel
 from polybius.utils import Font
 
 PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
@@ -21,7 +21,9 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                                 "Line Spacing", "Alignment"],
               ProgressBar:["X Coordinate", "Y Coordinate", "Length", "Height",
                            "Max Stat", "Active Stat", "Border Color", "Border Width",
-                           "BG Color", "Bar Color", "Alignment"]}
+                           "BG Color", "Bar Color", "Alignment"],
+              Panel:["X Coordinate", "Y Coordinate", "Height", "Width",
+                     "BG Color", "Border Color", "Border Width"]}
 
 VALUES = {"Text":"widget.getText()",
           "Font":"widget.getFont().getFontName()",
@@ -68,11 +70,12 @@ class ParameterDisplay():
         self._inputFields = {}
 
         self._widget = None
+        self._delete = False
 
         font = Font("Impact", 20)
-        x = self._pos[0] + (self._backdrop.get_width() // 2 - font.size("Update")[0] // 2)
-        y = self._pos[1] + self._backdrop.get_height() - font.get_height() - 15
-        self._updateButton = Button("Update",
+        x = self._pos[0] + (self._backdrop.get_width() // 2 - font.size("Delete")[0] // 2)
+        y = self._pos[1] + self._backdrop.get_height() - font.get_height() - 20
+        self._deleteButton = Button("Delete",
                                     (x,y),
                                     font,
                                     backgroundColor=(160,160,160),
@@ -128,18 +131,21 @@ class ParameterDisplay():
             
     def draw(self, screen):
         screen.blit(self._backdrop, self._pos)
-        if self._widget != None:
-            self._updateButton.draw(screen)
         for label in self._labels:
             label.draw(screen)
         for field in self._inputFields.values():
             field.draw(screen)
+        if self._widget != None:
+            self._deleteButton.draw(screen)
 
     def handleEvent(self, event):
         for field in self._inputFields.values():
             field.handleEvent(event, func=self.updateWidget)
         if self._widget != None:
-            self._updateButton.handleEvent(event, self.updateWidget)
+            self._deleteButton.handleEvent(event, func=self.flagDelete)
+
+    def flagDelete(self):
+        self._delete = True
 
     def update(self, ticks):
         for field in self._inputFields.values():
@@ -156,6 +162,23 @@ class ParameterDisplay():
             self.updateMultiTextBox(self._widget)
         if type(self._widget) == ProgressBar:
             self.updateProgressBar(self._widget)
+        if type(self._widget) == Panel:
+            self.updatePanel(self._widget)
+
+    def updatePanel(self, pan):
+        xpos = int(self._inputFields["X Coordinate"].getInput())
+        ypos = int(self._inputFields["Y Coordinate"].getInput())
+        bgcolor = self._inputFields["BG Color"].getRGBValues()
+        bordercolor = self._inputFields["Border Color"].getRGBValues()
+        borderwidth = int(self._inputFields["Border Width"].getInput())
+        width = int(self._inputFields["Width"].getInput())
+        height = int(self._inputFields["Height"].getInput())
+
+        pan.setPosition((xpos,ypos))
+        pan.setDimensions((width,height))
+        pan.setBackgroundColor(bgcolor)
+        pan.setBorderColor(bordercolor)
+        pan.setBorderWidth(borderwidth)
 
     def updateProgressBar(self, bar):
         xpos = int(self._inputFields["X Coordinate"].getInput())

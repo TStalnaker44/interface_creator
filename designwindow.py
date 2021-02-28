@@ -2,6 +2,7 @@
 import pygame, copy
 from polybius.graphics import Button, TextInput, TextBox
 from polybius.graphics import MultiLineTextBox, ProgressBar
+from polybius.graphics import Panel
 from polybius.utils import EventWrapper, Font
 from parameterDisplay import ParameterDisplay
 
@@ -15,11 +16,14 @@ class DesignWindow():
 
         self._p = ParameterDisplay((800, 15))
 
+        self._panels = []
         self._buttons = []
         self._textInputs = []
         self._textBoxes = []
         self._multiTextBoxes = []
         self._progressBars = []
+
+        self.makeTypeToListDict()
         
         self._dragging = None
         self._selected = None
@@ -32,6 +36,14 @@ class DesignWindow():
         self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
         self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
         self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
+
+    def makeTypeToListDict(self):
+        self._types = {Button:self._buttons,
+                     TextInput:self._textInputs,
+                     TextBox:self._textBoxes,
+                     MultiLineTextBox:self._multiTextBoxes,
+                     ProgressBar:self._progressBars,
+                     Panel:self._panels}
 
     def draw(self, screen):
         self._window.fill((255,255,255))
@@ -100,14 +112,24 @@ class DesignWindow():
             self._p.reset()
         else:
             self._p.update(ticks)
+        if self._p._delete:
+            self.deleteWidget()
+            self._p._delete = False
+
+
+    def deleteWidget(self):
+        w = self._selected
+        self._types[type(w)].remove(w)
+        self._selected = None
 
     def updateInterface(self, ticks):
         for t in self._textInputs:
             t.update(ticks)
 
     def getAllWidgets(self):
-        return self._buttons + self._textInputs + self._textBoxes + \
-               self._multiTextBoxes + self._progressBars
+        return self._panels + self._buttons + self._textInputs + \
+               self._textBoxes + self._multiTextBoxes + \
+               self._progressBars
 
     def updateElementDragging(self):
         if self._dragging != None:
@@ -180,6 +202,10 @@ class DesignWindow():
     def makeProgressBar(self, pos):
         bar = ProgressBar(pos, 50, 100, 50)
         self._progressBars.append(bar)
+
+    def makePanel(self, pos):
+        p = Panel(pos)
+        self._panels.append(p)
 
     def export(self):
         retString = self.writeImports()

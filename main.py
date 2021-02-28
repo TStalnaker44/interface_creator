@@ -9,11 +9,11 @@ class Game(AbstractGame):
 
     def __init__(self):
         AbstractGame.__init__(self, (1000,600), "New Game")
-        self.getScreen().fill((50,50,50))
-
+    
         self._design = DesignWindow(pos=(200,10), dims=(590,580))
 
-        self._widgetTypes = [("Button",self._design.makeButton),
+        self._widgetTypes = [("Panel",self._design.makePanel),
+                             ("Button",self._design.makeButton),
                              ("Text Input",self._design.makeTextInput),
                              ("Text Box",self._design.makeTextBox),
                              ("MultiLine Text",self._design.makeMultiLineText),
@@ -73,6 +73,7 @@ class Game(AbstractGame):
                                     dims=dims)
 
     def draw(self, screen):
+        self.getScreen().fill((50,50,50))
         self._design.draw(screen)
         self._exportButton.draw(screen)
         self._modeButton.draw(screen)
