@@ -1,7 +1,7 @@
 
 import pygame
 from polybius.graphics import MultiLineTextBox, Button, TextInput, TextBox
-from polybius.graphics import ProgressBar, Panel
+from polybius.graphics import ProgressBar, Panel, Incrementer
 from polybius.utils import Font
 
 PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
@@ -24,7 +24,8 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                            "Max Stat", "Active Stat", "Border Color", "Border Width",
                            "BG Color", "Bar Color", "Alignment", "Z Index"],
               Panel:["X Coordinate", "Y Coordinate", "Height", "Width",
-                     "BG Color", "Border Color", "Border Width", "Z Index"]}
+                     "BG Color", "Border Color", "Border Width", "Z Index"],
+              Incrementer:[]}
 
 VALUES = {"Text":"widget.getText()",
           "Font":"widget.getFont().getFontName()",

@@ -2,7 +2,7 @@
 import pygame, copy
 from polybius.graphics import Button, TextInput, TextBox
 from polybius.graphics import MultiLineTextBox, ProgressBar
-from polybius.graphics import Panel
+from polybius.graphics import Panel, Incrementer
 from polybius.utils import EventWrapper, Font
 from parameterDisplay import ParameterDisplay
 import declarations
@@ -41,7 +41,8 @@ class DesignWindow():
                           TextBox:("Text", pos, font),
                           MultiLineTextBox:("Multi-Line Text", pos, font),
                           ProgressBar:(pos, 50, 100, 50),
-                          Panel:(pos,)}
+                          Panel:(pos,),
+                          Incrementer:(pos,font,font,(30,30),(20,20),5,[1])}
 
     def draw(self, screen):
         self._window.fill((255,255,255))
