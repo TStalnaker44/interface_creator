@@ -15,7 +15,9 @@ class Game(AbstractGame):
 
         self._widgetTypes = [("Button",self._design.makeButton),
                              ("Text Input",self._design.makeTextInput),
-                             ("Text Box",self._design.makeTextBox)]
+                             ("Text Box",self._design.makeTextBox),
+                             ("MultiLine Text",self._design.makeMultiLineText),
+                             ("Progress Bar", self._design.makeProgressBar)]
 
         self._testMode = False
         
@@ -29,7 +31,7 @@ class Game(AbstractGame):
     def createAddButtons(self):
         addFont = pygame.font.SysFont("Impact", 20)
         buttonHeight = addFont.size("A")[1]
-        buttonWidth = 150
+        buttonWidth = 180
         x = self._design._pos[0] // 2 - buttonWidth // 2
         start = 75
         self._addButtons = []

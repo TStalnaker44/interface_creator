@@ -19,6 +19,7 @@ class MultiLineTextBox(TextGraphic):
 
         self._hpadding = padding[0]
         self._vpadding = padding[1]
+        self._padding = padding
 
         self._lineSpacing = linespacing
         self._alignment = alignment.lower()
@@ -85,6 +86,7 @@ class MultiLineTextBox(TextGraphic):
         """Set the padding around the parimeter"""
         self._hpadding = padding[0]
         self._vpadding = padding[1]
+        self._padding = padding
         self.updateGraphic()
 
     def getLineSpacing(self):

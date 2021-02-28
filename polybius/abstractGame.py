@@ -41,6 +41,7 @@ class AbstractGame():
         return self._screen
 
     def _abstractDraw(self):
+        self.getScreen().fill((255, 255, 255))
         self.draw(self._screen)
         pygame.display.flip()
 

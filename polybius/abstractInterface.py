@@ -7,14 +7,17 @@ class AbstractInterface():
         self._buttons = []
         self._textInputs = []
         self._textBoxes = []
+        self._multiTextBoxes = []
+        self._progressBars = []
+
+    def getWidgets(self):
+        return self._buttons + self._textInputs + \
+               self._textBoxes + self._multiTextBoxes +\
+               self._progressBars
 
     def draw(self, screen):
-        for b in self._buttons:
-            b.draw(screen)
-        for t in self._textInputs:
-            t.draw(screen)
-        for t in self._textBoxes:
-            t.draw(screen)
+        for w in self.getWidgets():
+            w.draw(screen)
 
     def handleEvent(self, event):
         for b in self._buttons:

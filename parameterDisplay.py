@@ -1,6 +1,7 @@
 
 import pygame
 from polybius.graphics import MultiLineTextBox, Button, TextInput, TextBox
+from polybius.graphics import ProgressBar
 from polybius.utils import Font
 
 PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
@@ -13,7 +14,14 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                          "Font Color","BG Color", "Border Color",
                          "BG Sel.", "Border Sel.", "Border Width", "Max Length"],
               TextBox:["Text","Font","Font Size", "Font Color",
-                       "X Coordinate", "Y Coordinate"]}
+                       "X Coordinate", "Y Coordinate"],
+              MultiLineTextBox:["Text","Font","Font Size", "Font Color",
+                                "X Coordinate", "Y Coordinate", "BG Color",
+                                "Horizontal Padding", "Vertical Padding",
+                                "Line Spacing", "Alignment"],
+              ProgressBar:["X Coordinate", "Y Coordinate", "Length", "Height",
+                           "Max Stat", "Active Stat", "Border Color", "Border Width",
+                           "BG Color", "Bar Color", "Alignment"]}
 
 VALUES = {"Text":"widget.getText()",
           "Font":"widget.getFont().getFontName()",
@@ -31,13 +39,21 @@ VALUES = {"Text":"widget.getText()",
           "Border Sel.":"widget._borderHighlight",
           "Height":"widget.getHeight()",
           "Width":"widget.getWidth()",
-          "BG Sel.":"widget._backgroundHighlight"}
+          "BG Sel.":"widget._backgroundHighlight",
+          "Line Spacing":"widget.getLineSpacing()",
+          "Alignment":"widget.getAlignment()",
+          "Length":"widget.getLength()",
+          "Max Stat":"widget.getMaxStat()",
+          "Active Stat":"widget.getActiveStat()",
+          "Bar Color":"widget.getBarColor()"}
 
-NORMAL_INPUT = ("Text", "Font", "Default Text")
+NORMAL_INPUT = ("Text","Font", "Default Text", "Alignment")
 INT_ONLY = ("Font Size","X Coordinate", "Y Coordinate", "Border Width",
             "Horizontal Padding", "Vertical Padding", "Max Length",
-            "Height", "Width")
-COLOR_INPUT = ("BG Color", "Font Color", "Border Color","Border Sel.","BG Sel.")
+            "Height", "Width", "Line Spacing", "Max Stat", "Active Stat",
+            "Length")
+COLOR_INPUT = ("BG Color", "Font Color", "Border Color","Border Sel.","BG Sel.",
+               "Bar Color")
 
 class ParameterDisplay():
 
@@ -78,7 +94,7 @@ class ParameterDisplay():
             
             t = MultiLineTextBox(label,(labelx,labely),font)
             self._labels.append(t)
-            
+
             if label in NORMAL_INPUT:
                 fieldx = font.size(label)[0] + t.getX() + 10
                 containerWidth = self._pos[0] + self._backdrop.get_width()
@@ -86,7 +102,8 @@ class ParameterDisplay():
                               font.size("A")[1]+5)
                 field = TextInput((fieldx,labely), font, dimensions,
                                   maxLen=20,
-                                  defaultText=eval(VALUES[label]))
+                                  defaultText=eval(VALUES[label]),
+                                  allowSymbols=True)
                 
             if label in INT_ONLY:
                 fieldx = t.getWidth() + t.getX() + 10
@@ -135,6 +152,59 @@ class ParameterDisplay():
             self.updateTextInput(self._widget)
         if type(self._widget) == TextBox:
             self.updateTextBox(self._widget)
+        if type(self._widget) == MultiLineTextBox:
+            self.updateMultiTextBox(self._widget)
+        if type(self._widget) == ProgressBar:
+            self.updateProgressBar(self._widget)
+
+    def updateProgressBar(self, bar):
+        xpos = int(self._inputFields["X Coordinate"].getInput())
+        ypos = int(self._inputFields["Y Coordinate"].getInput())
+        bgcolor = self._inputFields["BG Color"].getRGBValues()
+        barcolor = self._inputFields["Bar Color"].getRGBValues()
+        align = self._inputFields["Alignment"].getInput()
+        bordercolor = self._inputFields["Border Color"].getRGBValues()
+        borderwidth = int(self._inputFields["Border Width"].getInput())
+        length = int(self._inputFields["Length"].getInput())
+        height = int(self._inputFields["Height"].getInput())
+        maxStat = int(self._inputFields["Max Stat"].getInput())
+        actStat = int(self._inputFields["Active Stat"].getInput())
+
+        bar.setPosition((xpos,ypos))
+        if align.lower() in ("left", "right", "center"):
+            bar.setAlignment(align)
+        bar.setBackgroundColor(bgcolor)
+        bar.setBarColor(barcolor)
+        bar.setBorderColor(bordercolor)
+        bar.setBorderWidth(borderwidth)
+        bar.setLength(length)
+        bar.setHeight(height)
+        bar.setMaxStat(maxStat)
+        bar.setActiveStat(actStat)
+
+    def updateMultiTextBox(self, tbox):
+        text = self._inputFields["Text"].getInput().replace("\\n","\n")
+        xpos = int(self._inputFields["X Coordinate"].getInput())
+        ypos = int(self._inputFields["Y Coordinate"].getInput())
+        fontname = self._inputFields["Font"].getInput()
+        fontsize = int(self._inputFields["Font Size"].getInput())
+        fontcolor = self._inputFields["Font Color"].getRGBValues()
+        bgcolor = self._inputFields["BG Color"].getRGBValues()
+        hpadding = int(self._inputFields["Horizontal Padding"].getInput())
+        vpadding = int(self._inputFields["Vertical Padding"].getInput())
+        linespace = int(self._inputFields["Line Spacing"].getInput())
+        align = self._inputFields["Alignment"].getInput()
+
+        tbox.setText(text)
+        tbox.setPosition((xpos,ypos))
+        tbox.setFontColor(fontcolor)
+        tbox.setFont(Font(fontname, fontsize))
+        if all(color!="" for color in bgcolor):
+            tbox.setBackgroundColor(bgcolor)
+        tbox.setPadding((hpadding,vpadding))
+        tbox.setLineSpacing(linespace)
+        if align.lower() in ("left", "right", "center"):
+            tbox.setAlignment(align)
 
     def updateTextBox(self, tbox):
         text = self._inputFields["Text"].getInput()
@@ -208,6 +278,8 @@ class RGBInput():
         y = pos[1]
         dims = font.size("255")
         dims = (dims[0]+8, dims[1]+5)
+        if defaultValues == None:
+            defaultValues=("","","")
         self._r = TextInput((x,y), font, dims,
                             maxLen=3, numerical=True,
                             defaultText=str(defaultValues[0]))
@@ -234,9 +306,12 @@ class RGBInput():
         self._b.update(ticks)
 
     def getRGBValues(self):
-        r = int(self._r.getInput())
-        g = int(self._g.getInput())
-        b = int(self._b.getInput())
+        r = self._r.getInput()
+        r = int(r) if r.isdigit() else ''
+        g = self._g.getInput()
+        g = int(g) if g.isdigit() else ''
+        b = self._b.getInput()
+        b = int(b) if b.isdigit() else ''
         return (r,g,b)
 
         

@@ -1,6 +1,7 @@
 
 import pygame, copy
 from polybius.graphics import Button, TextInput, TextBox
+from polybius.graphics import MultiLineTextBox, ProgressBar
 from polybius.utils import EventWrapper, Font
 from parameterDisplay import ParameterDisplay
 
@@ -17,6 +18,8 @@ class DesignWindow():
         self._buttons = []
         self._textInputs = []
         self._textBoxes = []
+        self._multiTextBoxes = []
+        self._progressBars = []
         
         self._dragging = None
         self._selected = None
@@ -32,12 +35,8 @@ class DesignWindow():
 
     def draw(self, screen):
         self._window.fill((255,255,255))
-        for b in self._buttons:
-            b.draw(self._window)
-        for t in self._textInputs:
-            t.draw(self._window)
-        for t in self._textBoxes:
-            t.draw(self._window)
+        for w in self.getAllWidgets():
+            w.draw(self._window)
         self.drawSnappingLines()
         self.drawBoxAroundSelected()
         screen.blit(self._window, self._pos)
@@ -79,8 +78,7 @@ class DesignWindow():
             if rect.collidepoint(point):
                 if self._dragEvent.check(event):
                     self._selected = None
-                    widgets = self._buttons + self._textInputs + self._textBoxes
-                    for w in widgets:
+                    for w in self.getAllWidgets():
                         if w.getCollideRect().collidepoint(point):
                             self._dragging = (w, event.pos)
                             self._selected = w
@@ -93,6 +91,8 @@ class DesignWindow():
         if t == Button: self._buttons.append(w)
         elif t == TextInput: self._textInputs.append(w)
         elif t == TextBox: self._textBoxes.append(w)
+        elif t == MultiLineTextBox: self._multiTextBoxes.append(w)
+        elif t == ProgressBar: self._progressBars.append(w)
 
     def update(self, ticks):
         self.updateElementDragging()
@@ -104,6 +104,10 @@ class DesignWindow():
     def updateInterface(self, ticks):
         for t in self._textInputs:
             t.update(ticks)
+
+    def getAllWidgets(self):
+        return self._buttons + self._textInputs + self._textBoxes + \
+               self._multiTextBoxes + self._progressBars
 
     def updateElementDragging(self):
         if self._dragging != None:
@@ -122,7 +126,7 @@ class DesignWindow():
                 self._snappingLines = [None, None]
 
     def handleSnapping(self):
-        widgets = self._buttons + self._textInputs + self._textBoxes
+        widgets = self.getAllWidgets()
         self._snappingLines[0] = self.verticalLineSnapping(widgets)
         self._snappingLines[1] = self.horizontalLineSnapping(widgets)
 
@@ -169,6 +173,14 @@ class DesignWindow():
         t = TextBox("Text", pos, Font("Arial", 16))
         self._textBoxes.append(t)
 
+    def makeMultiLineText(self, pos):
+        t = MultiLineTextBox("Multi-Line Text", pos, Font("Arial",16))
+        self._multiTextBoxes.append(t)
+
+    def makeProgressBar(self, pos):
+        bar = ProgressBar(pos, 50, 100, 50)
+        self._progressBars.append(bar)
+
     def export(self):
         retString = self.writeImports()
         retString += "class Interface(AbstractInterface):\n\n"
@@ -185,6 +197,7 @@ class DesignWindow():
         retString = "import pygame\n"
         retString += "from polybius.abstractInterface import AbstractInterface\n"
         retString += "from polybius.graphics import Button, TextInput, TextBox\n"
+        retString += "from polybius.graphics import MultiLineTextBox, ProgressBar\n"
         retString += "from polybius.utils import Font\n\n"
         return retString
 
@@ -193,7 +206,7 @@ class DesignWindow():
         for b in self._buttons:
             retString += "self._buttons.append("
             retString += self.getButtonDeclaration(b)
-        retString += "\n"
+            retString += ")\n"
         for t in self._textInputs:
             retString += "self._textInputs.append("
             retString += self.getTextInputDeclaration(t)
@@ -201,6 +214,14 @@ class DesignWindow():
         for t in self._textBoxes:
             retString += "self._textBoxes.append("
             retString += self.getTextBoxDeclaration(t)
+            retString += ")\n"
+        for t in self._multiTextBoxes:
+            retString += "self._multiTextBoxes.append("
+            retString += self.getMultiLineTextBoxDeclaration(t)
+            retString += ")\n"
+        for bar in self._progressBars:
+            retString += "self._progressBars.append("
+            retString += self.getProgressBarDeclaration(bar)
             retString += ")\n"
         return retString
 
@@ -249,6 +270,39 @@ class DesignWindow():
                                    tbox.getFont().getFontSize()))
         fontColor = "fontColor=" + str(tbox.getFontColor())
         return ("TextBox('%s',\n\t%s,\n\t%s)" % (text, pos, font))
+
+    def getMultiLineTextBoxDeclaration(self, tbox):
+        text = "'" + tbox.getText() + "'"
+        pos = tbox.getPosition()
+        pos = ("(%d,%d)" % (pos[0], pos[1]))
+        font = ("Font('%s',%s)" % (tbox.getFont().getFontName(),
+                                   tbox.getFont().getFontSize()))
+        fontColor = "fontColor=" + str(tbox.getFontColor())
+        backgroundColor = "backgroundColor=" + str(tbox.getBackgroundColor())
+        alignment = "alignment='" + str(tbox.getAlignment()) + "'"
+        padding = "padding=" + str(tbox.getPadding())
+        spacing = "linespacing=" + str(tbox.getLineSpacing())
+        template = "MultiLineTextBox(" + ("%s,\n\t"*8)[:-3] + ")"
+        return (template % (text, pos, font, fontColor, backgroundColor,
+                            padding, spacing, alignment))
+
+    def getProgressBarDeclaration(self, bar):
+        pos = bar.getPosition()
+        pos = ("(%d,%d)" % (pos[0], pos[1]))
+        length = bar.getLength()
+        maxStat = bar.getMaxStat()
+        actStat = bar.getActiveStat()
+        borderWidth = "borderWidth=" + str(bar.getBorderWidth())
+        borderColor = "borderColor=" + str(bar.getBorderColor())
+        backgroundColor = "backgroundColor=" + str(bar.getBackgroundColor())
+        barColor = "barColor=" + str(bar.getBarColor())
+        height = "height=" + str(bar.getHeight())
+        alignment = "alignment='" + str(bar.getAlignment()) + "'"
+        template = "ProgressBar(" + ("%s,\n\t"*10)[:-3] + ")"
+        return (template % (pos, length, maxStat, actStat, borderWidth,
+                            borderColor, backgroundColor, barColor,
+                            height, alignment))
+        
         
 
     

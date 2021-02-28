@@ -27,6 +27,69 @@ class ProgressBar(Drawable):
         self._alignment = alignment.lower()
         self.updateBar()
 
+    def getBarColor(self):
+        return self._barColor
+
+    def setBarColor(self, color):
+        self._barColor = color
+        self.updateBar()
+
+    def getBackgroundColor(self):
+        return self._backgroundColor
+
+    def setBackgroundColor(self, color):
+        self._backgroundColor = color
+        self.updateBar()
+
+    def getBorderColor(self):
+        return self._borderColor
+
+    def setBorderColor(self, color):
+        self._borderColor = color
+        self.updateBar()
+
+    def getBorderWidth(self):
+        return self._borderWidth
+
+    def setBorderWidth(self, width):
+        self._borderWidth = width
+        self.updateBar()
+
+    def getAlignment(self):
+        return self._alignment
+
+    def setAlignment(self, align):
+        self._alignment = align
+        self.updateBar()
+
+    def getMaxStat(self):
+        return self._maxStat
+
+    def setMaxStat(self, stat):
+        self._maxStat = stat
+        self.updateBar()
+
+    def getActiveStat(self):
+        return self._actStat
+
+    def setActiveStat(self, stat):
+        self._actStat = stat
+        self.updateBar()
+
+    def getLength(self):
+        return self._length
+
+    def setLength(self, l):
+        self._length = l
+        self.updateBar()
+
+    def getHeight(self):
+        return self._height
+    
+    def setHeight(self, height):
+        self._height = height
+        self.updateBar()
+
     def setProgress(self, actStat):
         """Sets the current progress of the bar based on an active stat"""
         self._actStat = actStat
@@ -42,16 +105,17 @@ class ProgressBar(Drawable):
         """Updates the progress bar's attributes"""
 
         # Draw the back of the progress bar
-        surfBack = pygame.Surface((self._length+(self._borderWidth*2),
-                                   self._height+(self._borderWidth*2)))
+        surfBack = pygame.Surface((self._length, self._height))
         surfBack.fill(self._borderColor)
-        barBack = pygame.Surface((self._length,self._height))
+        barBack = pygame.Surface((self._length-(self._borderWidth*2),
+                                  self._height-(self._borderWidth*2)))
         barBack.fill(self._backgroundColor)
         surfBack.blit(barBack, (self._borderWidth, self._borderWidth))
 
         # Draw the progress bar
-        barLength = round((self._actStat / self._maxStat) * self._length)
-        bar = pygame.Surface((barLength,self._height))
+        barLength = round((self._actStat / self._maxStat) * \
+                          (self._length - self._borderWidth*2))
+        bar = pygame.Surface((barLength,self._height-self._borderWidth*2))
         bar.fill(self._barColor)
         if self._alignment == "left":
             pos = (self._borderWidth, self._borderWidth)

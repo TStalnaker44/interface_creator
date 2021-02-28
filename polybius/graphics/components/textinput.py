@@ -8,7 +8,9 @@ A class that creates and manages textual input boxes
 from polybius.graphics.utils.abstractgraphic import AbstractGraphic
 from polybius.utils import Timer
 from .textbox import TextBox
-import pygame
+import pygame, string
+
+SYMBOL_KEYS = [ord(p) for p in string.punctuation]
 
 class TextInput(AbstractGraphic):
 
@@ -17,7 +19,8 @@ class TextInput(AbstractGraphic):
                  borderColor=(0,0,0), borderHighlight=(100,100,200),
                  backgroundHighlight=(225,225,255), maxLen=10,
                  numerical=False, highlightColor=(0,0,0), defaultText="",
-                 clearOnActive=False, allowNegative=False, antialias=True):
+                 clearOnActive=False, allowNegative=False, antialias=True,
+                 allowSymbols=False):
         """Initializes the widget with a variety of parameters"""
         super().__init__(position)
         self._width = dimensions[0]
@@ -40,7 +43,7 @@ class TextInput(AbstractGraphic):
         self._color = color
         self._highlightColor = highlightColor
         self._antialias = antialias
-        self._allowSymbols = False
+        self._allowSymbols = allowSymbols
         
         self._pointer = 0
         self._cursorTimer = Timer(.5)
@@ -106,7 +109,8 @@ class TextInput(AbstractGraphic):
                 numPadKey = pygame.K_KP0 <= event.key <= pygame.K_KP9
                 minusKey = (event.key == pygame.K_KP_MINUS or \
                             event.key ==pygame.K_MINUS)
-                symbolKey = 33 < event.key <= 47 or 58 < event.key <= 64
+                #symbolKey = 33 < event.key <= 47 or 58 < event.key <= 64 or event.key 
+                symbolKey = event.key in SYMBOL_KEYS
                 underscoreKey = event.key == pygame.K_MINUS and \
                                 event.mod in [pygame.KMOD_LSHIFT,pygame.KMOD_RSHIFT]
                 if alphaKey and not self._numerical:
