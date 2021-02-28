@@ -5,6 +5,7 @@ from polybius.graphics import MultiLineTextBox, ProgressBar
 from polybius.graphics import Panel
 from polybius.utils import EventWrapper, Font
 from parameterDisplay import ParameterDisplay
+import declarations
 
 class DesignWindow():
 
@@ -15,16 +16,11 @@ class DesignWindow():
         self._window = pygame.Surface(self._dims)
 
         self._p = ParameterDisplay((800, 15))
-
-        self._panels = []
-        self._buttons = []
-        self._textInputs = []
-        self._textBoxes = []
-        self._multiTextBoxes = []
-        self._progressBars = []
+        
+        self._widgets = []
 
         self.makeTypeToListDictionary()
-        self.makeTypeToDeclarationDict()
+        self.makeParametersDictionary()
         
         self._dragging = None
         self._selected = None
@@ -46,17 +42,19 @@ class DesignWindow():
                              ProgressBar:"self._progressBars",
                              Panel:"self._panels"}
 
-    def makeTypeToDeclarationDict(self):
-        self._type2declare = {Button:self.getButtonDeclaration,
-                             TextInput:self.getTextInputDeclaration,
-                             TextBox:self.getTextBoxDeclaration,
-                             MultiLineTextBox:self.getMultiLineTextBoxDeclaration,
-                             ProgressBar:self.getProgressBarDeclaration,
-                             Panel:self.getPanelDeclaration}
+    def makeParametersDictionary(self):
+        font = Font("Arial", 16)
+        pos = (100,100)
+        self._parameters = {Button:("Button", pos, font, (100,120,80), (5,0)),
+                          TextInput:(pos, font, (100,25)),
+                          TextBox:("Text", pos, font),
+                          MultiLineTextBox:("Multi-Line Text", pos, font),
+                          ProgressBar:(pos, 50, 100, 50),
+                          Panel:(pos,)}
 
     def draw(self, screen):
         self._window.fill((255,255,255))
-        for w in self.getAllWidgets():
+        for w in self._widgets:
             w.draw(self._window)
         self.drawSnappingLines()
         self.drawBoxAroundSelected()
@@ -76,12 +74,12 @@ class DesignWindow():
                                self._selected.getHeight()+10)
             pygame.draw.rect(self._window, (255,0,0), rect, 4)
         
-
     def handleTestModeEvents(self, event):
-        for b in self._buttons:
-            b.handleEvent(event, lambda: None, offset=self._pos)
-        for t in self._textInputs:
-            t.handleEvent(event, offset=self._pos)
+        for w in self._widgets:
+            if type(w) == Button:
+                w.handleEvent(event, lambda: None, offset=self._pos)
+            if type(w) == TextInput:
+                w.handleEvent(event, offset=self._pos)
 
     def handleCreateModeEvents(self, event):
 
@@ -99,7 +97,7 @@ class DesignWindow():
             if rect.collidepoint(point):
                 if self._dragEvent.check(event):
                     self._selected = None
-                    for w in self.getAllWidgets():
+                    for w in self._widgets:
                         if w.getCollideRect().collidepoint(point):
                             self._dragging = (w, event.pos)
                             self._selected = w
@@ -108,12 +106,7 @@ class DesignWindow():
     def paste(self):
         w = copy.copy(self._copyTemplate)
         w.setPosition((100,100))
-        t = type(w)
-        if t == Button: self._buttons.append(w)
-        elif t == TextInput: self._textInputs.append(w)
-        elif t == TextBox: self._textBoxes.append(w)
-        elif t == MultiLineTextBox: self._multiTextBoxes.append(w)
-        elif t == ProgressBar: self._progressBars.append(w)
+        self._widgets.append(w)
 
     def update(self, ticks):
         self.updateElementDragging()
@@ -124,21 +117,20 @@ class DesignWindow():
         if self._p._delete:
             self.deleteWidget()
             self._p._delete = False
+        if self._p._updateZ:
+            self.changeZ()
+            self._p._updateZ = False
 
 
     def deleteWidget(self):
         w = self._selected
-        eval(self._types2lists[type(w)]).remove(w)
+        self._widgets.remove(w)
         self._selected = None
 
     def updateInterface(self, ticks):
-        for t in self._textInputs:
-            t.update(ticks)
-
-    def getAllWidgets(self):
-        return self._panels + self._buttons + self._textInputs + \
-               self._textBoxes + self._multiTextBoxes + \
-               self._progressBars
+        for w in self._widgets:
+            if type(w) == TextInput:
+                w.update(ticks)
 
     def updateElementDragging(self):
         if self._dragging != None:
@@ -149,21 +141,24 @@ class DesignWindow():
             b.setPosition((b.getX()+delta_x,
                           b.getY()+delta_y))
             self._dragging = (b, current)
-            self._p.createLabels(self._selected)
+            self._p.createLabels(self._selected, self._widgets.index(self._selected))
             if self._snap:
                 self.handleSnapping()
             if not pygame.mouse.get_pressed()[0]:
                 self._dragging = None
                 self._snappingLines = [None, None]
 
-    def handleSnapping(self):
-        widgets = self.getAllWidgets()
-        self._snappingLines[0] = self.verticalLineSnapping(widgets)
-        self._snappingLines[1] = self.horizontalLineSnapping(widgets)
+    def changeZ(self):
+        self._widgets.remove(self._selected)
+        self._widgets.insert(self._p._z, self._selected)
 
-    def verticalLineSnapping(self, widgets):
+    def handleSnapping(self):
+        self._snappingLines[0] = self.verticalLineSnapping()
+        self._snappingLines[1] = self.horizontalLineSnapping()
+
+    def verticalLineSnapping(self):
         wCenter = self.findCenter(self._selected)
-        for w in widgets:
+        for w in self._widgets:
             if w != self._selected:
                 center = self.findCenter(w)
                 if abs(wCenter[0] - center[0]) < self._snapSensitivity:
@@ -172,9 +167,9 @@ class DesignWindow():
                     return ((wCenter[0],0),(wCenter[0],self._dims[1]))
         return None
 
-    def horizontalLineSnapping(self, widgets):
+    def horizontalLineSnapping(self):
         wCenter = self.findCenter(self._selected)
-        for w in widgets:
+        for w in self._widgets:
             if w != self._selected:
                 center = self.findCenter(w)
                 if abs(wCenter[1] - center[1]) < self._snapSensitivity:
@@ -187,35 +182,12 @@ class DesignWindow():
         x = widget.getX() + (widget.getWidth()//2)
         y = widget.getY() + (widget.getHeight()//2)
         return (x,y)
+
+    def addWidget(self, widgetType):
+        widgetType = eval(widgetType)
+        w = widgetType(*self._parameters[widgetType])
+        self._widgets.append(w)
         
-    def makeButton(self, pos):
-        text = "Button"
-        font = Font("Arial", 16)
-        b = Button(text, pos, font,
-                   (100,120,80), (5,0))
-        self._buttons.append(b)
-
-    def makeTextInput(self, pos):
-        font = Font("Arial", 16)
-        t = TextInput(pos, font, (100,25))
-        self._textInputs.append(t)
-
-    def makeTextBox(self, pos):
-        t = TextBox("Text", pos, Font("Arial", 16))
-        self._textBoxes.append(t)
-
-    def makeMultiLineText(self, pos):
-        t = MultiLineTextBox("Multi-Line Text", pos, Font("Arial",16))
-        self._multiTextBoxes.append(t)
-
-    def makeProgressBar(self, pos):
-        bar = ProgressBar(pos, 50, 100, 50)
-        self._progressBars.append(bar)
-
-    def makePanel(self, pos):
-        p = Panel(pos)
-        self._panels.append(p)
-
     def export(self):
         retString = self.writeImports()
         retString += "class Interface(AbstractInterface):\n\n"
@@ -245,97 +217,11 @@ class DesignWindow():
             lyst = eval(value)
             template = "%s.append(%s)\n"
             for w in lyst:
-                dec = self._type2declare[key](w)
+                dec = declarations.getDeclaration(w)
                 retString += (template % (value, dec))
         return retString
 
-    def getButtonDeclaration(self, button):
-        txt = button.getText()
-        pos = button.getPosition()
-        pos = ("(%d,%d)" % (pos[0], pos[1]))
-        backgroundColor = "backgroundColor=" + str(button._backgroundColor)
-        fontColor = "fontColor=" + str(button._fontColor)
-        borderColor = "borderColor=" + str(button._borderColor)
-        borderWidth = "borderWidth=" + str(button._borderWidth)
-        padding = "padding=" + str(button._padding)
-        font = ("Font('%s',%s)" % (button.getFont().getFontName(),
-                                   button.getFont().getFontSize()))
-        return ("Button('%s',\n\t%s,\n\t%s,\n\t%s,\n\t%s,\n\t%s,\n\t%s,\n\t%s)" %
-                (txt, pos, font, backgroundColor, fontColor, borderColor,
-                 borderWidth, padding))
-
-    def getTextInputDeclaration(self, tinput):
-        dims = (tinput.getWidth(), tinput.getHeight())
-        pos = tinput.getPosition()
-        pos = ("(%d,%d)" % (pos[0], pos[1]))
-        backgroundColor = "backgroundColor=" + str(tinput.getBackgroundColor())
-        fontColor = "color=" + str(tinput.getFontColor())
-        borderColor = "borderColor=" + str(tinput.getBorderColor())
-        borderWidth = "borderWidth=" + str(tinput.getBorderWidth())
-        borderHighlight = "borderHighlight=" + str(tinput._borderHighlight)
-        backgroundHighlight = "backgroundHighlight=" + str(tinput._backgroundHighlight)
-        maxlen = "maxLen=" + str(tinput._maxLen)
-        text = "defaultText='" + tinput.getInput() + "'"
-        font = ("Font('%s',%s)" % (tinput.getFont().getFontName(),
-                                   tinput.getFont().getFontSize()))
-        template = "TextInput(" + ("%s,\n\t"*11)[:-3] + ")"
-        return (template % (pos, font, dims,
-                           backgroundColor,
-                           fontColor, borderColor,
-                           borderWidth, borderHighlight,
-                           backgroundHighlight, maxlen,
-                           text))
-
-    def getTextBoxDeclaration(self, tbox):
-        text = tbox.getText()
-        pos = tbox.getPosition()
-        pos = ("(%d,%d)" % (pos[0], pos[1]))
-        font = ("Font('%s',%s)" % (tbox.getFont().getFontName(),
-                                   tbox.getFont().getFontSize()))
-        fontColor = "fontColor=" + str(tbox.getFontColor())
-        return ("TextBox('%s',\n\t%s,\n\t%s)" % (text, pos, font))
-
-    def getMultiLineTextBoxDeclaration(self, tbox):
-        text = "'" + tbox.getText() + "'"
-        pos = tbox.getPosition()
-        pos = ("(%d,%d)" % (pos[0], pos[1]))
-        font = ("Font('%s',%s)" % (tbox.getFont().getFontName(),
-                                   tbox.getFont().getFontSize()))
-        fontColor = "fontColor=" + str(tbox.getFontColor())
-        backgroundColor = "backgroundColor=" + str(tbox.getBackgroundColor())
-        alignment = "alignment='" + str(tbox.getAlignment()) + "'"
-        padding = "padding=" + str(tbox.getPadding())
-        spacing = "linespacing=" + str(tbox.getLineSpacing())
-        template = "MultiLineTextBox(" + ("%s,\n\t"*8)[:-3] + ")"
-        return (template % (text, pos, font, fontColor, backgroundColor,
-                            padding, spacing, alignment))
-
-    def getProgressBarDeclaration(self, bar):
-        pos = bar.getPosition()
-        pos = ("(%d,%d)" % (pos[0], pos[1]))
-        length = bar.getLength()
-        maxStat = bar.getMaxStat()
-        actStat = bar.getActiveStat()
-        borderWidth = "borderWidth=" + str(bar.getBorderWidth())
-        borderColor = "borderColor=" + str(bar.getBorderColor())
-        backgroundColor = "backgroundColor=" + str(bar.getBackgroundColor())
-        barColor = "barColor=" + str(bar.getBarColor())
-        height = "height=" + str(bar.getHeight())
-        alignment = "alignment='" + str(bar.getAlignment()) + "'"
-        template = "ProgressBar(" + ("%s,\n\t"*10)[:-3] + ")"
-        return (template % (pos, length, maxStat, actStat, borderWidth,
-                            borderColor, backgroundColor, barColor,
-                            height, alignment))
-
-    def getPanelDeclaration(self, pan):
-        pos = pan.getPosition()
-        pos = ("(%d,%d)" % (pos[0], pos[1]))
-        dims = ("dims=(%d,%d)" % (pan.getWidth(), pan.getHeight()))
-        color = "color=" + str(pan._backgroundColor)
-        borderColor = "borderColor=" + str(pan.getBorderColor())
-        borderWidth = "borderWidth=" + str(pan.getBorderWidth())
-        template = "Panel(" + ("%s,\n\t"*5)[:-3] + ")"
-        return (template % (pos, dims, color, borderColor, borderWidth))
+    
         
 
     

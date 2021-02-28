@@ -12,12 +12,12 @@ class Game(AbstractGame):
     
         self._design = DesignWindow(pos=(200,10), dims=(590,580))
 
-        self._widgetTypes = [("Panel",self._design.makePanel),
-                             ("Button",self._design.makeButton),
-                             ("Text Input",self._design.makeTextInput),
-                             ("Text Box",self._design.makeTextBox),
-                             ("MultiLine Text",self._design.makeMultiLineText),
-                             ("Progress Bar", self._design.makeProgressBar)]
+        self._widgetTypes = [("Panel","Panel"),
+                             ("Button","Button"),
+                             ("Text Input","TextInput"),
+                             ("Text Box","TextBox"),
+                             ("MultiLine Text","MultiLineTextBox"),
+                             ("Progress Bar","ProgressBar")]
 
         self._testMode = False
         
@@ -89,7 +89,7 @@ class Game(AbstractGame):
             self._design.handleCreateModeEvents(event)      
         self._exportButton.handleEvent(event, self.export)
         for i, b in enumerate(self._addButtons):
-            b.handleEvent(event, self._widgetTypes[i][1], ((100,100),))
+            b.handleEvent(event, self._design.addWidget, (self._widgetTypes[i][1],))
         
 
     def toggleModes(self):

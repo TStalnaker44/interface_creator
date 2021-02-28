@@ -7,23 +7,24 @@ from polybius.utils import Font
 PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                       "Y Coordinate", "BG Color","Horizontal Padding",
                       "Vertical Padding", "Font Color","Border Color",
-                      "Border Width"],
+                      "Border Width","Z Index"],
               TextInput:["Default Text","Font", "Font Size",
                          "X Coordinate", "Y Coordinate",
                          "Height", "Width",
                          "Font Color","BG Color", "Border Color",
-                         "BG Sel.", "Border Sel.", "Border Width", "Max Length"],
+                         "BG Sel.", "Border Sel.", "Border Width", "Max Length",
+                         "Z Index"],
               TextBox:["Text","Font","Font Size", "Font Color",
-                       "X Coordinate", "Y Coordinate"],
+                       "X Coordinate", "Y Coordinate", "Z Index"],
               MultiLineTextBox:["Text","Font","Font Size", "Font Color",
                                 "X Coordinate", "Y Coordinate", "BG Color",
                                 "Horizontal Padding", "Vertical Padding",
-                                "Line Spacing", "Alignment"],
+                                "Line Spacing", "Alignment", "Z Index"],
               ProgressBar:["X Coordinate", "Y Coordinate", "Length", "Height",
                            "Max Stat", "Active Stat", "Border Color", "Border Width",
-                           "BG Color", "Bar Color", "Alignment"],
+                           "BG Color", "Bar Color", "Alignment", "Z Index"],
               Panel:["X Coordinate", "Y Coordinate", "Height", "Width",
-                     "BG Color", "Border Color", "Border Width"]}
+                     "BG Color", "Border Color", "Border Width", "Z Index"]}
 
 VALUES = {"Text":"widget.getText()",
           "Font":"widget.getFont().getFontName()",
@@ -47,13 +48,14 @@ VALUES = {"Text":"widget.getText()",
           "Length":"widget.getLength()",
           "Max Stat":"widget.getMaxStat()",
           "Active Stat":"widget.getActiveStat()",
-          "Bar Color":"widget.getBarColor()"}
+          "Bar Color":"widget.getBarColor()",
+          "Z Index":"zindex"}
 
 NORMAL_INPUT = ("Text","Font", "Default Text", "Alignment")
 INT_ONLY = ("Font Size","X Coordinate", "Y Coordinate", "Border Width",
             "Horizontal Padding", "Vertical Padding", "Max Length",
             "Height", "Width", "Line Spacing", "Max Stat", "Active Stat",
-            "Length")
+            "Length", "Z Index")
 COLOR_INPUT = ("BG Color", "Font Color", "Border Color","Border Sel.","BG Sel.",
                "Bar Color")
 
@@ -70,7 +72,11 @@ class ParameterDisplay():
         self._inputFields = {}
 
         self._widget = None
+        self._z = 0
+
+        # Flags
         self._delete = False
+        self._updateZ = False
 
         font = Font("Impact", 20)
         x = self._pos[0] + (self._backdrop.get_width() // 2 - font.size("Delete")[0] // 2)
@@ -83,10 +89,11 @@ class ParameterDisplay():
                                     borderWidth=2,
                                     padding=(10,5))
 
-    def createLabels(self, widget):
+    def createLabels(self, widget, zindex):
         self._labels = []
         self._inputFields = {}
         self._widget = widget
+        self._z = zindex
         widgetType = type(widget)        
         labelx, labely = self._pos[0] + 5, self._pos[1] + 10
         font = pygame.font.SysFont("Arial", 16)
@@ -152,6 +159,9 @@ class ParameterDisplay():
             field.update(ticks)
 
     def updateWidget(self):
+        if self._z != int(self._inputFields["Z Index"].getInput()):
+            self._updateZ = True
+            self._z = int(self._inputFields["Z Index"].getInput())
         if type(self._widget) == Button:
             self.updateButton(self._widget)
         if type(self._widget) == TextInput:
