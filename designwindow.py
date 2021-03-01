@@ -21,7 +21,7 @@ class DesignWindow():
 
         self.makeParametersDictionary()
         
-        self._dragging = None
+        self._dragging = []
         self._selected = []
         self._copyTemplate = None
 
@@ -92,18 +92,32 @@ class DesignWindow():
             if rect.collidepoint(point):
                 drag = self._dragEvent.check(event)
                 ctrl = self._ctrlClick.check(event)
+                temp = [s for s in self._selected]
+                temp2 = [d for d in self._dragging]
                 if drag and not ctrl:
                     self._selected = []
+                    self._dragging = []
                 selected = None
+                dragging = None
                 for w in self._widgets:
                     if w.getCollideRect().collidepoint(point):
-                        self._dragging = (w, event.pos)
+                        dragging = (w, event.pos)
                         selected = w
                 if selected != None:
                     if ctrl and selected in self._selected:
                         self._selected.remove(selected)
+                    elif selected in temp:
+                        self._selected = temp
                     else:
                         self._selected.append(selected)
+                self._dragging = [(s, event.pos) for s in self._selected]
+##                if dragging != None:
+##                    if ctrl and dragging in self._dragging:
+##                        self._dragging.remove(dragging)
+##                    elif dragging in temp2:
+##                        self._dragging = temp2
+##                    else:
+##                        self._dragging.append(dragging)
                                      
         self._p.handleEvent(event)
 
@@ -130,6 +144,7 @@ class DesignWindow():
         w = self._selected
         self._widgets.remove(w)
         self._selected = []
+        self._dragging = []
 
     def updateInterface(self, ticks):
         for w in self._widgets:
@@ -137,21 +152,21 @@ class DesignWindow():
                 w.update(ticks)
 
     def updateElementDragging(self):
-        if self._dragging != None:
-            b, previous = self._dragging
+        for i in range(len(self._dragging)):
+            b, previous = self._dragging[i]
             current = pygame.mouse.get_pos()
             delta_x = current[0] - previous[0]
             delta_y = current[1] - previous[1]
             b.setPosition((b.getX()+delta_x,
                           b.getY()+delta_y))
-            self._dragging = (b, current)
+            self._dragging[i] = (b, current)
             if len(self._selected) == 1:
                 self._p.createLabels(self._selected[0], self._widgets.index(self._selected[0]))
             if self._snap:
                 self.handleSnapping()
-            if not pygame.mouse.get_pressed()[0]:
-                self._dragging = None
-                self._snappingLines = [None, None]
+        if not pygame.mouse.get_pressed()[0]:
+            self._dragging = []
+            self._snappingLines = [None, None]
 
     def changeZ(self):
         self._widgets.remove(self._selected[0])
