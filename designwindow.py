@@ -28,6 +28,7 @@ class DesignWindow():
         self._snap = True
         self._snapSensitivity = 5
         self._snappingLines = [None, None]
+        self._selectBoxCoords = None
 
         self.defineEvents()
 
@@ -44,6 +45,7 @@ class DesignWindow():
 
     def defineEvents(self):
         self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
+        self._mouseUpEvent = EventWrapper(pygame.MOUSEBUTTONUP, 1)
         self._selectAllEvent = EventWrapper(pygame.KEYDOWN, pygame.K_a, [pygame.KMOD_CTRL])
         self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
         self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
@@ -72,10 +74,19 @@ class DesignWindow():
             w.draw(self._window)
         self.drawSnappingLines()
         self.drawBoxesAroundSelected()
+        self.drawSelectionBox()
         screen.blit(self._window, self._pos)
         self._p.draw(screen)
         if len(self._selected) > 0:
             self._deleteButton.draw(screen)
+
+    def drawSelectionBox(self):
+        if self._selectBoxCoords != None:
+            m_pos = pygame.mouse.get_pos()
+            m_pos = (m_pos[0] - self._pos[0],
+                     m_pos[1] - self._pos[1])
+            rect = self.getRectFromCorners(self._selectBoxCoords,m_pos)
+            pygame.draw.rect(self._window, (0,0,255), rect, 2)
 
     def drawSnappingLines(self):
         for line in self._snappingLines:
@@ -119,6 +130,28 @@ class DesignWindow():
         self._p.handleEvent(event)
         if len(self._selected) > 0:
             self._deleteButton.handleEvent(event, self.deleteWidgets)
+        if self._selectBoxCoords != None and self._mouseUpEvent.check(event):
+            self.makeSelection()
+            self._selectBoxCoords = None
+
+    def makeSelection(self):
+        m_pos = pygame.mouse.get_pos()
+        m_pos = (m_pos[0] - self._pos[0],
+                 m_pos[1] - self._pos[1])
+        rect = self.getRectFromCorners(self._selectBoxCoords,m_pos)
+        self._selected = []
+        for w in self._widgets:
+            if w.getCollideRect().colliderect(rect):
+                self._selected.append(w)
+
+    def getRectFromCorners(self, c1, c2):
+        x1, y1 = c1
+        x2, y2 = c2
+        left = min(x1, x2)
+        top = min(y1, y2)
+        width = abs(x1-x2)
+        height = abs(y1-y2)
+        return pygame.Rect((left, top), (width, height))
 
     def handleWidgetSelection(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -146,6 +179,9 @@ class DesignWindow():
                         self._selected = temp
                     else:
                         self._selected.append(selected)
+                else:
+                    self._selectBoxCoords = (event.pos[0] - self._pos[0] ,
+                                             event.pos[1] - self._pos[1])
                 self._dragging = [(s, event.pos) for s in self._selected]  
 
     def paste(self):
@@ -171,8 +207,7 @@ class DesignWindow():
             w.setPosition((x,y))
         if len(self._selected) == 1:
             self._p.createLabels(self._selected[0], self._widgets.index(self._selected[0]))
-            
-            
+                   
     def update(self, ticks):
         self.updateElementDragging()
         if len(self._selected) != 1:
