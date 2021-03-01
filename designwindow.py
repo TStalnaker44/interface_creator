@@ -23,7 +23,7 @@ class DesignWindow():
         
         self._dragging = []
         self._selected = []
-        self._copyTemplate = None
+        self._copyTemplates = []
 
         self._snap = True
         self._snapSensitivity = 5
@@ -80,9 +80,9 @@ class DesignWindow():
 
         if self._copyEvent.check(event):
             if len(self._selected) > 0:
-                self._copyTemplate = self._selected
+                self._copyTemplates = self._selected
         if self._pasteEvent.check(event):
-            if self._copyTemplate != None:
+            if len(self._copyTemplates) > 0:
                 self.paste()
                 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -110,21 +110,18 @@ class DesignWindow():
                         self._selected = temp
                     else:
                         self._selected.append(selected)
-                self._dragging = [(s, event.pos) for s in self._selected]
-##                if dragging != None:
-##                    if ctrl and dragging in self._dragging:
-##                        self._dragging.remove(dragging)
-##                    elif dragging in temp2:
-##                        self._dragging = temp2
-##                    else:
-##                        self._dragging.append(dragging)
-                                     
+                self._dragging = [(s, event.pos) for s in self._selected]                      
         self._p.handleEvent(event)
 
     def paste(self):
-        w = copy.copy(self._copyTemplate)
-        w.setPosition((100,100))
-        self._widgets.append(w)
+        self._selected = []
+        for widget in self._copyTemplates:
+            w = copy.copy(widget)
+            w.setPosition((w.getX() + 50, w.getY() + 50))
+            self._widgets.append(w)
+            self._selected.append(w)
+            
+        
 
     def update(self, ticks):
         self.updateElementDragging()
