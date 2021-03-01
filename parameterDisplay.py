@@ -76,19 +76,7 @@ class ParameterDisplay():
         self._z = 0
 
         # Flags
-        self._delete = False
         self._updateZ = False
-
-        font = Font("Impact", 20)
-        x = self._pos[0] + (self._backdrop.get_width() // 2 - font.size("Delete")[0] // 2)
-        y = self._pos[1] + self._backdrop.get_height() - font.get_height() - 20
-        self._deleteButton = Button("Delete",
-                                    (x,y),
-                                    font,
-                                    backgroundColor=(160,160,160),
-                                    borderColor=(100,100,100),
-                                    borderWidth=2,
-                                    padding=(10,5))
 
     def createLabels(self, widget, zindex):
         self._labels = []
@@ -143,17 +131,10 @@ class ParameterDisplay():
             label.draw(screen)
         for field in self._inputFields.values():
             field.draw(screen)
-        if self._widget != None:
-            self._deleteButton.draw(screen)
 
     def handleEvent(self, event):
         for field in self._inputFields.values():
             field.handleEvent(event, func=self.updateWidget)
-        if self._widget != None:
-            self._deleteButton.handleEvent(event, func=self.flagDelete)
-
-    def flagDelete(self):
-        self._delete = True
 
     def update(self, ticks):
         for field in self._inputFields.values():

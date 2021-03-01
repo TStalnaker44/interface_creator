@@ -34,6 +34,17 @@ class DesignWindow():
         self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
         self._ctrlClick = EventWrapper(pygame.MOUSEBUTTONDOWN, 1, [pygame.KMOD_CTRL])
 
+        font = Font("Impact", 20)
+        x = self._p._pos[0] + (self._p._backdrop.get_width() // 2 - font.size("Delete")[0] // 2)
+        y = self._p._pos[1] + self._p._backdrop.get_height() - font.get_height() - 20
+        self._deleteButton = Button("Delete",
+                                    (x,y),
+                                    font,
+                                    backgroundColor=(160,160,160),
+                                    borderColor=(100,100,100),
+                                    borderWidth=2,
+                                    padding=(10,5))
+
     def makeParametersDictionary(self):
         font = Font("Arial", 16)
         pos = (100,100)
@@ -53,6 +64,8 @@ class DesignWindow():
         self.drawBoxesAroundSelected()
         screen.blit(self._window, self._pos)
         self._p.draw(screen)
+        if len(self._selected) > 0:
+            self._deleteButton.draw(screen)
 
     def drawSnappingLines(self):
         for line in self._snappingLines:
@@ -77,14 +90,18 @@ class DesignWindow():
                 w.handleEvent(event, offset=self._pos)
 
     def handleCreateModeEvents(self, event):
-
         if self._copyEvent.check(event):
             if len(self._selected) > 0:
                 self._copyTemplates = self._selected
         if self._pasteEvent.check(event):
             if len(self._copyTemplates) > 0:
                 self.paste()
-                
+        self.handleWidgetSelection(event)                         
+        self._p.handleEvent(event)
+        if len(self._selected) > 0:
+            self._deleteButton.handleEvent(event, self.deleteWidgets)
+
+    def handleWidgetSelection(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             rect = self._window.get_rect()
             point = (event.pos[0] - self._pos[0],
@@ -110,8 +127,7 @@ class DesignWindow():
                         self._selected = temp
                     else:
                         self._selected.append(selected)
-                self._dragging = [(s, event.pos) for s in self._selected]                      
-        self._p.handleEvent(event)
+                self._dragging = [(s, event.pos) for s in self._selected]  
 
     def paste(self):
         self._selected = []
@@ -121,25 +137,19 @@ class DesignWindow():
             self._widgets.append(w)
             self._selected.append(w)
             
-        
-
     def update(self, ticks):
         self.updateElementDragging()
         if len(self._selected) != 1:
             self._p.reset()
         else:
             self._p.update(ticks)
-        if self._p._delete:
-            self.deleteWidget()
-            self._p._delete = False
         if self._p._updateZ:
             self.changeZ()
             self._p._updateZ = False
 
-
-    def deleteWidget(self):
-        w = self._selected
-        self._widgets.remove(w)
+    def deleteWidgets(self):
+        for w in self._selected:
+            self._widgets.remove(w)
         self._selected = []
         self._dragging = []
 
@@ -169,31 +179,37 @@ class DesignWindow():
         self._widgets.remove(self._selected[0])
         self._widgets.insert(self._p._z, self._selected[0])
 
-    def handleSnapping(self):
-        if len(self._selected) == 1:
+    def handleSnapping(self):   
+        if len(self._selected) > 0:
             self._snappingLines[0] = self.verticalLineSnapping()
             self._snappingLines[1] = self.horizontalLineSnapping()
 
     def verticalLineSnapping(self):
-        wCenter = self.findCenter(self._selected[0])
+        left, top, width, height = self.getMultiSpriteDims()
+        cen = (left + (width//2), top + (height//2))
         for w in self._widgets:
-            if w != self._selected[0]:
+            if not w in self._selected:
                 center = self.findCenter(w)
-                if abs(wCenter[0] - center[0]) < self._snapSensitivity:
-                    x = center[0] - (self._selected[0].getWidth()//2)
-                    self._selected[0].setPosition((x,self._selected[0].getY()))
-                    return ((wCenter[0],0),(wCenter[0],self._dims[1]))
+                if abs(cen[0] - center[0]) < self._snapSensitivity:
+                    x = center[0] - width//2
+                    for sel in self._selected:
+                        offset = sel.getX() - left
+                        sel.setPosition((offset + x, sel.getY()))
+                    return ((cen[0],0),(cen[0],self._dims[1]))
         return None
 
     def horizontalLineSnapping(self):
-        wCenter = self.findCenter(self._selected[0])
+        left, top, width, height = self.getMultiSpriteDims()
+        cen = (left + (width//2), top + (height//2))
         for w in self._widgets:
-            if w != self._selected[0]:
+            if not w in self._selected:
                 center = self.findCenter(w)
-                if abs(wCenter[1] - center[1]) < self._snapSensitivity:
-                    y = center[1] - (self._selected[0].getHeight()//2)
-                    self._selected[0].setPosition((self._selected[0].getX(),y))
-                    return ((0,wCenter[1]), (self._dims[0],wCenter[1]))
+                if abs(cen[1] - center[1]) < self._snapSensitivity:
+                    y = center[1] - height//2
+                    for sel in self._selected:
+                        offset = sel.getY() - top
+                        sel.setPosition((sel.getX(), offset + y))
+                    return ((0,cen[1]), (self._dims[0],cen[1]))
         return None
 
     def findCenter(self, widget):
@@ -201,6 +217,21 @@ class DesignWindow():
         y = widget.getY() + (widget.getHeight()//2)
         return (x,y)
 
+    def getMultiSpriteDims(self):
+        left = self._selected[0].getX()
+        right = self._selected[0].getX() + self._selected[0].getWidth()
+        top = self._selected[0].getY()
+        bottom = self._selected[0].getY() + self._selected[0].getHeight()
+        for w in self._selected:
+            left = min(left, w.getX())
+            right = max(right, w.getX()+w.getWidth())
+            top = min(top, w.getY())
+            bottom = max(bottom, w.getY() + w.getHeight())
+        width = right - left
+        height = bottom - top
+        center = ((left + width//2), top + (height//2))
+        return (left, top, width, height)
+    
     def addWidget(self, widgetType):
         widgetType = eval(widgetType)
         w = widgetType(*self._parameters[widgetType])
