@@ -246,7 +246,7 @@ class DesignWindow():
 
     def load(self, fileName="save.txt"):
         self._widgets= []
-        self._selected = None
+        self._selected = []
         with open(fileName, "r") as file:
             for line in file:
                 self._widgets.append(eval(line))

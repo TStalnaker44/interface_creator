@@ -1,0 +1,7 @@
+Panel((154,174),dims=(300,180),color=(120, 80, 0),borderColor=(0, 0, 0),borderWidth=8)
+ProgressBar((270,212),150,100,90,borderWidth=3,borderColor=(0, 0, 0),backgroundColor=(220, 220, 240),barColor=(200, 0, 0),height=25,alignment='left')
+TextBox('Health',(192,210),Font('Arial',24))
+TextBox('Stamina',(185,250),Font('Arial',24))
+ProgressBar((270,252),150,100,75,borderWidth=3,borderColor=(0, 0, 0),backgroundColor=(220, 220, 240),barColor=(0, 0, 200),height=25,alignment='left')
+TextBox('Magic',(194,289),Font('Arial',24))
+ProgressBar((270,291),150,100,75,borderWidth=3,borderColor=(0, 0, 0),backgroundColor=(220, 220, 240),barColor=(200, 0, 160),height=25,alignment='left')
