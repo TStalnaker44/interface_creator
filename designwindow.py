@@ -273,17 +273,17 @@ class DesignWindow():
         w = widgetType(*self._parameters[widgetType])
         self._widgets.append(w)
 
-    def save(self, fileName="save.txt"):
-        with open(fileName, "w") as file:
+    def save(self, filePath):
+        with open(filePath, "w") as file:
             for w in self._widgets:
                 dec = declarations.getDeclaration(w)
                 dec = dec.replace("\n","").replace("\t","")
                 file.write(dec + "\n")
 
-    def load(self, fileName="save.txt"):
+    def load(self, filePath):
         self._widgets= []
         self._selected = []
-        with open(fileName, "r") as file:
+        with open(filePath, "r") as file:
             for line in file:
                 self._widgets.append(eval(line))
         

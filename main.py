@@ -2,6 +2,7 @@
 import pygame
 from polybius.abstractGame import AbstractGame
 from polybius.graphics import Button, TextInput
+from polybius.graphics import FileMenu
 from polybius.utils import EventWrapper
 from designwindow import DesignWindow
 
@@ -29,11 +30,25 @@ class Game(AbstractGame):
                                        pygame.K_o, [pygame.KMOD_CTRL])
         
         self.createUI()
+
+        
         
     def createUI(self):
         self.createModeButton()
         self.createExportButton()
         self.createAddButtons()
+        self.createFileManagers()
+
+    def createFileManagers(self):
+        self._save = FileMenu((100,100), (500,400), menuType="save",
+                              filePath="saves", extension=".txt")
+        self._save.center()
+        self._save.close()
+        
+        self._load = FileMenu((100,100), (500,400), menuType="load",
+                              filePath="saves", extension=".txt")
+        self._load.center()
+        self._load.close()
 
     def createAddButtons(self):
         addFont = pygame.font.SysFont("Impact", 20)
@@ -86,6 +101,10 @@ class Game(AbstractGame):
         self._modeButton.draw(screen)
         for b in self._addButtons:
             b.draw(screen)
+        if self._save.getDisplay():
+            self._save.draw(screen)
+        if self._load.getDisplay():
+            self._load.draw(screen)
 
     def handleEvent(self, event):
         # Toggle between test and create modes
@@ -97,11 +116,21 @@ class Game(AbstractGame):
         self._exportButton.handleEvent(event, self.export)
         for i, b in enumerate(self._addButtons):
             b.handleEvent(event, self._design.addWidget, (self._widgetTypes[i][1],))
+        self.handleSavingAndLoading(event)
+
+    def handleSavingAndLoading(self, event):
         if self._saveEvent.check(event):
-            self.save()
+            self._save.display()
+            self._load.close()
         if self._loadEvent.check(event):
-            self.load()
-        
+            self._load.display()
+            self._save.close()
+        if self._save.getDisplay():
+            sel = self._save.handleEvent(event, lambda: None)
+            if sel != None: self.save(sel)
+        if self._load.getDisplay():
+            sel = self._load.handleEvent(event, lambda: None)
+            if sel != None: self.load(sel)
 
     def toggleModes(self):
         self._testMode = not self._testMode
@@ -115,11 +144,11 @@ class Game(AbstractGame):
         if self._testMode:
             self._design.updateInterface(ticks)
 
-    def save(self):
-        self._design.save()
+    def save(self, sel):
+        self._design.save(sel)
 
-    def load(self):
-        self._design.load()
+    def load(self, sel):
+        self._design.load(sel)
 
     def export(self):
         self._design.export()

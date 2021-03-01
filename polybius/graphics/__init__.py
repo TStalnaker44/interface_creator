@@ -19,6 +19,7 @@ from .ui.confirmationwindow import ConfirmationWindow
 from .ui.menu import Menu
 from .ui.popupwindow import PopupWindow
 from .ui.scrollselector import ScrollSelector
+from .ui.filemenu import FileMenu
 
 from .utils.abstractgraphic import AbstractGraphic
 from .utils.mysurface import MySurface
@@ -33,7 +34,7 @@ __all__ = ["Banner","Button","Mask","MySurface","Popup","PopupWindow",
            "TextBox","TextInput","Window","ParticleText",
            "ConfirmationWindow","MultiLineTextBox", "Drawable",
            "Animated", "Menu", "AbstractGraphic","TextGraphic",
-           "Incrementer", "Panel"]
+           "Incrementer", "Panel", "FileMenu"]
 
 
 
