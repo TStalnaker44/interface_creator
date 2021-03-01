@@ -30,6 +30,7 @@ class DesignWindow():
         self._snappingLines = [None, None]
 
         self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
+        self._selectAllEvent = EventWrapper(pygame.KEYDOWN, pygame.K_a, [pygame.KMOD_CTRL])
         self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
         self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
         self._ctrlClick = EventWrapper(pygame.MOUSEBUTTONDOWN, 1, [pygame.KMOD_CTRL])
@@ -96,6 +97,8 @@ class DesignWindow():
         if self._pasteEvent.check(event):
             if len(self._copyTemplates) > 0:
                 self.paste()
+        if self._selectAllEvent.check(event):
+            self.selectAll()
         self.handleWidgetSelection(event)                         
         self._p.handleEvent(event)
         if len(self._selected) > 0:
@@ -135,6 +138,10 @@ class DesignWindow():
             w = copy.copy(widget)
             w.setPosition((w.getX() + 50, w.getY() + 50))
             self._widgets.append(w)
+            self._selected.append(w)
+
+    def selectAll(self):
+        for w in self._widgets:
             self._selected.append(w)
             
     def update(self, ticks):
