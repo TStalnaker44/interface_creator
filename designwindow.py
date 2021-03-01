@@ -22,7 +22,7 @@ class DesignWindow():
         self.makeParametersDictionary()
         
         self._dragging = None
-        self._selected = None
+        self._selected = []
         self._copyTemplate = None
 
         self._snap = True
@@ -32,6 +32,7 @@ class DesignWindow():
         self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
         self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
         self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
+        self._ctrlClick = EventWrapper(pygame.MOUSEBUTTONDOWN, 1, [pygame.KMOD_CTRL])
 
     def makeParametersDictionary(self):
         font = Font("Arial", 16)
@@ -49,7 +50,7 @@ class DesignWindow():
         for w in self._widgets:
             w.draw(self._window)
         self.drawSnappingLines()
-        self.drawBoxAroundSelected()
+        self.drawBoxesAroundSelected()
         screen.blit(self._window, self._pos)
         self._p.draw(screen)
 
@@ -58,13 +59,15 @@ class DesignWindow():
             if line != None:
                 pygame.draw.line(self._window, (0,0,255),
                                  line[0], line[1], 1)
-    def drawBoxAroundSelected(self):
-        if self._selected != None:
-            rect = pygame.Rect(self._selected.getX()-5,
-                               self._selected.getY()-5,
-                               self._selected.getWidth()+10,
-                               self._selected.getHeight()+10)
-            pygame.draw.rect(self._window, (255,0,0), rect, 4)
+                
+    def drawBoxesAroundSelected(self):
+        if len(self._selected) > 0:
+            for sel in self._selected:
+                rect = pygame.Rect(sel.getX()-5,
+                                   sel.getY()-5,
+                                   sel.getWidth()+10,
+                                   sel.getHeight()+10)
+                pygame.draw.rect(self._window, (255,0,0), rect, 4)
         
     def handleTestModeEvents(self, event):
         for w in self._widgets:
@@ -76,23 +79,32 @@ class DesignWindow():
     def handleCreateModeEvents(self, event):
 
         if self._copyEvent.check(event):
-            if self._selected != None:
+            if len(self._selected) > 0:
                 self._copyTemplate = self._selected
         if self._pasteEvent.check(event):
             if self._copyTemplate != None:
                 self.paste()
-        
+                
         if event.type == pygame.MOUSEBUTTONDOWN:
             rect = self._window.get_rect()
             point = (event.pos[0] - self._pos[0],
                      event.pos[1] - self._pos[1])
             if rect.collidepoint(point):
-                if self._dragEvent.check(event):
-                    self._selected = None
-                    for w in self._widgets:
-                        if w.getCollideRect().collidepoint(point):
-                            self._dragging = (w, event.pos)
-                            self._selected = w
+                drag = self._dragEvent.check(event)
+                ctrl = self._ctrlClick.check(event)
+                if drag and not ctrl:
+                    self._selected = []
+                selected = None
+                for w in self._widgets:
+                    if w.getCollideRect().collidepoint(point):
+                        self._dragging = (w, event.pos)
+                        selected = w
+                if selected != None:
+                    if ctrl and selected in self._selected:
+                        self._selected.remove(selected)
+                    else:
+                        self._selected.append(selected)
+                                     
         self._p.handleEvent(event)
 
     def paste(self):
@@ -102,7 +114,7 @@ class DesignWindow():
 
     def update(self, ticks):
         self.updateElementDragging()
-        if self._selected == None:
+        if len(self._selected) != 1:
             self._p.reset()
         else:
             self._p.update(ticks)
@@ -117,7 +129,7 @@ class DesignWindow():
     def deleteWidget(self):
         w = self._selected
         self._widgets.remove(w)
-        self._selected = None
+        self._selected = []
 
     def updateInterface(self, ticks):
         for w in self._widgets:
@@ -133,7 +145,8 @@ class DesignWindow():
             b.setPosition((b.getX()+delta_x,
                           b.getY()+delta_y))
             self._dragging = (b, current)
-            self._p.createLabels(self._selected, self._widgets.index(self._selected))
+            if len(self._selected) == 1:
+                self._p.createLabels(self._selected[0], self._widgets.index(self._selected[0]))
             if self._snap:
                 self.handleSnapping()
             if not pygame.mouse.get_pressed()[0]:
@@ -141,32 +154,33 @@ class DesignWindow():
                 self._snappingLines = [None, None]
 
     def changeZ(self):
-        self._widgets.remove(self._selected)
-        self._widgets.insert(self._p._z, self._selected)
+        self._widgets.remove(self._selected[0])
+        self._widgets.insert(self._p._z, self._selected[0])
 
     def handleSnapping(self):
-        self._snappingLines[0] = self.verticalLineSnapping()
-        self._snappingLines[1] = self.horizontalLineSnapping()
+        if len(self._selected) == 1:
+            self._snappingLines[0] = self.verticalLineSnapping()
+            self._snappingLines[1] = self.horizontalLineSnapping()
 
     def verticalLineSnapping(self):
-        wCenter = self.findCenter(self._selected)
+        wCenter = self.findCenter(self._selected[0])
         for w in self._widgets:
-            if w != self._selected:
+            if w != self._selected[0]:
                 center = self.findCenter(w)
                 if abs(wCenter[0] - center[0]) < self._snapSensitivity:
-                    x = center[0] - (self._selected.getWidth()//2)
-                    self._selected.setPosition((x,self._selected.getY()))
+                    x = center[0] - (self._selected[0].getWidth()//2)
+                    self._selected[0].setPosition((x,self._selected[0].getY()))
                     return ((wCenter[0],0),(wCenter[0],self._dims[1]))
         return None
 
     def horizontalLineSnapping(self):
-        wCenter = self.findCenter(self._selected)
+        wCenter = self.findCenter(self._selected[0])
         for w in self._widgets:
-            if w != self._selected:
+            if w != self._selected[0]:
                 center = self.findCenter(w)
                 if abs(wCenter[1] - center[1]) < self._snapSensitivity:
-                    y = center[1] - (self._selected.getHeight()//2)
-                    self._selected.setPosition((self._selected.getX(),y))
+                    y = center[1] - (self._selected[0].getHeight()//2)
+                    self._selected[0].setPosition((self._selected[0].getX(),y))
                     return ((0,wCenter[1]), (self._dims[0],wCenter[1]))
         return None
 
