@@ -51,6 +51,9 @@ class TextInput(AbstractGraphic):
 
         self.updateGraphic()
 
+    def isActive(self):
+        return self._active
+
     def displayActive(self):
         """Sets the display mode to active"""
         self._borderColor = self._borderHighlight

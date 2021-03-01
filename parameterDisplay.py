@@ -94,6 +94,9 @@ class ParameterDisplay():
         # Flags
         self._updateZ = False
 
+    def isActive(self):
+        return any(w.isActive() for w in self._inputFields.values())
+
     def createLabels(self, widget, zindex):
         self._labels = []
         self._inputFields = {}
@@ -344,5 +347,10 @@ class RGBInput():
         b = self._b.getInput()
         b = int(b) if b.isdigit() else ''
         return (r,g,b)
+
+    def isActive(self):
+        return self._r.isActive() or \
+               self._g.isActive() or \
+               self._b.isActive()
 
         

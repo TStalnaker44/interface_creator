@@ -110,10 +110,11 @@ class DesignWindow():
             self.selectAll()
         if self._deleteEvent.check(event):
             self.deleteWidgets()
-        if self._shiftLeftEvent.check(event): self.shift((-1,0))
-        if self._shiftRightEvent.check(event): self.shift((1,0))
-        if self._shiftUpEvent.check(event): self.shift((0,-1))
-        if self._shiftDownEvent.check(event): self.shift((0,1))
+        if not self._p.isActive():
+            if self._shiftLeftEvent.check(event): self.shift((-1,0))
+            if self._shiftRightEvent.check(event): self.shift((1,0))
+            if self._shiftUpEvent.check(event): self.shift((0,-1))
+            if self._shiftDownEvent.check(event): self.shift((0,1))
         self.handleWidgetSelection(event)                         
         self._p.handleEvent(event)
         if len(self._selected) > 0:
