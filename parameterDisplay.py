@@ -25,7 +25,12 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                            "BG Color", "Bar Color", "Alignment", "Z Index"],
               Panel:["X Coordinate", "Y Coordinate", "Height", "Width",
                      "BG Color", "Border Color", "Border Width", "Z Index"],
-              Incrementer:[]}
+              Incrementer:["X Coordinate", "Y Coordinate", "Button Font",
+                           "Button Font Size", "Value Font", "Value Font Size",
+                           "Spacing", "Horizontal Padding", "Vertical Padding",
+                           "BG Color", "Border Color", "Border Width",
+                           "Min Value", "Max Value", "Dec. Color",
+                           "Inc. Color","Z Index"]}
 
 VALUES = {"Text":"widget.getText()",
           "Font":"widget.getFont().getFontName()",
@@ -50,15 +55,26 @@ VALUES = {"Text":"widget.getText()",
           "Max Stat":"widget.getMaxStat()",
           "Active Stat":"widget.getActiveStat()",
           "Bar Color":"widget.getBarColor()",
-          "Z Index":"zindex"}
+          "Z Index":"zindex",
+          "Button Font":"widget.getButtonFont().getFontName()",
+          "Button Font Size":"widget.getButtonFont().getFontSize()",
+          "Value Font":"widget.getValueFont().getFontName()",
+          "Value Font Size":"widget.getValueFont().getFontSize()",
+          "Spacing":"widget.getSpacing()",
+          "Max Value":"widget.getMaxValue()",
+          "Min Value":"widget.getMinValue()",
+          "Dec. Color":"widget.getDecrementColor()",
+          "Inc. Color":"widget.getIncrementColor()"}
 
-NORMAL_INPUT = ("Text","Font", "Default Text", "Alignment")
+NORMAL_INPUT = ("Text","Font", "Default Text", "Alignment","Button Font",
+                "Value Font")
 INT_ONLY = ("Font Size","X Coordinate", "Y Coordinate", "Border Width",
             "Horizontal Padding", "Vertical Padding", "Max Length",
             "Height", "Width", "Line Spacing", "Max Stat", "Active Stat",
-            "Length", "Z Index")
+            "Length", "Z Index","Spacing", "Button Font Size",
+            "Value Font Size", "Max Value", "Min Value")
 COLOR_INPUT = ("BG Color", "Font Color", "Border Color","Border Sel.","BG Sel.",
-               "Bar Color")
+               "Bar Color", "Dec. Color", "Inc. Color")
 
 class ParameterDisplay():
 

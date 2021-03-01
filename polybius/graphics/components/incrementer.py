@@ -209,6 +209,27 @@ class Incrementer(AbstractGraphic):
     def setPosition(self, pos):
         super().setPosition(pos)
         self.updateDisplay()
+
+    def getButtonFont(self):
+        return self._buttonFont
+
+    def getValueFont(self):
+        return self._valueFont
+
+    def getSpacing(self):
+        return self._spacing
+
+    def getMinValue(self):
+        return self._minValue
+
+    def getMaxValue(self):
+        return self._maxValue
+
+    def getIncrementColor(self):
+        return self._incrementColor
+
+    def getDecrementColor(self):
+        return self._decrementColor
             
 
         
