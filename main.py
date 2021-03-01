@@ -21,6 +21,12 @@ class Game(AbstractGame):
                              ("Incrementer","Incrementer")]
 
         self._testMode = False
+
+        self._saveEvent = EventWrapper(pygame.KEYDOWN,
+                                       pygame.K_s, [pygame.KMOD_CTRL])
+
+        self._loadEvent = EventWrapper(pygame.KEYDOWN,
+                                       pygame.K_o, [pygame.KMOD_CTRL])
         
         self.createUI()
         
@@ -91,6 +97,10 @@ class Game(AbstractGame):
         self._exportButton.handleEvent(event, self.export)
         for i, b in enumerate(self._addButtons):
             b.handleEvent(event, self._design.addWidget, (self._widgetTypes[i][1],))
+        if self._saveEvent.check(event):
+            self.save()
+        if self._loadEvent.check(event):
+            self.load()
         
 
     def toggleModes(self):
@@ -104,6 +114,12 @@ class Game(AbstractGame):
         self._design.update(ticks)
         if self._testMode:
             self._design.updateInterface(ticks)
+
+    def save(self):
+        self._design.save()
+
+    def load(self):
+        self._design.load()
 
     def export(self):
         self._design.export()
