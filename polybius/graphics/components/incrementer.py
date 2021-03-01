@@ -5,6 +5,7 @@ from polybius.graphics.components.textinput import TextInput
 from polybius.graphics.components.button import Button
 from polybius.graphics.components.textbox import TextBox
 from polybius.graphics.utils.mysurface import MySurface
+from polybius.utils import Font
 
 class Incrementer(AbstractGraphic):
 
@@ -21,9 +22,9 @@ class Incrementer(AbstractGraphic):
         AbstractGraphic.__init__(self, pos)
 
         if buttonFont == None:
-            buttonFont = pygame.font.SysFont("Arial", 16)
+            buttonFont = Font("Arial", 16)
         if valueFont == None:
-            valueFont = pygame.font.SysFont("Arial", 16)
+            valueFont = Font("Arial", 16)
         self._buttonFont = buttonFont
         self._valueFont = valueFont
 
@@ -213,23 +214,107 @@ class Incrementer(AbstractGraphic):
     def getButtonFont(self):
         return self._buttonFont
 
+    def setButtonFont(self, font):
+        self._buttonFont = font
+        self.updateDisplay()
+
+    def getButtonFontColor(self):
+        return self._buttonFontColor
+
+    def setButtonFontColor(self, color):
+        self._buttonFontColor = color
+        self.updateDisplay()
+
+    def getButtonBorderWidth(self):
+        return self._buttonBorderWidth
+
+    def setButtonBorderWidth(self, width):
+        self._buttonBorderWidth = width
+        self.updateDisplay()
+
     def getValueFont(self):
         return self._valueFont
+
+    def setValueFont(self, font):
+        self._valueFont = font
+        self.updateDisplay()
 
     def getSpacing(self):
         return self._spacing
 
+    def setSpacing(self, spacing):
+        self._spacing = spacing
+        self.updateDisplay()
+
     def getMinValue(self):
         return self._minValue
+
+    def setMinValue(self, value):
+        self._minValue = value
+        self.updateDisplay()
 
     def getMaxValue(self):
         return self._maxValue
 
+    def setMaxValue(self, value):
+        self._maxValue = value
+        self.updateDisplay()
+
     def getIncrementColor(self):
         return self._incrementColor
 
+    def setIncrementColor(self, color):
+        self._incrementColor = color
+        self.updateDisplay()
+
     def getDecrementColor(self):
         return self._decrementColor
+
+    def setDecrementColor(self, color):
+        self._decrementColor = color
+        self.updateDisplay()
+
+    def getValueBoxBorderWidth(self):
+        return self._valueBoxBorderWidth
+
+    def setValueBoxBorderWidth(self, width):
+        self._valueBoxBorderWidth = width
+        self.updateDisplay()
+
+    def getValueBoxBackgroundColor(self):
+        return self._valueBoxBackgroundColor
+
+    def setValueBoxBackgroundColor(self, color):
+        self._valueBoxBackgroundColor = color
+        self.updateDisplay()
+
+    def getValueBoxBorderColor(self):
+        return self._valueBoxBorderColor
+
+    def setValueBoxBorderColor(self, color):
+        self._valueBoxBorderColor = color
+        self.updateDisplay()
+
+    def getBoxDims(self):
+        return self._boxDims
+
+    def setBoxDims(self, dims):
+        self._boxDims = dims
+        self.updateDisplay()
+
+    def getButtonDims(self):
+        return self._buttonDims
+
+    def setButtonDims(self, dims):
+        self._buttonDims = dims
+        self.updateDisplay()
+
+    def getIncrements(self):
+        return self._increments
+
+    def setIncrements(self, increments):
+        self._increments = increments
+        self.updateDisplay()
             
 
         
