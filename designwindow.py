@@ -29,11 +29,7 @@ class DesignWindow():
         self._snapSensitivity = 5
         self._snappingLines = [None, None]
 
-        self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
-        self._selectAllEvent = EventWrapper(pygame.KEYDOWN, pygame.K_a, [pygame.KMOD_CTRL])
-        self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
-        self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
-        self._ctrlClick = EventWrapper(pygame.MOUSEBUTTONDOWN, 1, [pygame.KMOD_CTRL])
+        self.defineEvents()
 
         font = Font("Impact", 20)
         x = self._p._pos[0] + (self._p._backdrop.get_width() // 2 - font.size("Delete")[0] // 2)
@@ -45,6 +41,19 @@ class DesignWindow():
                                     borderColor=(100,100,100),
                                     borderWidth=2,
                                     padding=(10,5))
+
+    def defineEvents(self):
+        self._dragEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
+        self._selectAllEvent = EventWrapper(pygame.KEYDOWN, pygame.K_a, [pygame.KMOD_CTRL])
+        self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
+        self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
+        self._ctrlClick = EventWrapper(pygame.MOUSEBUTTONDOWN, 1, [pygame.KMOD_CTRL])
+        self._deleteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_DELETE)
+
+        self._shiftLeftEvent = EventWrapper(pygame.KEYDOWN, pygame.K_LEFT)
+        self._shiftRightEvent = EventWrapper(pygame.KEYDOWN, pygame.K_RIGHT)
+        self._shiftUpEvent = EventWrapper(pygame.KEYDOWN, pygame.K_UP)
+        self._shiftDownEvent = EventWrapper(pygame.KEYDOWN, pygame.K_DOWN)
 
     def makeParametersDictionary(self):
         font = Font("Arial", 16)
@@ -99,6 +108,12 @@ class DesignWindow():
                 self.paste()
         if self._selectAllEvent.check(event):
             self.selectAll()
+        if self._deleteEvent.check(event):
+            self.deleteWidgets()
+        if self._shiftLeftEvent.check(event): self.shift((-1,0))
+        if self._shiftRightEvent.check(event): self.shift((1,0))
+        if self._shiftUpEvent.check(event): self.shift((0,-1))
+        if self._shiftDownEvent.check(event): self.shift((0,1))
         self.handleWidgetSelection(event)                         
         self._p.handleEvent(event)
         if len(self._selected) > 0:
@@ -141,8 +156,21 @@ class DesignWindow():
             self._selected.append(w)
 
     def selectAll(self):
+        self._selected = []
         for w in self._widgets:
             self._selected.append(w)
+        if len(self._selected) == 1:
+            self._p.createLabels(self._selected[0], self._widgets.index(self._selected[0]))
+
+    def shift(self, amount):
+        for w in self._selected:
+            x, y = w.getPosition()
+            x += amount[0]
+            y += amount[1]
+            w.setPosition((x,y))
+        if len(self._selected) == 1:
+            self._p.createLabels(self._selected[0], self._widgets.index(self._selected[0]))
+            
             
     def update(self, ticks):
         self.updateElementDragging()
