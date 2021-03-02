@@ -119,7 +119,7 @@ class ParameterDisplay():
                 dimensions = (containerWidth - fieldx - 5,
                               font.size("A")[1]+5)
                 field = TextInput((fieldx,labely), font, dimensions,
-                                  maxLen=20,
+                                  maxLen=150,
                                   defaultText=eval(VALUES[label]),
                                   allowSymbols=True)
                 
