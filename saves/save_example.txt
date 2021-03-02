@@ -1,0 +1,6 @@
+Panel((48,128),dims=(500,300),color=(50, 80, 120),borderColor=(0, 0, 100),borderWidth=8)
+Button('Confirm',(179,367),Font('Impact',25),backgroundColor=(0, 0, 200),fontColor=(255, 255, 255),borderColor=(0, 0, 120),borderWidth=2,padding=(6, 2))
+Button('Cancel',(333,367),Font('Impact',25),backgroundColor=(0, 0, 200),fontColor=(255, 255, 255),borderColor=(0, 0, 120),borderWidth=2,padding=(6, 2))
+TextBox('Quit',(264,147),Font('Impact',42))
+TextBox('Are you sure that',(125,264),Font('Times New Roman',24))
+TextBox('you want to leave',(299,264),Font('Times New Roman',24))

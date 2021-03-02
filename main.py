@@ -109,13 +109,14 @@ class Game(AbstractGame):
     def handleEvent(self, event):
         # Toggle between test and create modes
         self._modeButton.handleEvent(event, self.toggleModes)
-        if self._testMode:
-            self._design.handleTestModeEvents(event)
-        else:
-            self._design.handleCreateModeEvents(event)      
-        self._exportButton.handleEvent(event, self.export)
-        for i, b in enumerate(self._addButtons):
-            b.handleEvent(event, self._design.addWidget, (self._widgetTypes[i][1],))
+        if not (self._save.getDisplay() or self._load.getDisplay()):
+            if self._testMode:
+                self._design.handleTestModeEvents(event)
+            else:
+                self._design.handleCreateModeEvents(event)      
+            self._exportButton.handleEvent(event, self.export)
+            for i, b in enumerate(self._addButtons):
+                b.handleEvent(event, self._design.addWidget, (self._widgetTypes[i][1],))
         self.handleSavingAndLoading(event)
 
     def handleSavingAndLoading(self, event):
