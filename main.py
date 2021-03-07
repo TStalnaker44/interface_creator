@@ -31,8 +31,6 @@ class Game(AbstractGame):
         
         self.createUI()
 
-        
-        
     def createUI(self):
         self.createModeButton()
         self.createExportButton()

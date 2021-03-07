@@ -6,11 +6,11 @@ A class that creates and manages textual input boxes
 """
 
 from polybius.graphics.utils.abstractgraphic import AbstractGraphic
-from polybius.utils import Timer
+from polybius.utils import Timer, EventWrapper
 from .textbox import TextBox
 import pygame, string
 
-SYMBOL_KEYS = [ord(p) for p in string.punctuation]
+
 
 class TextInput(AbstractGraphic):
 
@@ -49,6 +49,8 @@ class TextInput(AbstractGraphic):
         self._cursorTimer = Timer(.5)
         self._displayCursor = False
 
+        self._ki = KeyIdentifier()
+
         self.updateGraphic()
 
     def isActive(self):
@@ -72,6 +74,15 @@ class TextInput(AbstractGraphic):
         self._backgroundColor = self._defaultBackgroundColor
         self._textbox.setFontColor(self._color)
         self.updateGraphic()
+
+    def _makeActive(self, text):
+        self._active = True
+        self._pointer = len(text)
+        self.displayActive()
+
+    def _makeInActive(self):
+        self._active = False
+        self.displayPassive()
         
     def handleEvent(self, event, *args, offset=(0,0), func=None,
                     clearOnEnter=False):
@@ -81,13 +92,10 @@ class TextInput(AbstractGraphic):
         rect = rect.move(offset[0], offset[1])
         if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
             if rect.collidepoint(event.pos):
-                self._active = True
-                self._pointer = len(text)
-                self.displayActive()
+                self._makeActive(text)
             else:
-                self._active = False
-                self.displayPassive()
-                
+                self._makeInActive()
+                         
         elif event.type == pygame.KEYDOWN and self._active:
 
             # Check if backspace was pressed
@@ -102,32 +110,15 @@ class TextInput(AbstractGraphic):
             if event.key == pygame.K_LEFT:
                 self._pointer = max(0, self._pointer-1)
             
-            if len(text) < self._maxLen:
-                
-                newChar = ""
-                
-                alphaKey = 96 < event.key < 123
-                numKey = 47 < event.key < 58
-                spaceKey = event.key == 32
-                numPadKey = pygame.K_KP0 <= event.key <= pygame.K_KP9
-                minusKey = (event.key == pygame.K_KP_MINUS or \
-                            event.key ==pygame.K_MINUS)
-                #symbolKey = 33 < event.key <= 47 or 58 < event.key <= 64 or event.key 
-                symbolKey = event.key in SYMBOL_KEYS
-                underscoreKey = event.key == pygame.K_MINUS and \
-                                event.mod in [pygame.KMOD_LSHIFT,pygame.KMOD_RSHIFT]
-                if alphaKey and not self._numerical:
-                    newChar = self.checkForLetters(event)
-                elif (spaceKey and not self._numerical) or numKey or \
-                     (symbolKey and self._allowSymbols):
-                    newChar = chr(event.key)
-                elif numPadKey:
-                    newChar = chr(event.key-208)
-                elif underscoreKey:
-                    newChar = "_"
-                elif minusKey and (not self._numerical or self._allowNegative):
-                    newChar = "-"
-                   
+            if len(text) < self._maxLen: 
+                newChar = self._ki.getChar(event)
+                if self._numerical:
+                    if not newChar.isnumeric():
+                        if (not newChar == "-") or not self._allowNegative:
+                            newChar = ""
+                elif not self._allowSymbols:
+                    if newChar in string.punctuation:
+                        newChar = ""                   
                 if newChar != "":
                     newText = text[:self._pointer] + newChar + text[self._pointer:]
                     self._textbox.setText(newText)
@@ -143,13 +134,6 @@ class TextInput(AbstractGraphic):
                     self._textbox.setText("")
                     self._pointer = 0
             self.updateGraphic()
-
-    def checkForLetters(self, event):
-        if event.mod in [pygame.KMOD_CAPS, pygame.KMOD_LSHIFT,
-                        pygame.KMOD_RSHIFT]:
-            return chr(event.key - 32)
-        else:
-            return chr(event.key)
         
     def getInput(self):
         """Get the current input text"""
@@ -277,4 +261,70 @@ class TextInput(AbstractGraphic):
         if self._displayCursor and self._active:
             top, bottom = self.calculateCursorPosition()
             pygame.draw.line(surf, (0,0,0), top, bottom)
+
+class KeyIdentifier():
+
+    #TO-DO: Caps Lock and Num Lock checks do no work quite right
+
+    def __init__(self):
+
+        self._numSymbols = ")!@#$%^&*("
+
+        self._symbolKeys = [ord(p) for p in string.punctuation]
+
+        self._symbols = {EventWrapper(pygame.KEYDOWN, i+48, [pygame.KMOD_SHIFT]):s
+                           for i, s in enumerate(")!@#$%^&*(")}
+
+        for x in range(10):
+            self._symbols[EventWrapper(pygame.KEYDOWN, x+48)] = str(x)
+            self._symbols[EventWrapper(pygame.KEYDOWN, x+256,
+                                       [pygame.KMOD_NUM])] = str(x)
+
+        for x in range(27):
+            self._symbols[EventWrapper(pygame.KEYDOWN, x+97)] = chr(x+97)
+            self._symbols[EventWrapper(pygame.KEYDOWN, x+97, [pygame.KMOD_SHIFT])] = chr(x+65)
+            self._symbols[EventWrapper(pygame.KEYDOWN, x+97, [pygame.KMOD_CAPS])] = chr(x+65)
+            
+        self._symbols[EventWrapper(pygame.KEYDOWN, 91)] = "["
+        self._symbols[EventWrapper(pygame.KEYDOWN, 92)] = "\\"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 93)] = "]"
+        
+        self._symbols[EventWrapper(pygame.KEYDOWN, 44)] = ","
+        self._symbols[EventWrapper(pygame.KEYDOWN, 46)] = "."
+        self._symbols[EventWrapper(pygame.KEYDOWN, 47)] = "/"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 59)] = ";"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 39)] = "'"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 96)] = "`"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 61)] = "="
+        self._symbols[EventWrapper(pygame.KEYDOWN, 45)] = "-"
+        
+        self._symbols[EventWrapper(pygame.KEYDOWN, 44, [pygame.KMOD_SHIFT])] = "<"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 46, [pygame.KMOD_SHIFT])] = ">"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 47, [pygame.KMOD_SHIFT])] = "?"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 91, [pygame.KMOD_SHIFT])] = "{"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 93, [pygame.KMOD_SHIFT])] = "}"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 61, [pygame.KMOD_SHIFT])] = "+"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 96, [pygame.KMOD_SHIFT])] = "~"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 92, [pygame.KMOD_SHIFT])] = "|"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 39, [pygame.KMOD_SHIFT])] = '"'
+        self._symbols[EventWrapper(pygame.KEYDOWN, 59, [pygame.KMOD_SHIFT])] = ":"
+        self._symbols[EventWrapper(pygame.KEYDOWN, 45, [pygame.KMOD_SHIFT])] = "_"
+
+        self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_KP_PLUS)] = "+"
+        self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_KP_MINUS)] = "-"
+        self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_KP_DIVIDE)] = "/"
+        self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_KP_MULTIPLY)] = "*"
+        self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_KP_PERIOD)] = "."
+        self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_SPACE)] = " "
+
+        self._wrappers = [w for w in self._symbols.keys()]
+        self._wrappers.sort(key=lambda x: len(x.getMods()))
+        self._wrappers.reverse()
+
+    def getChar(self, event):     
+        for wrapper in self._wrappers:
+            if wrapper.check(event):
+                print(self._symbols[wrapper])
+                return self._symbols[wrapper]
+        return ""
         
