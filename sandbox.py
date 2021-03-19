@@ -1,6 +1,7 @@
 
 import pygame
 from polybius.abstractGame import AbstractGame
+from polybius.graphics import Drawable
 from polybius.utils.abstractPlayer import AbstractPlayer
 from polybius.managers import FRAMES
 
@@ -14,17 +15,28 @@ class Sandbox(AbstractGame):
         surf = pygame.Surface((100,100))
         surf.fill((255,0,0))
         FRAMES.prepareImage("dude.png", colorKey=True)
+        FRAMES.prepareImage("background.png", (5000,5000))
+        self._back = Drawable("background.png", (0,0))
         self._player1 = StickMan((10,10))
         movement = [pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s]
         self._player2 = AbstractPlayer(surf, (25,25), movement)
+        self.setTrackingObject(self._player1)
+        self.setWorldSize((5000,5000))
 
     def draw(self, screen):
+        self._back.draw(screen)
         self._player1.draw(screen)
         self._player2.draw(screen)
 
     def handleEvent(self, event):
         self._player1.handleEvent(event)
         self._player2.handleEvent(event)
+        if event.type == pygame.KEYDOWN and event.key==pygame.K_SPACE:
+            current = self.getTrackingObject()
+            if current == self._player1:
+                self.setTrackingObject(self._player2)
+            else:
+                self.setTrackingObject(self._player1)
 
     def update(self, ticks):
         self._player1.update(ticks, (0,0))
