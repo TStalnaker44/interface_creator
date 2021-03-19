@@ -20,7 +20,6 @@ class AbstractGame():
             self._screen = pygame.display.set_mode(displaySize)
 
         self._screenSize = displaySize
-        self._worldSize = displaySize
 
         # Create an instance of the game clock
         self._gameClock = pygame.time.Clock()

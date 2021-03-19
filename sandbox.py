@@ -17,12 +17,14 @@ class Sandbox(AbstractGame):
         self.switchTo("main")
 
     def handleEvent(self, event):
-        if event.type == pygame.KEYDOWN and \
-           event.key == pygame.K_u:
-            if self._level == self.getCurrentLevel():
-                self.switchTo("main2")
-            else:
-                self.switchTo("main")
+        code = self._level.checkForExitCode()
+        if code != None:
+            self.switchTo("main2")
+            return
+        code = self._level2.checkForExitCode()
+        if code != None:
+            self.switchTo("main")
+            return
         
 class Main(AbstractLevel):
 
@@ -54,6 +56,8 @@ class Main(AbstractLevel):
                 self.setTrackingObject(self._player2)
             else:
                 self.setTrackingObject(self._player1)
+        if event.type == pygame.KEYDOWN and event.key==pygame.K_u:
+            self.setExitCode((1,))
 
     def update(self, ticks):
         self._player1.update(ticks, (0,0))
