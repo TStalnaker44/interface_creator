@@ -88,26 +88,40 @@ class AbstractPlayer(Animated):
         if self._velocity.magnitude() > self._maxVelocity:
             self._velocity.scale(self._maxVelocity)
 
-    def updatePosition(self, ticks, worldInfo):
+    def updatePosition(self, ticks, worldInfo, modifier):
         newPosition = self._position + (self._velocity * ticks)
-
-        # TO-DO: Allow for different update types
-        # torus, bounce on edge, etc
+        if type(modifier) == str:
+            if modifier.lower() == "bounce":
+                self.updateForEdgeBounce(newPosition, worldInfo)
+            elif modifier.lower() == "torus":
+                self.updateForTorus(newPosition, worldInfo)
         
-##        if newPosition[0] < bounds[0][0]:
-##            self._pos[0] = bounds[0][1]
-##        if newPosition[0] > bounds[0][1]:
-##           self._pos[0] = bounds[0][0]
-##        if newPosition[1] < bounds[1][0]:
-##           self._pos[1] = bounds[1][1]
-##        if newPosition[1] > bounds[1][1]:
-##           self._pos[1] = bounds[1][0]
+        
+
         self._position += (self._velocity * ticks)
 
-    def update(self, ticks, worldInfo):
+    def updateForEdgeBounce(self, newPosition, worldInfo):
+        if newPosition[0] < 0 or \
+           (newPosition[0] + self.getWidth()) > worldInfo[0]:
+           self._velocity[0] = 0
+        if newPosition[1] < 0 or \
+           (newPosition[1] + self.getHeight()) > worldInfo[1]:
+           self._velocity[1] = 0
+
+    def updateForTorus(self, newPosition, worldInfo):
+        if newPosition[0] < 0:
+            self._position[0] = worldInfo[0]
+        if newPosition[0] > worldInfo[0]:
+           self._position[0] = 0
+        if newPosition[1] < 0:
+           self._position[1] = worldInfo[1]
+        if newPosition[1] > worldInfo[1]:
+           self._position[1] = 0
+
+    def update(self, ticks, worldInfo, modifier=None):
         self.manageAnimations(ticks)
         self.manageMovement()
-        self.updatePosition(ticks, worldInfo)
+        self.updatePosition(ticks, worldInfo, modifier)
 
     ## Abstract Methods ##
     def manageAnimations(self, ticks): pass

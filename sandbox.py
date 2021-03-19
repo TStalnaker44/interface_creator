@@ -60,8 +60,8 @@ class Main(AbstractLevel):
             self.setExitCode((1,))
 
     def update(self, ticks):
-        self._player1.update(ticks, (0,0))
-        self._player2.update(ticks, (0,0))
+        self._player1.update(ticks, self.getWorldSize(), "bounce")
+        self._player2.update(ticks, self.getWorldSize(), "torus")
 
 class StickMan(AbstractPlayer):
 
