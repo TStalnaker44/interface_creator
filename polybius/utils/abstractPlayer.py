@@ -75,6 +75,10 @@ class AbstractPlayer(Animated):
 
     def updatePosition(self, ticks, worldInfo):
         newPosition = self._position + (self._velocity * ticks)
+
+        # TO-DO: Allow for different update types
+        # torus, bounce on edge, etc
+        
 ##        if newPosition[0] < bounds[0][0]:
 ##            self._pos[0] = bounds[0][1]
 ##        if newPosition[0] > bounds[0][1]:
