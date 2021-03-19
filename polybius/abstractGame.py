@@ -25,7 +25,8 @@ class AbstractGame():
         # Create an instance of the game clock
         self._gameClock = pygame.time.Clock()
 
-        self._tracking=None
+        self._levels = {}
+        self._currentLevel = None
         
         self._running = True
 
@@ -46,17 +47,22 @@ class AbstractGame():
     def getScreen(self):
         return self._screen
 
-    def getTrackingObject(self):
-        return self._tracking
+    def getScreenSize(self):
+        return self._screenSize
 
-    def setTrackingObject(self, obj):
-        self._tracking = obj
+    def addLevel(self, levelName, level):
+        self._levels[levelName] = level
 
-    def setWorldSize(self, size):
-        self._worldSize = size
+    def switchTo(self, levelName):
+        self._currentLevel = self._levels.get(levelName, None)
+
+    def getCurrentLevel(self):
+        return self._currentLevel
 
     def _abstractDraw(self):
         self.getScreen().fill((255, 255, 255))
+        if self._currentLevel != None:
+            self._currentLevel.draw(self._screen)
         self.draw(self._screen)
         pygame.display.flip()
 
@@ -66,11 +72,23 @@ class AbstractGame():
                 self.endGame()
             else:
                 self.handleEvent(event)
+                if self._currentLevel != None:
+                    self._currentLevel.handleEvent(event)
+                
 
     def _abstractUpdate(self):
         ticks = self._gameClock.get_time() / 1000
+        if self._currentLevel != None:
+            self._currentLevel._privateUpdate(ticks)
         self.update(ticks)
-        if self._tracking != None:
-            Drawable.updateOffset(self._tracking,
-                                  self._screenSize,
-                                  self._worldSize)
+
+    ## Abstract Method Hooks ##
+
+    def draw(self, screen): pass
+
+    def handleEvent(self, event): pass
+
+    def update(self, ticks): pass
+
+    
+

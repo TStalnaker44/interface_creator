@@ -1,17 +1,34 @@
 
 import pygame
 from polybius.abstractGame import AbstractGame
+from polybius.abstractLevel import AbstractLevel
 from polybius.graphics import Drawable
 from polybius.utils.abstractPlayer import AbstractPlayer
 from polybius.managers import FRAMES
 
-
 class Sandbox(AbstractGame):
 
     def __init__(self):
-        
         AbstractGame.__init__(self, (1000,600), "Sandbox")
+        self._level = Main(self.getScreenSize())
+        self.addLevel("main", self._level)
+        self._level2 = Main(self.getScreenSize())
+        self.addLevel("main2", self._level2)
+        self.switchTo("main")
 
+    def handleEvent(self, event):
+        if event.type == pygame.KEYDOWN and \
+           event.key == pygame.K_u:
+            if self._level == self.getCurrentLevel():
+                self.switchTo("main2")
+            else:
+                self.switchTo("main")
+        
+class Main(AbstractLevel):
+
+    def __init__(self, screenSize):
+
+        AbstractLevel.__init__(self, screenSize)
         surf = pygame.Surface((100,100))
         surf.fill((255,0,0))
         FRAMES.prepareImage("dude.png", colorKey=True)
