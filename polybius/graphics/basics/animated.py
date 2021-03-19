@@ -24,11 +24,13 @@ class Animated(Drawable):
          self._animationTimer += ticks
          
          if self._animationTimer > 1 / self._framesPerSecond:
+            
             self._frame += 1
             self._frame %= self._nFrames
             self._animationTimer -= 1 / self._framesPerSecond
             self._image = FRAMES.getFrame(self._imageName, (self._frame, self._row))
             self._mask = pygame.mask.from_surface(self._image)
+            
             if self.isFlipped():
                self._image = pygame.transform.flip(self._image, True, False)
             if self.isScaled():
@@ -37,6 +39,20 @@ class Animated(Drawable):
    def startAnimation(self):
       self._animate = True
    
-   
    def stopAnimation(self):
       self._animate = False
+
+   def setFramesInRow(self, frames):
+      self._nFrames = frames
+
+   def setRowOnSpriteSheet(self, row):
+      self._row = row
+
+   def setCurrentFrame(self, frame):
+      self._frame = frame
+
+   def setFPS(self, fps):
+      self._framesPerSecond = fps
+
+   def setAnimationTimer(self, animationTime):
+      self._animationTimer = animationTime

@@ -2,10 +2,11 @@
 import pygame
 from polybius.graphics.basics import Animated
 from polybius.utils.vector2D import Vector2
+from polybius.utils.fsm import *
 
 class AbstractPlayer(Animated):
 
-    def __init__(self, image, pos, movementKeys, asymmetrical=False):
+    def __init__(self, image, pos, movementKeys, asymmetrical=False, fsm=None):
 
         if type(image) == str:
             Animated.__init__(self, image, pos)
@@ -23,9 +24,20 @@ class AbstractPlayer(Animated):
 
         self._asymmetrical = asymmetrical
 
-        self._nFrames = 1
-
-##        self._fsm = playerFSM
+        if fsm == None:
+            playerStartState = "standing"
+            playerStates = ["standing","walking"]
+            playerTransitions = [Rule("standing","walk","walking"),
+                                 Rule("walking","walk","walking"),
+                                 Rule("walking","stop","standing"),
+                                 Rule("standing","stop","standing")]
+            self._fsm = FSM(playerStartState,
+                            playerStates,
+                            playerTransitions)
+        elif type(fsm) == FSM:
+            self._fsm = fsm
+        else:
+            raise Exception("fsm parameter must be of type FSM or None")
 
     def handleEvent(self, event):
         if event.type == pygame.KEYDOWN:
@@ -35,28 +47,31 @@ class AbstractPlayer(Animated):
             if event.key in self._movementKeys:
                 self._movement[event.key] = False
 
+    def getCurrentState(self):
+        return self._fsm.getCurrentState()
+
     def stop(self):
         for k in self._movement.keys(): self._movement[k] = False
 
     def setVerticalMovement(self):
         if self._movement[self._movementKeys[2]]:
             self._velocity.y = -self._maxVelocity
-##            self._fsm.changeState("walk")
+            self._fsm.changeState("walk")
         elif self._movement[self._movementKeys[3]]:
             self._velocity.y = self._maxVelocity
-##            self._fsm.changeState("walk")
+            self._fsm.changeState("walk")
         else:
             self._velocity.y = 0
 
     def setHorizontalMovement(self):
         if self._movement[self._movementKeys[0]]:
             self._velocity.x = -self._maxVelocity
-            #self._fsm.changeState("walk")
+            self._fsm.changeState("walk")
             if self._asymmetrical and not self.isFlipped():
                 self.flip()
         elif self._movement[self._movementKeys[1]]:
             self._velocity.x = self._maxVelocity
-            #self._fsm.changeState("walk")
+            self._fsm.changeState("walk")
             if self._asymmetrical and self.isFlipped():
                 self.flip()
         else:
@@ -65,8 +80,8 @@ class AbstractPlayer(Animated):
     def manageMovement(self):
         self.setVerticalMovement()
         self.setHorizontalMovement()
-##        if self._velocity.x==0 and self._velocity.y==0:
-##            self._fsm.changeState("stop")
+        if self._velocity.x==0 and self._velocity.y==0:
+            self._fsm.changeState("stop")
         self.scaleVelocity()
 
     def scaleVelocity(self):
