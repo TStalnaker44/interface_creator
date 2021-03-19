@@ -6,6 +6,7 @@ from polybius.managers import FRAMES
 class Animated(Drawable):
    
    def __init__(self, imageName, location):
+      
       super().__init__(imageName, location, (0,0))
       
       self._frame = 0

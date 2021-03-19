@@ -5,14 +5,23 @@ from polybius.utils.vector2D import Vector2
 
 class AbstractPlayer(Animated):
 
-    def __init__(self, pos, image, movementKeys):
+    def __init__(self, image, pos, movementKeys, asymmetrical=False):
 
-        Animated.__init__(self, image, pos)
+        if type(image) == str:
+            Animated.__init__(self, image, pos)
+        elif type(image) == pygame.Surface:
+            Animated.__init__(self, "", pos)
+            self._image = image
+        else:
+            raise Exception("Unknown image type for player")
+        
         self._velocity = Vector2(0,0)
         self._maxVelocity = 100
         self._acceleration = 0.5
         self._movementKeys = movementKeys ##[l,r,u,d]
         self._movement = {key:False for key in movementKeys}
+
+        self._asymmetrical = asymmetrical
 
         self._nFrames = 1
 
@@ -39,16 +48,16 @@ class AbstractPlayer(Animated):
         else:
             self._velocity.y = 0
 
-    def setHorizontalMovement(self, asymmetrical=False):
+    def setHorizontalMovement(self):
         if self._movement[self._movementKeys[0]]:
             self._velocity.x = -self._maxVelocity
             #self._fsm.changeState("walk")
-            if asymmetrical and not self.isFlipped():
+            if self._asymmetrical and not self.isFlipped():
                 self.flip()
         elif self._movement[self._movementKeys[1]]:
             self._velocity.x = self._maxVelocity
             #self._fsm.changeState("walk")
-            if asymmetrical and self.isFlipped():
+            if self._asymmetrical and self.isFlipped():
                 self.flip()
         else:
             self._velocity.x = 0
@@ -64,10 +73,19 @@ class AbstractPlayer(Animated):
         if self._velocity.magnitude() > self._maxVelocity:
             self._velocity.scale(self._maxVelocity)
 
-    def updatePosition(self):
-        pass
+    def updatePosition(self, ticks, worldInfo):
+        newPosition = self._position + (self._velocity * ticks)
+##        if newPosition[0] < bounds[0][0]:
+##            self._pos[0] = bounds[0][1]
+##        if newPosition[0] > bounds[0][1]:
+##           self._pos[0] = bounds[0][0]
+##        if newPosition[1] < bounds[1][0]:
+##           self._pos[1] = bounds[1][1]
+##        if newPosition[1] > bounds[1][1]:
+##           self._pos[1] = bounds[1][0]
+        self._position += (self._velocity * ticks)
 
-    def update(self, worldInfo):
+    def update(self, ticks, worldInfo):
         self.manageAnimations(ticks)
         self.manageMovement()
         self.updatePosition(ticks, worldInfo)
