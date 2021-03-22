@@ -95,9 +95,6 @@ class AbstractPlayer(Animated):
                 self.updateForEdgeBounce(newPosition, worldInfo)
             elif modifier.lower() == "torus":
                 self.updateForTorus(newPosition, worldInfo)
-        
-        
-
         self._position += (self._velocity * ticks)
 
     def updateForEdgeBounce(self, newPosition, worldInfo):
