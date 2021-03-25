@@ -9,6 +9,14 @@ from resizeWrapper import ResizeWrapper
 import declarations
 
 RESIZABLE = [Panel, TextInput, ProgressBar, Button]
+CURSORS = {"L":pygame.SYSTEM_CURSOR_SIZEWE,
+           "R":pygame.SYSTEM_CURSOR_SIZEWE,
+           "T":pygame.SYSTEM_CURSOR_SIZENS,
+           "B":pygame.SYSTEM_CURSOR_SIZENS,
+           "LT":pygame.SYSTEM_CURSOR_SIZENWSE,
+           "LB":pygame.SYSTEM_CURSOR_SIZENESW,
+           "RT":pygame.SYSTEM_CURSOR_SIZENESW,
+           "RB":pygame.SYSTEM_CURSOR_SIZENWSE}
 
 class DesignWindow():
 
@@ -212,30 +220,49 @@ class DesignWindow():
                 yCoord = widget.getY()
                 width = widget.getWidth()
                 height = widget.getHeight()
-                if self.plusMinusCheck(x, xCoord) or \
-                   self.plusMinusCheck(x, xCoord+width):
-                    if self.plusMinusCheck(x, xCoord):
-                        targetEdge = "L"
-                    else:
-                        targetEdge = "R"
-                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEWE)
+                targetEdge = ""
+                if self.plusMinusCheck(x, xCoord):
+                    targetEdge += "L"
+                elif self.plusMinusCheck(x, xCoord+width):
+                    targetEdge += "R"
+
+                if self.plusMinusCheck(y, yCoord):
+                    targetEdge += "T"
+                elif self.plusMinusCheck(y, yCoord+height):
+                    targetEdge += "B"
+
+                
+
+                if targetEdge != "":
+                    pygame.mouse.set_cursor(CURSORS[targetEdge])
                     self._resizeShown = True
                     self._widgetToResize = ResizeWrapper(widget,
                                                          pygame.mouse.get_pos(),
                                                          targetEdge)
                     break
-                elif self.plusMinusCheck(y, yCoord) or \
-                     self.plusMinusCheck(y, yCoord+height):
-                    if self.plusMinusCheck(y, yCoord):
-                        targetEdge = "T"
-                    else:
-                        targetEdge = "B"
-                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENS)
-                    self._resizeShown = True
-                    self._widgetToResize = ResizeWrapper(widget,
-                                                         pygame.mouse.get_pos(),
-                                                         targetEdge)
-                    break
+
+                    
+##                if self.plusMinusCheck(x, xCoord) or \
+##                   self.plusMinusCheck(x, xCoord+width):
+##                    if self.plusMinusCheck(x, xCoord):
+##                        targetEdge = "L"
+##                    else:
+##                        targetEdge = "R"
+##                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEWE)
+##                    
+##                    break
+##                elif self.plusMinusCheck(y, yCoord) or \
+##                     self.plusMinusCheck(y, yCoord+height):
+##                    if self.plusMinusCheck(y, yCoord):
+##                        targetEdge = "T"
+##                    else:
+##                        targetEdge = "B"
+##                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENS)
+##                    self._resizeShown = True
+##                    self._widgetToResize = ResizeWrapper(widget,
+##                                                         pygame.mouse.get_pos(),
+##                                                         targetEdge)
+##                    break
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
             self._resizeShown = False
