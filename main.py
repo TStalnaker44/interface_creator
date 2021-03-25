@@ -5,7 +5,6 @@ from polybius.graphics import Button, TextInput
 from polybius.graphics import FileMenu
 from polybius.utils import EventWrapper
 from designwindow import DesignWindow
-from cursors import resize_x
 
 import tkinter as tk
 from tkinter import filedialog
@@ -44,18 +43,6 @@ class Game(AbstractGame):
         self.createModeButton()
         self.createExportButton()
         self.createAddButtons()
-        #self.createFileManagers()
-
-    def createFileManagers(self):
-        self._save = FileMenu((100,100), (500,400), menuType="save",
-                              filePath="saves", extension=".txt")
-        self._save.center()
-        self._save.close()
-        
-        self._load = FileMenu((100,100), (500,400), menuType="load",
-                              filePath="saves", extension=".txt")
-        self._load.center()
-        self._load.close()
 
     def createAddButtons(self):
         addFont = pygame.font.SysFont("Impact", 20)

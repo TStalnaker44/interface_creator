@@ -5,6 +5,7 @@ from polybius.graphics import MultiLineTextBox, ProgressBar
 from polybius.graphics import Panel, Incrementer
 from polybius.utils import EventWrapper, Font
 from parameterDisplay import ParameterDisplay
+from resizeWrapper import ResizeWrapper
 import declarations
 
 class DesignWindow():
@@ -26,9 +27,15 @@ class DesignWindow():
         self._copyTemplates = []
 
         self._snap = True
-        self._snapSensitivity = 5
+        self._snapSensitivity = 2
         self._snappingLines = [None, None]
         self._selectBoxCoords = None
+
+        self._resizeShown = False
+        self._resizing = False
+        self._initialResizePoint = (0,0)
+        self._initialWidth = 0
+        self._widgetToResize = None
 
         self.defineEvents()
 
@@ -127,7 +134,12 @@ class DesignWindow():
             if self._shiftRightEvent.check(event): self.shift((1,0))
             if self._shiftUpEvent.check(event): self.shift((0,-1))
             if self._shiftDownEvent.check(event): self.shift((0,1))
-        self.handleWidgetSelection(event)                         
+        if not self._resizing:
+            self.checkForResizeOption(event)
+        if not self._resizeShown:
+            self.handleWidgetSelection(event)
+        else:
+            self.handleResize(event)
         self._p.handleEvent(event)
         if len(self._selected) > 0:
             self._deleteButton.handleEvent(event, self.deleteWidgets)
@@ -183,7 +195,30 @@ class DesignWindow():
                 else:
                     self._selectBoxCoords = (event.pos[0] - self._pos[0] ,
                                              event.pos[1] - self._pos[1])
-                self._dragging = [(s, event.pos) for s in self._selected]  
+                self._dragging = [(s, event.pos) for s in self._selected]
+
+    def checkForResizeOption(self, event):
+        x, y = pygame.mouse.get_pos()
+        x = x - self._pos[0]
+        for widget in self._widgets:
+            xCoord = widget.getX()
+            width = widget.getWidth()
+            if x in (xCoord, xCoord+width):
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEWE)
+                self._resizeShown = True
+                self._widgetToResize = ResizeWrapper(widget, pygame.mouse.get_pos())
+                break
+        else:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+            self._resizeShown = False
+            self._widgetToResize = None
+
+    def handleResize(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self._resizing = True
+        if event.type == pygame.MOUSEBUTTONUP:
+            print("do we get here")
+            self._resizing = False
 
     def paste(self):
         self._selected = []
@@ -211,6 +246,7 @@ class DesignWindow():
                    
     def update(self, ticks):
         self.updateElementDragging()
+        self.updateElementResizing()
         if len(self._selected) != 1:
             self._p.reset()
         else:
@@ -246,6 +282,16 @@ class DesignWindow():
         if not pygame.mouse.get_pressed()[0]:
             self._dragging = []
             self._snappingLines = [None, None]
+
+    def updateElementResizing(self):
+        if self._resizing:
+            x,y = pygame.mouse.get_pos()
+            w = self._widgetToResize
+            delta_x = x - w.getStartX() 
+            newWidth = w.getInitialWidth() + delta_x
+            newWidth = max(1, newWidth)
+            dims = (newWidth, w.getInitialHeight())
+            w.getWidget().setDimensions(dims)
 
     def changeZ(self):
         self._widgets.remove(self._selected[0])
