@@ -310,8 +310,8 @@ class DesignWindow():
         self._widgets.append(w)
 
     def save(self, filePath):
-        if not filePath.endswith(".pio"):
-            filePath += ".pio"
+        if not filePath.endswith(".pi"):
+            filePath += ".pi"
         with open(filePath, "w") as file:
             for w in self._widgets:
                 dec = declarations.getDeclaration(w)

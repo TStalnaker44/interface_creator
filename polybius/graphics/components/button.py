@@ -16,7 +16,7 @@ class Button(TextGraphic):
                  padding=(0,0), fontColor=(0,0,0), borderColor=(0,0,0),
                  borderWidth=0, antialias=True,
                  control=EventWrapper(pygame.MOUSEBUTTONDOWN, 1, []),
-                 cursor=pygame.mouse, dims=None):
+                 cursor=pygame.mouse, dims=None, handOnHover=True):
         """Initializes the widget with a variety of parameters"""
  
         super().__init__(position, text, font, fontColor, antialias)
@@ -35,10 +35,13 @@ class Button(TextGraphic):
         # Set the controls for interacting with the button
         self._press = control
         self._release = EventWrapper(self._press.getType()+1,
-                                     self._press.getKey, [])
-        
+                                     self._press.getKey(), [])
+
         # Set the item that interacts with the button (the mouse by default)
         self._cursor = cursor
+
+        self._hover = False
+        self._handOnHover = handOnHover
 
         self.updateGraphic()
 
@@ -109,6 +112,8 @@ class Button(TextGraphic):
         self._currentBackgroundColor = self._backgroundColor
         self._currentFontColor = self._fontColor
         self.updateGraphic()
+        if self._handOnHover:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
     def handleEvent(self, event, func, args=None, offset=(0,0)):
         """Handles events on the button"""
@@ -124,17 +129,24 @@ class Button(TextGraphic):
                 else:
                     func(*args)
         elif self._release.check(event):
-                self.setToDefaultStyling()
-        elif rect.collidepoint(self._cursor.get_pos()):
-            self.setHover()
-        else:
             self.setToDefaultStyling()
+            self._hover = False
+        elif rect.collidepoint(self._cursor.get_pos()):
+            if not self._hover:
+                self.setHover()
+                self._hover = True
+        else:
+            if self._hover:
+                self._hover = False
+                self.setToDefaultStyling()
                 
     def setHover(self):
         """Updates the button's sytling when the mouse hovers over the button"""
         self._currentBackgroundColor = self.shiftRGBValues(self._backgroundColor,
                                                            (-40,-40,-40))
         self.updateGraphic()
+        if self._handOnHover:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
 
     def internalUpdate(self, surf):
         """Update the button after parameters have been changed"""

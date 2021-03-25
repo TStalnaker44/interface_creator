@@ -41,5 +41,5 @@ class EventWrapper():
                "\nEvent mods: " + str(self._mods)
 
     def __repr__(self):
-        return ("EventWrapper(%d, %d, %s)" % (self._type, self._keys, self._mods))
+        return ("EventWrapper(%d, %s, %s)" % (self._type, str(self._keys), self._mods))
             

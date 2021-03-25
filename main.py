@@ -5,6 +5,7 @@ from polybius.graphics import Button, TextInput
 from polybius.graphics import FileMenu
 from polybius.utils import EventWrapper
 from designwindow import DesignWindow
+from cursors import resize_x
 
 import tkinter as tk
 from tkinter import filedialog
@@ -13,6 +14,8 @@ class Game(AbstractGame):
 
     def __init__(self):
         AbstractGame.__init__(self, (1000,600), "New Game")
+
+        #pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
     
         self._design = DesignWindow(pos=(200,10), dims=(590,580))
 
@@ -120,12 +123,12 @@ class Game(AbstractGame):
 
     def handleSavingAndLoading(self, event):
         if self._saveEvent.check(event):
-            path = filedialog.asksaveasfilename(filetypes=[("Polybius Interface Object","*.pio")])
+            path = filedialog.asksaveasfilename(filetypes=[("Polybius Interface","*.pi")])
             pygame.event.clear() #Ignore events while dialog is open
             if path != "":
                 self.save(path)
         if self._loadEvent.check(event):
-            path = filedialog.askopenfilename(filetypes=[("Polybius Inferface Object","*.pio")])
+            path = filedialog.askopenfilename(filetypes=[("Polybius Inferface","*.pi")])
             pygame.event.clear() #Ignore events while dialog is open
             if path != "":
                 self.load(path)
@@ -143,7 +146,6 @@ class Game(AbstractGame):
             self._design.updateInterface(ticks)
 
     def save(self, path):
-        print(path)
         self._design.save(path)
 
     def load(self, path):
