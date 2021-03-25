@@ -50,7 +50,8 @@ class DesignWindow():
         self._copyEvent = EventWrapper(pygame.KEYDOWN, pygame.K_c, [pygame.KMOD_CTRL])
         self._pasteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_v, [pygame.KMOD_CTRL])
         self._ctrlClick = EventWrapper(pygame.MOUSEBUTTONDOWN, 1, [pygame.KMOD_CTRL])
-        self._deleteEvent = EventWrapper(pygame.KEYDOWN, pygame.K_DELETE)
+        self._deleteEvent = EventWrapper(pygame.KEYDOWN, (pygame.K_DELETE,
+                                                          pygame.K_BACKSPACE))
 
         self._shiftLeftEvent = EventWrapper(pygame.KEYDOWN, pygame.K_LEFT)
         self._shiftRightEvent = EventWrapper(pygame.KEYDOWN, pygame.K_RIGHT)
@@ -309,6 +310,8 @@ class DesignWindow():
         self._widgets.append(w)
 
     def save(self, filePath):
+        if not filePath.endswith(".pio"):
+            filePath += ".pio"
         with open(filePath, "w") as file:
             for w in self._widgets:
                 dec = declarations.getDeclaration(w)

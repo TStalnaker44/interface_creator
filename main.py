@@ -41,7 +41,7 @@ class Game(AbstractGame):
         self.createModeButton()
         self.createExportButton()
         self.createAddButtons()
-        self.createFileManagers()
+        #self.createFileManagers()
 
     def createFileManagers(self):
         self._save = FileMenu((100,100), (500,400), menuType="save",
@@ -105,41 +105,30 @@ class Game(AbstractGame):
         self._modeButton.draw(screen)
         for b in self._addButtons:
             b.draw(screen)
-        if self._save.getDisplay():
-            self._save.draw(screen)
-        if self._load.getDisplay():
-            self._load.draw(screen)
 
     def handleEvent(self, event):
         # Toggle between test and create modes
         self._modeButton.handleEvent(event, self.toggleModes)
-        if not (self._save.getDisplay() or self._load.getDisplay()):
-            if self._testMode:
-                self._design.handleTestModeEvents(event)
-            else:
-                self._design.handleCreateModeEvents(event)      
-            self._exportButton.handleEvent(event, self.export)
-            for i, b in enumerate(self._addButtons):
-                b.handleEvent(event, self._design.addWidget, (self._widgetTypes[i][1],))
+        if self._testMode:
+            self._design.handleTestModeEvents(event)
+        else:
+            self._design.handleCreateModeEvents(event)      
+        self._exportButton.handleEvent(event, self.export)
+        for i, b in enumerate(self._addButtons):
+            b.handleEvent(event, self._design.addWidget, (self._widgetTypes[i][1],))
         self.handleSavingAndLoading(event)
 
     def handleSavingAndLoading(self, event):
         if self._saveEvent.check(event):
-            self._save.display()
-            self._load.close()
+            path = filedialog.asksaveasfilename(filetypes=[("Polybius Interface Object","*.pio")])
+            pygame.event.clear() #Ignore events while dialog is open
+            if path != "":
+                self.save(path)
         if self._loadEvent.check(event):
-            path = filedialog.askopenfilename(filetypes=[("Text",".txt")])
-            print(path)
-            self._load.display()
-            self._save.close()
-        if self._save.getDisplay():
-            path = filedialog.asksaveasfilename()
-            print(path)
-            sel = self._save.handleEvent(event, lambda: None)
-            if sel != None: self.save(sel)
-        if self._load.getDisplay():
-            sel = self._load.handleEvent(event, lambda: None)
-            if sel != None: self.load(sel)
+            path = filedialog.askopenfilename(filetypes=[("Polybius Inferface Object","*.pio")])
+            pygame.event.clear() #Ignore events while dialog is open
+            if path != "":
+                self.load(path)
 
     def toggleModes(self):
         self._testMode = not self._testMode
@@ -153,16 +142,15 @@ class Game(AbstractGame):
         if self._testMode:
             self._design.updateInterface(ticks)
 
-    def save(self, sel):
-        self._design.save(sel)
+    def save(self, path):
+        print(path)
+        self._design.save(path)
 
-    def load(self, sel):
-        self._design.load(sel)
+    def load(self, path):
+        self._design.load(path)
 
     def export(self):
         self._design.export()
-
-
 
 g = Game()
 g.run()

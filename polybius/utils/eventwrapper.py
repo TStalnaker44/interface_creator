@@ -1,4 +1,5 @@
 import pygame
+from collections.abc import Iterable
 
 class EventWrapper():
     """A wrapper class for pygame events"""
@@ -7,17 +8,20 @@ class EventWrapper():
         """Creates an event"""
 
         self._type = t
-        self._key = key
+        if isinstance(key, Iterable):
+            self._keys = tuple([k for k in key])
+        else:
+            self._keys = (key,)
         self._mods = mods
 
     def check(self, event):
         """Checks if the event has happened by comparing
         to an event from the event queue"""
         if event.type == self._type:
-            if hasattr(event, 'button') and event.button==self._key:
+            if hasattr(event, 'button') and event.button in self._keys:
                 if all(pygame.key.get_mods() & mod for mod in self._mods):
                     return True
-            elif hasattr(event, 'key') and event.key==self._key:
+            elif hasattr(event, 'key') and event.key in self._keys:
                 if all(event.mod & mod for mod in self._mods):
                     return True
         return False
@@ -26,16 +30,16 @@ class EventWrapper():
         return self._type
 
     def getKey(self):
-        return self._key
+        return self._keys
 
     def getMods(self):
         return self._mods
 
     def __str__(self):
         return "Event type: " + str(self._type) + \
-               "\nEvent key: " + str(self._key) + \
+               "\nEvent key: " + str(self._keys) + \
                "\nEvent mods: " + str(self._mods)
 
     def __repr__(self):
-        return ("EventWrapper(%d, %d, %s)" % (self._type, self._key, self._mods))
+        return ("EventWrapper(%d, %d, %s)" % (self._type, self._keys, self._mods))
             
