@@ -64,6 +64,11 @@ class Button(TextGraphic):
             self._height = dims[1]
             self._padding = padding
 
+    def setDimensions(self, dims):
+        self._width = dims[0]
+        self._height = dims[1]
+        self.updateGraphic()
+
     def updateDimensionsOnChange(self):
         self.setButtonDimensions(self._font, self._text,
                                  self._dims, self._padding)

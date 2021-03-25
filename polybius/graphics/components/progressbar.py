@@ -101,6 +101,11 @@ class ProgressBar(Drawable):
             self._actStat += amount
             self.updateBar()
 
+    def setDimensions(self, dims):
+        self._length = dims[0]
+        self._height = dims[1]
+        self.updateBar()
+
     def updateBar(self):
         """Updates the progress bar's attributes"""
 

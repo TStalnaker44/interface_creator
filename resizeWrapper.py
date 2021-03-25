@@ -66,8 +66,8 @@ class ResizeWrapper():
             newY = self.getInitialY()
             newHeight = self.getInitialHeight()
 
-        newHeight = max(0, newHeight)
-        newWidth = max(0, newWidth)
+        newHeight = max(1, newHeight)
+        newWidth = max(1, newWidth)
 
         pos = (newX, newY)
         dims = (newWidth, newHeight)

@@ -72,8 +72,9 @@ class AbstractGraphic(Drawable):
         surfBack.fill(self._borderColor)
 
         # Draw the primary surface
-        surf = pygame.Surface((self._width-(self._borderWidth*2),
-                               self._height-(self._borderWidth*2)))
+        w = max(0, self._width-(self._borderWidth*2))
+        h = max(0, self._height-(self._borderWidth*2))
+        surf = pygame.Surface((w,h))
         
         # Apply the background color or make transparent
         if self._backgroundColor == None:

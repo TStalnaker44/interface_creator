@@ -8,6 +8,8 @@ from parameterDisplay import ParameterDisplay
 from resizeWrapper import ResizeWrapper
 import declarations
 
+RESIZABLE = [Panel, TextInput, ProgressBar, Button]
+
 class DesignWindow():
 
     def __init__(self, pos=(0,0), dims=(600,600)):
@@ -33,9 +35,8 @@ class DesignWindow():
 
         self._resizeShown = False
         self._resizing = False
-        self._initialResizePoint = (0,0)
-        self._initialWidth = 0
         self._widgetToResize = None
+        self._scaleSensativity = 2
 
         self.defineEvents()
 
@@ -197,31 +198,44 @@ class DesignWindow():
                                              event.pos[1] - self._pos[1])
                 self._dragging = [(s, event.pos) for s in self._selected]
 
+    def plusMinusCheck(self, v, center):
+        return v in range(center-self._scaleSensativity,
+                          center+self._scaleSensativity)
+
     def checkForResizeOption(self, event):
         x, y = pygame.mouse.get_pos()
         x = x - self._pos[0]
         y = y - self._pos[1]
         for widget in self._widgets:
-            xCoord = widget.getX()
-            yCoord = widget.getY()
-            width = widget.getWidth()
-            height = widget.getHeight()
-            if x in (xCoord, xCoord+width):
-                targetEdge = "L" if x == xCoord else "R"
-                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEWE)
-                self._resizeShown = True
-                self._widgetToResize = ResizeWrapper(widget,
-                                                     pygame.mouse.get_pos(),
-                                                     targetEdge)
-                break
-            elif y in (yCoord, yCoord+height):
-                targetEdge = "T" if y == yCoord else "B"
-                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENS)
-                self._resizeShown = True
-                self._widgetToResize = ResizeWrapper(widget,
-                                                     pygame.mouse.get_pos(),
-                                                     targetEdge)
-                break
+            if type(widget) in RESIZABLE:
+                xCoord = widget.getX()
+                yCoord = widget.getY()
+                width = widget.getWidth()
+                height = widget.getHeight()
+                if self.plusMinusCheck(x, xCoord) or \
+                   self.plusMinusCheck(x, xCoord+width):
+                    if self.plusMinusCheck(x, xCoord):
+                        targetEdge = "L"
+                    else:
+                        targetEdge = "R"
+                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEWE)
+                    self._resizeShown = True
+                    self._widgetToResize = ResizeWrapper(widget,
+                                                         pygame.mouse.get_pos(),
+                                                         targetEdge)
+                    break
+                elif self.plusMinusCheck(y, yCoord) or \
+                     self.plusMinusCheck(y, yCoord+height):
+                    if self.plusMinusCheck(y, yCoord):
+                        targetEdge = "T"
+                    else:
+                        targetEdge = "B"
+                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENS)
+                    self._resizeShown = True
+                    self._widgetToResize = ResizeWrapper(widget,
+                                                         pygame.mouse.get_pos(),
+                                                         targetEdge)
+                    break
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
             self._resizeShown = False
@@ -230,8 +244,8 @@ class DesignWindow():
     def handleResize(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             self._resizing = True
-            if not self._widgetToResize.getWidget() in self._widgets:
-                self._selected.append(self._widgetToResize.getWidget())
+            self._selected = []
+            self._selected.append(self._widgetToResize.getWidget())
         if event.type == pygame.MOUSEBUTTONUP:
             self._resizing = False
 
