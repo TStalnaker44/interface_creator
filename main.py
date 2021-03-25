@@ -6,6 +6,9 @@ from polybius.graphics import FileMenu
 from polybius.utils import EventWrapper
 from designwindow import DesignWindow
 
+import tkinter as tk
+from tkinter import filedialog
+
 class Game(AbstractGame):
 
     def __init__(self):
@@ -28,6 +31,9 @@ class Game(AbstractGame):
 
         self._loadEvent = EventWrapper(pygame.KEYDOWN,
                                        pygame.K_o, [pygame.KMOD_CTRL])
+
+        self._root = tk.Tk()
+        self._root.withdraw()
         
         self.createUI()
 
@@ -122,9 +128,13 @@ class Game(AbstractGame):
             self._save.display()
             self._load.close()
         if self._loadEvent.check(event):
+            path = filedialog.askopenfilename(filetypes=[("Text",".txt")])
+            print(path)
             self._load.display()
             self._save.close()
         if self._save.getDisplay():
+            path = filedialog.asksaveasfilename()
+            print(path)
             sel = self._save.handleEvent(event, lambda: None)
             if sel != None: self.save(sel)
         if self._load.getDisplay():
