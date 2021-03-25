@@ -204,9 +204,12 @@ class DesignWindow():
             xCoord = widget.getX()
             width = widget.getWidth()
             if x in (xCoord, xCoord+width):
+                targetEdge = "L" if x == xCoord else "R"
                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEWE)
                 self._resizeShown = True
-                self._widgetToResize = ResizeWrapper(widget, pygame.mouse.get_pos())
+                self._widgetToResize = ResizeWrapper(widget,
+                                                     pygame.mouse.get_pos(),
+                                                     targetEdge)
                 break
         else:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
@@ -216,8 +219,9 @@ class DesignWindow():
     def handleResize(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             self._resizing = True
+            if not self._widgetToResize.getWidget() in self._widgets:
+                self._selected.append(self._widgetToResize.getWidget())
         if event.type == pygame.MOUSEBUTTONUP:
-            print("do we get here")
             self._resizing = False
 
     def paste(self):
@@ -285,13 +289,9 @@ class DesignWindow():
 
     def updateElementResizing(self):
         if self._resizing:
-            x,y = pygame.mouse.get_pos()
-            w = self._widgetToResize
-            delta_x = x - w.getStartX() 
-            newWidth = w.getInitialWidth() + delta_x
-            newWidth = max(1, newWidth)
-            dims = (newWidth, w.getInitialHeight())
-            w.getWidget().setDimensions(dims)
+            self._widgetToResize.resize()
+            if len(self._selected) == 1:
+                self._p.createLabels(self._selected[0], self._widgets.index(self._selected[0]))
 
     def changeZ(self):
         self._widgets.remove(self._selected[0])
