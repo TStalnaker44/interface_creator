@@ -200,12 +200,23 @@ class DesignWindow():
     def checkForResizeOption(self, event):
         x, y = pygame.mouse.get_pos()
         x = x - self._pos[0]
+        y = y - self._pos[1]
         for widget in self._widgets:
             xCoord = widget.getX()
+            yCoord = widget.getY()
             width = widget.getWidth()
+            height = widget.getHeight()
             if x in (xCoord, xCoord+width):
                 targetEdge = "L" if x == xCoord else "R"
                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEWE)
+                self._resizeShown = True
+                self._widgetToResize = ResizeWrapper(widget,
+                                                     pygame.mouse.get_pos(),
+                                                     targetEdge)
+                break
+            elif y in (yCoord, yCoord+height):
+                targetEdge = "T" if y == yCoord else "B"
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZENS)
                 self._resizeShown = True
                 self._widgetToResize = ResizeWrapper(widget,
                                                      pygame.mouse.get_pos(),

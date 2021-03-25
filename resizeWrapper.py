@@ -39,7 +39,9 @@ class ResizeWrapper():
         return self._initialPosition[1]
 
     def resize(self):
+        
         x, y = pygame.mouse.get_pos()
+        
         delta_x = x - self.getStartX()
         if "R" in self.getTargetEdges():
             newX = self.getInitialX()
@@ -52,8 +54,17 @@ class ResizeWrapper():
             newX = self.getInitialX()
             newWidth = self.getInitialWidth()
 
-        newY = self.getInitialY()
-        newHeight = self.getInitialHeight()
+        delta_y = y - self.getStartY()
+        if "B" in self.getTargetEdges():
+            newY = self.getInitialY()
+            newHeight = self.getInitialHeight() + delta_y
+        elif "T" in self.getTargetEdges():
+            newY = self.getInitialY() + delta_y
+            newY = min(newY, self.getInitialY()+self.getInitialHeight())
+            newHeight = self.getInitialHeight() - delta_y
+        else:
+            newY = self.getInitialY()
+            newHeight = self.getInitialHeight()
 
         newHieght = max(0, newHeight)
         newWidth = max(0, newWidth)
