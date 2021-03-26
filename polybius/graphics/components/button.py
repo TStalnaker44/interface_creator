@@ -67,6 +67,17 @@ class Button(TextGraphic):
     def setDimensions(self, dims):
         self._width = dims[0]
         self._height = dims[1]
+        # calculate the new padding
+        t = self._text.split("\n")
+        height = 0
+        width = 0
+        for line in t:
+            w, h = self._font.size(line)
+            height += h
+            width = max(width, w)
+        h_padding = (self._width - width)//2
+        v_padding = (self._height-height)//2
+        self._padding = (h_padding, v_padding)
         self.updateGraphic()
 
     def updateDimensionsOnChange(self):
