@@ -6,41 +6,73 @@ Contains classes that model and manage tabs and groups of tabs
 """
 
 from polybius.graphics.basics.drawable import Drawable
+from polybius.utils import EventWrapper
 from .textbox import TextBox
+from polybius.graphics.utils import AbstractGraphic
 import pygame
 
-class Tabs(Drawable):
+class Tabs(AbstractGraphic):
 
-    def __init__(self, text, position, font, color, backgroundColor,
-                 dimensions, activeBackgroundColor, activeFontColor,
-                 borderColor=(0,0,0), borderWidth=1, defaultActive=0):
+    def __init__(self, tabLabels, position, font, color, tabColor,
+                 dimensions, activeTabColor, activeFontColor,
+                 borderColor=(0,0,0), borderWidth=1, defaultActive=0,
+                 maxTabWidth=None, backgroundColor=(0,0,0)):
         """Initializes the widget with a variety of parameters"""
         
-        super().__init__("", position, worldBound=False)
+        super().__init__(position)
         self._width = dimensions[0]
         self._height = dimensions[1]
         self._font = font
         self._fontColor = color
         self._borderColor = borderColor
         self._borderWidth = borderWidth
-        self._tabs = []
         self._active = defaultActive
-        
-        tabCount = len(text)
-        tabWidth = self._width // tabCount
-        tabXPos = 0
-        for t in text:
-            self._tabs.append(Tab(t, (tabXPos,0), font, color, backgroundColor,
-                                  activeFontColor, activeBackgroundColor,
-                                  (tabWidth,self._height), (0,0,0), 1))
-            tabXPos += tabWidth
 
+        self._labels = tabLabels
+        self._tabColor = tabColor
+        self._activeFontColor = activeFontColor
+        self._activeTabColor = activeTabColor
+        self._backgroundColor = backgroundColor
+
+        self._clickEvent = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
+
+        if maxTabWidth == None:
+            maxTabWidth = self._width // len(self._labels)
+        self._maxTabWidth = maxTabWidth
+
+        self.makeTabs()
         self._tabs[self._active].setActive()
-        self.updateTabs()
+        self.updateGraphic()
+
+
+    def makeTabs(self):
+        self._tabs = []
+        tabCount = len(self._labels)
+        tabWidth = self._width // tabCount
+        tabWidth = min(tabWidth, self._maxTabWidth)
+        tabDims = (tabWidth, self._height)
+        tabX = 0
+        for label in self._labels:
+            pos = (tabX, 0)
+            t = Tab(label, pos, self._font, self._fontColor,
+                    self._tabColor, self._activeFontColor,
+                    self._activeTabColor, tabDims, (0,0,0), 0)
+            self._tabs.append(t)
+            tabX += tabWidth
+
+    def addTab(self, label):
+        self._labels.append(label)
+        self.makeTabs()
+        self.updateGraphic()
 
     def getActive(self):
         """Returns the current active tab"""
         return self._active
+
+    def setActive(self, tabIndex):
+        self._active = tabIndex
+        self._tabs[tabIndex].setActive()
+        self.updateGraphic()
 
     def getTabs(self):
         """Returns all of the tabs in the grouping"""
@@ -48,37 +80,33 @@ class Tabs(Drawable):
 
     def handleEvent(self, event, offset=(0,0)):
         """Handle events on all tabs"""
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
-            if self.getCollideRect().collidepoint(event.pos):
+        if self._clickEvent.check(event):
+            x,y = event.pos
+            pos = (x - offset[0], y - offset[1])
+            if self.getCollideRect().collidepoint(pos):
                 for tab in self._tabs:
                     rect = tab.getCollideRect().move(self._position[0], self._position[1])
                     rect = rect.move(offset[0], offset[1])
                     if rect.collidepoint(event.pos):
                         self._active = self._tabs.index(tab)
-                        tab.setActive() 
+                        tab.setActive()
                     else:
-                        tab.setNotActive()
-                self.updateTabs()
+                        if tab.isActive():
+                            tab.setNotActive()
+                self.updateGraphic()
             
-    def updateTabs(self):
+    def internalUpdate(self, surf):
         """Update all the tabs"""
-        surfBack = pygame.Surface((self._width+(self._borderWidth*2),
-                                           (self._height+(self._borderWidth*2))))
-        surfBack.fill(self._borderColor)
-        surf = pygame.Surface((self._width, self._height))
         for tab in self._tabs:
             tab.draw(surf)
-        surfBack.blit(surf, (self._borderWidth, self._borderWidth))
-        self._image = surfBack
-        
 
-class Tab(Drawable):
+class Tab(AbstractGraphic):
 
     def __init__(self, text, position, font, color, backgroundColor,
                  activeFontColor, activeBackgroundColor, dimensions,
                  borderColor=(0,0,0), borderWidth=0):
         """Initializes a tab instance"""
-        super().__init__("", position, worldBound=False)
+        super().__init__(position)
         self._fontColor = color
         self._font = font
         self._backgroundColor = backgroundColor
@@ -91,7 +119,7 @@ class Tab(Drawable):
 
         self._activeFontColor = activeFontColor
         self._activeBackgroundColor = activeBackgroundColor
-        self.updateTab()
+        self.updateGraphic()
 
     def getText(self):
         """Returns the text of the tab"""
@@ -104,32 +132,26 @@ class Tab(Drawable):
     def setActive(self):
         """Sets the tab to active"""
         self._active = True
-        self.updateTab()
+        self.updateGraphic()
 
     def setNotActive(self):
         """Sets the tab to not active"""
         self._active = False
-        self.updateTab()
+        self.updateGraphic()
 
-    def updateTab(self):
+    def internalUpdate(self, surf):
         """Updates the tab based on changes in attributes"""
-        surfBack = pygame.Surface((self._width+(self._borderWidth*2),
-                                       (self._height+(self._borderWidth*2))))
-        surfBack.fill(self._borderColor)
-        surf = pygame.Surface((self._width, self._height))
-        t = None
         if self.isActive():
-            surf.fill(self._backgroundColor)
-            t = TextBox(self._text, (0,0), self._font, self._fontColor)
-        else:
             surf.fill(self._activeBackgroundColor)
             t = TextBox(self._text, (0,0), self._font, self._activeFontColor)
+        else:
+            surf.fill(self._backgroundColor)
+            t = TextBox(self._text, (0,0), self._font, self._fontColor)
         y_pos = (self._height // 2) - (t.getHeight() // 2)
         x_pos = (self._width // 2) - (t.getWidth() // 2)
         t.setPosition((x_pos, y_pos))
         t.draw(surf)
-        surfBack.blit(surf, (self._borderWidth, self._borderWidth))
-        self._image = surfBack
+        
             
         
             

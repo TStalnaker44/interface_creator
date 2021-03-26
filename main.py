@@ -2,7 +2,7 @@
 import pygame
 from polybius.abstractGame import AbstractGame
 from polybius.graphics import Button, TextInput
-from polybius.graphics import FileMenu
+from polybius.graphics import FileMenu, Tabs
 from polybius.utils import EventWrapper
 from designwindow import DesignWindow
 
@@ -38,6 +38,9 @@ class Game(AbstractGame):
         self._loadEvent = EventWrapper(pygame.KEYDOWN,
                                        pygame.K_o, [pygame.KMOD_CTRL])
 
+        self._newCanvasEvent = EventWrapper(pygame.KEYDOWN, pygame.K_n,
+                                            [pygame.KMOD_CTRL])
+
         self._root = tk.Tk()
         self._root.withdraw()
         
@@ -47,6 +50,20 @@ class Game(AbstractGame):
         self.createModeButton()
         self.createExportButton()
         self.createAddButtons()
+        self.createTabs()
+
+    def createTabs(self):
+        tabFont = pygame.font.SysFont("Impact", 16)
+        pos = (210, 5)
+        dims = (self._designWindowDims[0]-20, 25)
+        self._tabs = Tabs(["0"], pos,
+                          tabFont, (0,0,0),
+                          (100,100,100),
+                          dims,
+                          (200,200,200),
+                          (0,0,0),
+                          maxTabWidth=100,
+                          backgroundColor=(120,120,120))
 
     def createAddButtons(self):
         addFont = pygame.font.SysFont("Impact", 20)
@@ -99,6 +116,7 @@ class Game(AbstractGame):
         for b in self._addButtons:
             b.draw(screen)
         self.getCurrentLevel().draw(screen)
+        self._tabs.draw(screen)
 
     def handleEvent(self, event):
         # Toggle between test and create modes
@@ -112,8 +130,15 @@ class Game(AbstractGame):
         for i, b in enumerate(self._addButtons):
             b.handleEvent(event, current.addWidget, (self._widgetTypes[i][1],))
         self.handleSavingAndLoading(event)
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-            self.switchTo((self.getCurrentLevelName() + 1)%self.getNumberOfLevels())
+        if self._newCanvasEvent.check(event):
+           self.new()
+        self._tabs.handleEvent(event)
+        activeTab = int(self._tabs.getActive())
+        activeLevel = self.getCurrentLevelName()
+        if activeTab != activeLevel:
+            self.switchTo(activeTab)
+##        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+##            self.switchTo((self.getCurrentLevelName() + 1)%self.getNumberOfLevels())
 
     def handleSavingAndLoading(self, event):
         if self._saveEvent.check(event):
@@ -138,6 +163,15 @@ class Game(AbstractGame):
         if self._testMode:
             self.getCurrentLevel().updateInterface(ticks)
 
+    def new(self):
+        level = DesignWindow(pos=self._designWindowPos,
+                             dims=self._designWindowDims)
+        num = self.getNumberOfLevels()
+        self.addLevel(num, level)
+        self.switchTo(num)
+        self._tabs.addTab(str(num))
+        self._tabs.setActive(num)
+
     def save(self, path):
         self.getCurrentLevel().save(path)
 
@@ -148,6 +182,8 @@ class Game(AbstractGame):
         num = self.getNumberOfLevels()
         self.addLevel(num, level)
         self.switchTo(num)
+        self._tabs.addTab(str(num))
+        self._tabs.setActive(num)
 
     def export(self):
         self.getCurrentLevel().export()
