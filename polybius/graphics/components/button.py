@@ -119,7 +119,6 @@ class Button(TextGraphic):
         self.updateGraphic()
         if self._handOnHover and self._hover:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
-            print("cool")
 
     def handleEvent(self, event, func, args=None, offset=(0,0)):
         """Handles events on the button"""

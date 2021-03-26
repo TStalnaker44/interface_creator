@@ -136,13 +136,15 @@ class DesignWindow():
                 self.paste()
         if self._selectAllEvent.check(event):
             self.selectAll()
-        if self._deleteEvent.check(event):
-            self.deleteWidgets()
+##        if self._deleteEvent.check(event):
+##            self.deleteWidgets()
         if not self._p.isActive():
             if self._shiftLeftEvent.check(event): self.shift((-1,0))
             if self._shiftRightEvent.check(event): self.shift((1,0))
             if self._shiftUpEvent.check(event): self.shift((0,-1))
             if self._shiftDownEvent.check(event): self.shift((0,1))
+            if self._deleteEvent.check(event):
+                self.deleteWidgets()
         if not self._resizing:
             self.checkForResizeOption(event)
         if not self._resizeShown:
