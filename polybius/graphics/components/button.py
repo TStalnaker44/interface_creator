@@ -117,8 +117,9 @@ class Button(TextGraphic):
         self._currentBackgroundColor = self._backgroundColor
         self._currentFontColor = self._fontColor
         self.updateGraphic()
-        if self._handOnHover:
+        if self._handOnHover and self._hover:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+            print("cool")
 
     def handleEvent(self, event, func, args=None, offset=(0,0)):
         """Handles events on the button"""
@@ -142,8 +143,8 @@ class Button(TextGraphic):
                 self._hover = True
         else:
             if self._hover:
-                self._hover = False
                 self.setToDefaultStyling()
+                self._hover = False
                 
     def setHover(self):
         """Updates the button's sytling when the mouse hovers over the button"""

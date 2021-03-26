@@ -7,6 +7,7 @@ A class that creates and manages textual input boxes
 
 from polybius.graphics.utils.textgraphic import TextGraphic
 from polybius.utils import Timer, EventWrapper, KEY_IDENTIFIER
+from polybius.managers import CURSOR
 from .textbox import TextBox
 import pygame, string
 
@@ -18,7 +19,7 @@ class TextInput(TextGraphic):
                  backgroundHighlight=(225,225,255), maxLen=10,
                  numerical=False, highlightColor=(0,0,0), defaultText="",
                  clearOnActive=False, allowNegative=False, antialias=True,
-                 allowSymbols=False):
+                 allowSymbols=False, updateCursor=True):
         """Initializes the widget with a variety of parameters"""
         super().__init__(position, "", font, color, antialias)
         self._width = dimensions[0]
@@ -48,6 +49,9 @@ class TextInput(TextGraphic):
         self._deleteTimer = Timer(.2)
         self._deleting = False
         self._realDeletes = False
+
+        self._updateCursor = updateCursor
+        self._ibeam = False
 
         self.updateGraphic()
 
@@ -88,6 +92,16 @@ class TextInput(TextGraphic):
         text = self._textbox.getText()
         rect = self.getCollideRect()
         rect = rect.move(offset[0], offset[1])
+
+        if rect.collidepoint(CURSOR.getPosition()):
+            if not self._ibeam:
+                CURSOR.setCursor("ibeam")
+                self._ibeam = True
+        else:
+            if self._ibeam:
+                CURSOR.setToDefault()
+                self._ibeam = False
+        
         if event.type == pygame.MOUSEBUTTONDOWN and event.button==1:
             if rect.collidepoint(event.pos):
                 self._makeActive(text)

@@ -5,6 +5,7 @@ from polybius.abstractLevel import AbstractLevel
 from polybius.graphics import Drawable
 from polybius.utils.abstractPlayer import AbstractPlayer
 from polybius.managers import FRAMES
+from cursorManager import CursorManager
 
 class Sandbox(AbstractGame):
 
@@ -15,6 +16,7 @@ class Sandbox(AbstractGame):
         self._level2 = Main(self.getScreenSize())
         self.addLevel("main2", self._level2)
         self.switchTo("main")
+        self._cursor = CursorManager()
 
     def handleEvent(self, event):
         code = self._level.checkForExitCode()
@@ -25,6 +27,16 @@ class Sandbox(AbstractGame):
         if code != None:
             self.switchTo("main")
             return
+        if event.type == pygame.KEYDOWN and event.key==pygame.K_c:
+            self._cursor.setCursor("no")
+        if event.type == pygame.KEYDOWN and event.key==pygame.K_f:
+            self._cursor.setCursor("pointer")
+        if event.type == pygame.KEYDOWN and event.key==pygame.K_g:
+            self._cursor.makeInvisible()
+        if event.type == pygame.KEYDOWN and event.key==pygame.K_h:
+            self._cursor.makeVisible()
+        if event.type == pygame.KEYDOWN and event.key==pygame.K_k:
+            print(self._cursor.getCursor())
         
 class Main(AbstractLevel):
 
