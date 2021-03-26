@@ -5,6 +5,7 @@ from polybius.abstractLevel import AbstractLevel
 from polybius.graphics import Drawable
 from polybius.utils.abstractPlayer import AbstractPlayer
 from polybius.managers import FRAMES
+from polybius.utils.doubleclickevent import DoubleClickEvent
 
 class Sandbox(AbstractGame):
 
@@ -15,6 +16,7 @@ class Sandbox(AbstractGame):
         self._level2 = Main(self.getScreenSize())
         self.addLevel("main2", self._level2)
         self.switchTo("main")
+        
 
     def handleEvent(self, event):
         code = self._level.checkForExitCode()
@@ -27,6 +29,7 @@ class Sandbox(AbstractGame):
             return
         if event.type == pygame.KEYDOWN:
             print(event.key)
+
         
 class Main(AbstractLevel):
 
@@ -43,6 +46,7 @@ class Main(AbstractLevel):
         self._player2 = AbstractPlayer(surf, (25,25), movement)
         self.setTrackingObject(self._player1)
         self.setWorldSize((5000,5000))
+        self._doubleClickEvent = DoubleClickEvent(self._player2.getCollideRect())
 
     def draw(self, screen):
         self._back.draw(screen)
@@ -60,6 +64,9 @@ class Main(AbstractLevel):
                 self.setTrackingObject(self._player1)
         if event.type == pygame.KEYDOWN and event.key==pygame.K_u:
             self.setExitCode((1,))
+
+        if self._doubleClickEvent.check(event):
+            print("Hoohaa")
 
     def update(self, ticks):
         self._player1.update(ticks, self.getWorldSize(), "bounce")
