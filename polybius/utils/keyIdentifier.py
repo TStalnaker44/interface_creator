@@ -13,51 +13,59 @@ class KeyIdentifier():
         return cls._INSTANCE
 
     class _KI():
-        #TO-DO: Caps Lock and Num Lock checks do no work quite right
 
         def __init__(self):
 
-            self._numSymbols = ")!@#$%^&*("
-
             self._symbolKeys = [ord(p) for p in string.punctuation]
 
-            self._symbols = {EventWrapper(pygame.KEYDOWN, i+48, [pygame.KMOD_SHIFT]):s
-                               for i, s in enumerate(")!@#$%^&*(")}
+            # Initialize the symbol dictionary
+            self._symbols = {}
 
+            # Get the key IDs from pygame
+            numKeys = [eval("pygame.K_%d" % (i,)) for i in range(10)]
+            numPadKeys = [eval("pygame.K_KP%d" % (i,)) for i in range(10)]
+            alphaKeys = [eval("pygame.K_%s" % (chr(i+97),)) for i in range(26)]
+
+            # Add digits to the dictionary
             for x in range(10):
-                self._symbols[EventWrapper(pygame.KEYDOWN, x+48)] = str(x)
-                self._symbols[EventWrapper(pygame.KEYDOWN, x+256,
+                self._symbols[EventWrapper(pygame.KEYDOWN, numKeys[x])] = str(x)
+                self._symbols[EventWrapper(pygame.KEYDOWN, numPadKeys[x],
                                            [pygame.KMOD_NUM])] = str(x)
 
-            for x in range(27):
-                self._symbols[EventWrapper(pygame.KEYDOWN, x+97)] = chr(x+97)
-                self._symbols[EventWrapper(pygame.KEYDOWN, x+97, [pygame.KMOD_SHIFT])] = chr(x+65)
-                self._symbols[EventWrapper(pygame.KEYDOWN, x+97, [pygame.KMOD_CAPS])] = chr(x+65)
+            # Add symbols to the dictionary
+            for i, s in enumerate(")!@#$%^&*("):
+                self._symbols[EventWrapper(pygame.KEYDOWN, numKeys[i],
+                                           [pygame.KMOD_SHIFT])] = s
+
+            # Add letters to the dictionary
+            for i in range(26):
+                self._symbols[EventWrapper(pygame.KEYDOWN, alphaKeys[i])] = chr(97+i)
+                self._symbols[EventWrapper(pygame.KEYDOWN, alphaKeys[i], [pygame.KMOD_SHIFT])] = chr(i+65)
+                self._symbols[EventWrapper(pygame.KEYDOWN, alphaKeys[i], [pygame.KMOD_CAPS])] = chr(i+65)
                 
-            self._symbols[EventWrapper(pygame.KEYDOWN, 91)] = "["
-            self._symbols[EventWrapper(pygame.KEYDOWN, 92)] = "\\"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 93)] = "]"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_LEFTBRACKET)] = "["
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_BACKSLASH)] = "\\"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_RIGHTBRACKET)] = "]"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_COMMA)] = ","
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_PERIOD)] = "."
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_SLASH)] = "/"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_SEMICOLON)] = ";"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_QUOTE)] = "'"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_BACKQUOTE)] = "`"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_EQUALS)] = "="
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_MINUS)] = "-"
             
-            self._symbols[EventWrapper(pygame.KEYDOWN, 44)] = ","
-            self._symbols[EventWrapper(pygame.KEYDOWN, 46)] = "."
-            self._symbols[EventWrapper(pygame.KEYDOWN, 47)] = "/"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 59)] = ";"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 39)] = "'"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 96)] = "`"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 61)] = "="
-            self._symbols[EventWrapper(pygame.KEYDOWN, 45)] = "-"
-            
-            self._symbols[EventWrapper(pygame.KEYDOWN, 44, [pygame.KMOD_SHIFT])] = "<"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 46, [pygame.KMOD_SHIFT])] = ">"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 47, [pygame.KMOD_SHIFT])] = "?"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 91, [pygame.KMOD_SHIFT])] = "{"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 93, [pygame.KMOD_SHIFT])] = "}"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 61, [pygame.KMOD_SHIFT])] = "+"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 96, [pygame.KMOD_SHIFT])] = "~"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 92, [pygame.KMOD_SHIFT])] = "|"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 39, [pygame.KMOD_SHIFT])] = '"'
-            self._symbols[EventWrapper(pygame.KEYDOWN, 59, [pygame.KMOD_SHIFT])] = ":"
-            self._symbols[EventWrapper(pygame.KEYDOWN, 45, [pygame.KMOD_SHIFT])] = "_"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_COMMA, [pygame.KMOD_SHIFT])] = "<"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_PERIOD, [pygame.KMOD_SHIFT])] = ">"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_SLASH, [pygame.KMOD_SHIFT])] = "?"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_LEFTBRACKET, [pygame.KMOD_SHIFT])] = "{"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_RIGHTBRACKET, [pygame.KMOD_SHIFT])] = "}"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_EQUALS, [pygame.KMOD_SHIFT])] = "+"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_BACKQUOTE, [pygame.KMOD_SHIFT])] = "~"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_BACKSLASH, [pygame.KMOD_SHIFT])] = "|"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_QUOTE, [pygame.KMOD_SHIFT])] = '"'
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_SEMICOLON, [pygame.KMOD_SHIFT])] = ":"
+            self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_MINUS, [pygame.KMOD_SHIFT])] = "_"
 
             self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_KP_PLUS)] = "+"
             self._symbols[EventWrapper(pygame.KEYDOWN, pygame.K_KP_MINUS)] = "-"

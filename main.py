@@ -12,7 +12,7 @@ from tkinter import filedialog
 class Game(AbstractGame):
 
     def __init__(self):
-        AbstractGame.__init__(self, (1000,600), "New Game")
+        AbstractGame.__init__(self, (1000,600), "Polybius Designer")
 
         #pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
     

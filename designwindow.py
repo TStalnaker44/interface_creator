@@ -136,8 +136,6 @@ class DesignWindow():
                 self.paste()
         if self._selectAllEvent.check(event):
             self.selectAll()
-##        if self._deleteEvent.check(event):
-##            self.deleteWidgets()
         if not self._p.isActive():
             if self._shiftLeftEvent.check(event): self.shift((-1,0))
             if self._shiftRightEvent.check(event): self.shift((1,0))

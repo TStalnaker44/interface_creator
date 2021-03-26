@@ -19,7 +19,7 @@ class TextInput(TextGraphic):
                  backgroundHighlight=(225,225,255), maxLen=10,
                  numerical=False, highlightColor=(0,0,0), defaultText="",
                  clearOnActive=False, allowNegative=False, antialias=True,
-                 allowSymbols=False, updateCursor=True):
+                 allowSymbols=True, updateCursor=True):
         """Initializes the widget with a variety of parameters"""
         super().__init__(position, "", font, color, antialias)
         self._width = dimensions[0]
