@@ -1,7 +1,6 @@
 
 import pygame
 from .eventwrapper import EventWrapper
-from .timer import Timer
 
 class DoubleClickEvent():
 

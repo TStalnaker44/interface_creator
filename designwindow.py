@@ -4,6 +4,7 @@ from polybius.graphics import Button, TextInput, TextBox
 from polybius.graphics import MultiLineTextBox, ProgressBar
 from polybius.graphics import Panel, Incrementer
 from polybius.utils import EventWrapper, Font
+from polybius.abstractLevel import AbstractLevel
 from parameterDisplay import ParameterDisplay
 from resizeWrapper import ResizeWrapper
 import declarations
@@ -18,10 +19,11 @@ CURSORS = {"L":pygame.SYSTEM_CURSOR_SIZEWE,
            "RT":pygame.SYSTEM_CURSOR_SIZENESW,
            "RB":pygame.SYSTEM_CURSOR_SIZENWSE}
 
-class DesignWindow():
+class DesignWindow(AbstractLevel):
 
     def __init__(self, pos=(0,0), dims=(600,600)):
 
+        super().__init__(dims)
         self._pos = pos
         self._dims = dims
         self._window = pygame.Surface(self._dims)

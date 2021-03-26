@@ -14,9 +14,13 @@ class Game(AbstractGame):
     def __init__(self):
         AbstractGame.__init__(self, (1000,600), "Polybius Designer")
 
-        #pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
-    
-        self._design = DesignWindow(pos=(200,10), dims=(590,580))
+        self._designWindowPos = (200, 10)
+        self._designWindowDims = (590,580)
+        designWindow = DesignWindow(pos=self._designWindowPos,
+                                    dims=self._designWindowDims)
+        self.addLevel(0, designWindow)
+        self.switchTo(0)
+        self.setAutoDrawLevels(False)
 
         self._widgetTypes = [("Panel","Panel"),
                              ("Button","Button"),
@@ -48,7 +52,7 @@ class Game(AbstractGame):
         addFont = pygame.font.SysFont("Impact", 20)
         buttonHeight = addFont.size("A")[1]
         buttonWidth = 180
-        x = self._design._pos[0] // 2 - buttonWidth // 2
+        x = self._designWindowPos[0] // 2 - buttonWidth // 2
         start = 75
         self._addButtons = []
         for i, k in enumerate(self._widgetTypes):
@@ -66,7 +70,7 @@ class Game(AbstractGame):
 
     def createExportButton(self):
         exportFont = pygame.font.SysFont("Impact", 24)
-        x = (self._design._pos[0] // 2) - (exportFont.size("Export")[0]+10)//2
+        x = (self._designWindowPos[0] // 2) - (exportFont.size("Export")[0]+10)//2
         y = self.getScreen().get_height()-exportFont.size("Export")[1]-10
         self._exportButton = Button("Export", (x,y), exportFont,
                                     padding=(5,0),
@@ -79,7 +83,7 @@ class Game(AbstractGame):
         dims = exportFont.size("Enter Create Mode")
         padding = (10,0)
         dims = (dims[0]+padding[0], dims[1]+padding[1])
-        x = (self._design._pos[0] // 2) - (dims[0])//2
+        x = self._designWindowPos[0] // 2 - dims[0] // 2
         y = 15
         self._modeButton = Button("Enter Test Mode", (x,y), exportFont,
                                     padding=padding,
@@ -90,23 +94,26 @@ class Game(AbstractGame):
 
     def draw(self, screen):
         self.getScreen().fill((50,50,50))
-        self._design.draw(screen)
         self._exportButton.draw(screen)
         self._modeButton.draw(screen)
         for b in self._addButtons:
             b.draw(screen)
+        self.getCurrentLevel().draw(screen)
 
     def handleEvent(self, event):
         # Toggle between test and create modes
         self._modeButton.handleEvent(event, self.toggleModes)
+        current = self.getCurrentLevel()
         if self._testMode:
-            self._design.handleTestModeEvents(event)
+            current.handleTestModeEvents(event)
         else:
-            self._design.handleCreateModeEvents(event)      
+            current.handleCreateModeEvents(event)
         self._exportButton.handleEvent(event, self.export)
         for i, b in enumerate(self._addButtons):
-            b.handleEvent(event, self._design.addWidget, (self._widgetTypes[i][1],))
+            b.handleEvent(event, current.addWidget, (self._widgetTypes[i][1],))
         self.handleSavingAndLoading(event)
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            self.switchTo((self.getCurrentLevelName() + 1)%self.getNumberOfLevels())
 
     def handleSavingAndLoading(self, event):
         if self._saveEvent.check(event):
@@ -128,18 +135,22 @@ class Game(AbstractGame):
             self._modeButton.setText("Enter Test Mode")
             
     def update(self, ticks):
-        self._design.update(ticks)
         if self._testMode:
-            self._design.updateInterface(ticks)
+            self.getCurrentLevel().updateInterface(ticks)
 
     def save(self, path):
-        self._design.save(path)
+        self.getCurrentLevel().save(path)
 
     def load(self, path):
-        self._design.load(path)
+        level = DesignWindow(pos=self._designWindowPos,
+                             dims=self._designWindowDims)
+        level.load(path)
+        num = self.getNumberOfLevels()
+        self.addLevel(num, level)
+        self.switchTo(num)
 
     def export(self):
-        self._design.export()
+        self.getCurrentLevel().export()
 
 g = Game()
 g.run()

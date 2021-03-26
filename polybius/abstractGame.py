@@ -25,7 +25,10 @@ class AbstractGame():
         self._gameClock = pygame.time.Clock()
 
         self._levels = {}
+        self._levels2names = {}
         self._currentLevel = None
+
+        self._autoDrawLevels = True
         
         self._running = True
 
@@ -51,16 +54,27 @@ class AbstractGame():
 
     def addLevel(self, levelName, level):
         self._levels[levelName] = level
+        self._levels2names[level] = levelName
 
     def switchTo(self, levelName):
         self._currentLevel = self._levels.get(levelName, None)
 
+    def getNumberOfLevels(self):
+        return len(self._levels)
+
     def getCurrentLevel(self):
         return self._currentLevel
 
+    def getCurrentLevelName(self):
+        return self._levels2names[self._currentLevel]
+
+    def setAutoDrawLevels(self, boolean):
+        self._autoDrawLevels = boolean
+
     def _abstractDraw(self):
         self.getScreen().fill((255, 255, 255))
-        if self._currentLevel != None:
+        if self._currentLevel != None and \
+           self._autoDrawLevels:
             self._currentLevel.draw(self._screen)
         self.draw(self._screen)
         pygame.display.flip()
