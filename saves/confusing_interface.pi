@@ -1,0 +1,8 @@
+Panel((95,52),dims=(410,338),color=(120, 120, 120),borderColor=(0, 0, 0),borderWidth=4)
+Button('Submit',(147,309),Font('Impact',32),backgroundColor=(100, 120, 80),fontColor=(0, 0, 0),borderColor=(0, 0, 0),borderWidth=2,padding=(106, 10))
+MultiLineTextBox('Are you sure you want to continue?',(128,95),Font('Times New Roman',24),fontColor=(0, 0, 0),backgroundColor=None,padding=(0, 0),linespacing=0,alignment='center')
+TextBox('You can not undo this action',(185,146),Font('Times New Roman',20))
+Button('Yes',(146,271),Font('Impact',20),backgroundColor=(100, 120, 80),fontColor=(0, 0, 0),borderColor=(0, 0, 0),borderWidth=2,padding=(47, 4))
+Button('Definitely',(278,272),Font('Impact',20),backgroundColor=(100, 120, 80),fontColor=(0, 0, 0),borderColor=(0, 0, 0),borderWidth=2,padding=(49, 4))
+Button('Of Course',(147,213),Font('Impact',28),backgroundColor=(100, 120, 80),fontColor=(0, 0, 0),borderColor=(0, 0, 0),borderWidth=2,padding=(52, 10))
+Button('Maybe',(371,213),Font('Impact',20),backgroundColor=(100, 120, 80),fontColor=(0, 0, 0),borderColor=(0, 0, 0),borderWidth=2,padding=(13, 14))
