@@ -84,15 +84,20 @@ class Tabs(AbstractGraphic):
             x,y = event.pos
             pos = (x - offset[0], y - offset[1])
             if self.getCollideRect().collidepoint(pos):
-                for tab in self._tabs:
+                pressed = []
+                for i, tab in enumerate(self._tabs):
                     rect = tab.getCollideRect().move(self._position[0], self._position[1])
                     rect = rect.move(offset[0], offset[1])
                     if rect.collidepoint(event.pos):
-                        self._active = self._tabs.index(tab)
-                        tab.setActive()
-                    else:
-                        if tab.isActive():
-                            tab.setNotActive()
+                        pressed.append(i)
+                if len(pressed) > 0:
+                    for i, tab in enumerate(self._tabs):
+                        if i == pressed[0]:
+                            self._active = i
+                            tab.setActive()
+                        else:
+                            if tab.isActive():
+                                tab.setNotActive()
                 self.updateGraphic()
             
     def internalUpdate(self, surf):
