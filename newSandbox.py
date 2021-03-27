@@ -8,6 +8,7 @@ from polybius.managers import FRAMES
 from polybius.utils.doubleclickevent import DoubleClickEvent
 from polybius.graphics import Tabs
 from polybius.utils import Font
+from polybius.graphics import Checkbox
 
 class Sandbox(AbstractGame):
 
@@ -53,15 +54,19 @@ class Main(AbstractLevel):
         self._tabs = Tabs(["First", "Second"], (100,100), font, (255,255,255),
                           (0,0,0), (600,50), (255,0,0), (0,0,0), maxTabWidth=100)
 
+        self._checkbox = Checkbox((200,200),symbol = "X",backgroundColor = (240,120,34),isChecked = True)
+
     def draw(self, screen):
         self._back.draw(screen)
         self._player1.draw(screen)
         self._player2.draw(screen)
         self._tabs.draw(screen)
+        self._checkbox.draw(screen)
 
     def handleEvent(self, event):
         self._player1.handleEvent(event)
         self._player2.handleEvent(event)
+        self._checkbox.handleEvent(event)
         if event.type == pygame.KEYDOWN and event.key==pygame.K_SPACE:
             current = self.getTrackingObject()
             if current == self._player1:
