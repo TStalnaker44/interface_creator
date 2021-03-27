@@ -2,14 +2,14 @@
 import pygame, copy
 from polybius.graphics import Button, TextInput, TextBox
 from polybius.graphics import MultiLineTextBox, ProgressBar
-from polybius.graphics import Panel, Incrementer
+from polybius.graphics import Panel, Incrementer, Checkbox
 from polybius.utils import EventWrapper, Font
 from polybius.abstractLevel import AbstractLevel
 from parameterDisplay import ParameterDisplay
 from resizeWrapper import ResizeWrapper
 import declarations
 
-RESIZABLE = [Panel, TextInput, ProgressBar, Button]
+RESIZABLE = [Panel, TextInput, ProgressBar, Button, Checkbox]
 CURSORS = {"L":pygame.SYSTEM_CURSOR_SIZEWE,
            "R":pygame.SYSTEM_CURSOR_SIZEWE,
            "T":pygame.SYSTEM_CURSOR_SIZENS,
@@ -85,7 +85,8 @@ class DesignWindow(AbstractLevel):
                           MultiLineTextBox:("Multi-Line Text", pos, font),
                           ProgressBar:(pos, 50, 100, 50),
                           Panel:(pos,),
-                          Incrementer:(pos,font,font,(30,30),(20,20),5,[1])}
+                          Incrementer:(pos,font,font,(30,30),(20,20),5,[1]),
+                          Checkbox:(pos,)}
 
     def draw(self, screen):
         self._window.fill((255,255,255))
@@ -127,6 +128,8 @@ class DesignWindow(AbstractLevel):
             if type(w) == Button:
                 w.handleEvent(event, lambda: None, offset=self._pos)
             if type(w) == TextInput:
+                w.handleEvent(event, offset=self._pos)
+            if type(w) == Checkbox:
                 w.handleEvent(event, offset=self._pos)
 
     def handleCreateModeEvents(self, event):

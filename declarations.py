@@ -8,7 +8,7 @@ code declarations to recreate the objects.
 
 from polybius.graphics import Button, TextInput, TextBox
 from polybius.graphics import MultiLineTextBox, ProgressBar
-from polybius.graphics import Panel
+from polybius.graphics import Panel, Checkbox
 
 def getDeclaration(widget):
     return type2declare[type(widget)](widget)
@@ -100,10 +100,27 @@ def getPanelDeclaration(pan):
     borderWidth = "borderWidth=" + str(pan.getBorderWidth())
     template = "Panel(" + ("%s,\n\t"*5)[:-3] + ")"
     return (template % (pos, dims, color, borderColor, borderWidth))
+
+def getCheckboxDeclaration(box):
+    pos = box.getPosition()
+    pos = ("(%d,%d)" % (pos[0], pos[1]))
+    dims = ("dims=(%d,%d)" % (box.getWidth(), box.getHeight()))
+    color = "backgroundColor=" + str(box.getBackgroundColor())
+    borderColor = "borderColor=" + str(box.getBorderColor())
+    borderWidth = "borderWidth=" + str(box.getBorderWidth())
+    fontColor = "fontColor=" + str(box.getFontColor())
+    font = ("font=Font('%s',%s)" % (box.getFont().getFontName(),
+                               box.getFont().getFontSize()))
+    isChecked = "isChecked=" + str(box._defaultCheck)
+    symbol = "symbol='" + str(box._symbol) + "'"
+    template = "Checkbox(" + ("%s,\n\t"*9)[:-3] + ")"
+    return (template % (pos, dims, color, borderColor, borderWidth,
+                        fontColor, font, isChecked, symbol))
     
 type2declare = {Button:getButtonDeclaration,
                 TextInput:getTextInputDeclaration,
                 TextBox:getTextBoxDeclaration,
                 MultiLineTextBox:getMultiLineTextBoxDeclaration,
                 ProgressBar:getProgressBarDeclaration,
-                Panel:getPanelDeclaration}
+                Panel:getPanelDeclaration,
+                Checkbox:getCheckboxDeclaration}

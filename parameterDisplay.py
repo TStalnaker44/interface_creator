@@ -1,7 +1,7 @@
 
 import pygame
 from polybius.graphics import MultiLineTextBox, Button, TextInput, TextBox
-from polybius.graphics import ProgressBar, Panel, Incrementer
+from polybius.graphics import ProgressBar, Panel, Incrementer, Checkbox
 from polybius.utils import Font
 
 PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
@@ -30,7 +30,10 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                            "Spacing", "Horizontal Padding", "Vertical Padding",
                            "BG Color", "Border Color", "Border Width",
                            "Min Value", "Max Value", "Dec. Color",
-                           "Inc. Color","Z Index"]}
+                           "Inc. Color","Z Index"],
+              Checkbox:["X Coordinate", "Y Coordinate","Width","Height",
+                        "Font","Font Size","Font Color", "Symbol",
+                        "BG Color","Border Color", "Border Width", "Z Index"]}
 
 VALUES = {"Text":"widget.getText()",
           "Font":"widget.getFont().getFontName()",
@@ -64,10 +67,11 @@ VALUES = {"Text":"widget.getText()",
           "Max Value":"widget.getMaxValue()",
           "Min Value":"widget.getMinValue()",
           "Dec. Color":"widget.getDecrementColor()",
-          "Inc. Color":"widget.getIncrementColor()"}
+          "Inc. Color":"widget.getIncrementColor()",
+          "Symbol":"widget._symbol"}
 
 NORMAL_INPUT = ("Text","Font", "Default Text", "Alignment","Button Font",
-                "Value Font")
+                "Value Font", "Symbol")
 INT_ONLY = ("Font Size","X Coordinate", "Y Coordinate", "Border Width",
             "Horizontal Padding", "Vertical Padding", "Max Length",
             "Height", "Width", "Line Spacing", "Max Stat", "Active Stat",
@@ -175,6 +179,31 @@ class ParameterDisplay():
             self.updateProgressBar(self._widget)
         if type(self._widget) == Panel:
             self.updatePanel(self._widget)
+        if type(self._widget) == Checkbox:
+            self.updateCheckbox(self._widget)
+
+    def updateCheckbox(self, box):
+        xpos = int(self._inputFields["X Coordinate"].getInput())
+        ypos = int(self._inputFields["Y Coordinate"].getInput())
+        bgcolor = self._inputFields["BG Color"].getRGBValues()
+        bordercolor = self._inputFields["Border Color"].getRGBValues()
+        borderwidth = int(self._inputFields["Border Width"].getInput())
+        fontname = self._inputFields["Font"].getInput()
+        fontsize = int(self._inputFields["Font Size"].getInput())
+        fontcolor = self._inputFields["Font Color"].getRGBValues()
+        symbol = self._inputFields["Symbol"].getInput()
+        width = int(self._inputFields["Width"].getInput())
+        height = int(self._inputFields["Height"].getInput())
+        
+        box.setPosition((xpos,ypos))
+        box.setBackgroundColor(bgcolor)
+        box.setBorderColor(bordercolor)
+        box.setBorderWidth(borderwidth)
+        box.setFontColor(fontcolor)
+        box.setFont(Font(fontname, fontsize))
+        box._symbol = symbol
+        box.setDimensions((width,height))
+        
 
     def updatePanel(self, pan):
         xpos = int(self._inputFields["X Coordinate"].getInput())

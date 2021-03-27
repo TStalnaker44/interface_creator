@@ -24,7 +24,7 @@ class Checkbox(TextGraphic):
         super().__init__(position, text, font, fontColor, antialias)
 
         self._symbol = symbol
-        # sets the demensions of the check box
+        
         self._dims = dims
         self._width = dims[0]
         self._height = dims[1]
@@ -39,6 +39,7 @@ class Checkbox(TextGraphic):
         # Set the item that interacts with the button (the mouse by default)
         self._cursor = cursor
 
+        self._defaultCheck = isChecked
         self._isChecked = isChecked
 
         self.updateGraphic()

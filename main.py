@@ -27,7 +27,8 @@ class Game(AbstractGame):
                              ("Text Input","TextInput"),
                              ("Text Box","TextBox"),
                              ("MultiLine Text","MultiLineTextBox"),
-                             ("Progress Bar","ProgressBar")]
+                             ("Progress Bar","ProgressBar"),
+                             ("Checkbox", "Checkbox")]
                              #("Incrementer","Incrementer")]
 
         self._testMode = False
