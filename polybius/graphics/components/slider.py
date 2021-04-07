@@ -8,7 +8,7 @@ class Slider(AbstractGraphic):
 
     def __init__(self, position, defaultValue=50, minValue=0, maxValue=100,
                  railDimensions=(100,5), railColor=(120,120,120),
-                 handleColor=(60,60,60), handleDimensions=(5,15)):
+                 handleColor=(60,60,60), handleDimensions=(6,15)):
         AbstractGraphic.__init__(self, position)
         self._value = defaultValue
         self._minValue = minValue
@@ -23,9 +23,17 @@ class Slider(AbstractGraphic):
         self._borderColor = (0,0,0)
         self._handle = Panel((defaultValue,0), (5,15), handleColor, borderWidth=1)
 
-        self._mouseDown = EventWrapper(pygame.MOUSEBUTTONDOWN,1)
+        self._mouseDown = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
+        self._mouseUp = EventWrapper(pygame.MOUSEBUTTONUP, 1)
+        self._onClickPosition = None
+        self._dragging = False
         
         self.updateGraphic()
+
+    def calculateValue(self):
+        x = self._handle.getX()
+        railLength = self._railDims[0]
+        self._value = (x / railLength) * (self._maxValue - self._minValue)
 
     def getValue(self):
         return self._value
@@ -44,11 +52,21 @@ class Slider(AbstractGraphic):
             x,y = event.pos
             eventPos = (x-self.getX(), y-self.getY())
             if self._handle.getCollideRect().collidepoint(eventPos):
-                print("wooo hoooo hoooo")
+                self._onClickPosition = pygame.mouse.get_pos()
+                self._dragging = True
+        if self._onClickPosition != None and self._mouseUp.check(event):
+            self._dragging = False
+            self._onClickPosition = None
 
-##    def draw(self, screen):
-##        super().draw(screen)
-##        self._handle.draw(screen)
+        if self._dragging:
+            previous = self._onClickPosition
+            current = pygame.mouse.get_pos()
+            delta_x = current[0] - previous[0]
+            self._onClickPosition = current
+            newX = min(max(0, self._handle.getX() + delta_x), self._width-self._handle.getWidth()-1)
+            self._handle.setPosition((newX, self._handle.getY()))
+            self.calculateValue()
+            self.updateGraphic()
 
     def internalUpdate(self, surf):
         rail = pygame.Surface(self._railDims)

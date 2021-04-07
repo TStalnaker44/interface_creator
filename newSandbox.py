@@ -85,6 +85,7 @@ class Main(AbstractLevel):
             self._tabs.addTab("Third")
 
         self._slider.handleEvent(event)
+        self._slider.getValue()
 
     def update(self, ticks):
         self._player1.update(ticks, self.getWorldSize(), "bounce")
