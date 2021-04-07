@@ -29,12 +29,18 @@ class Animated(Drawable):
             self._frame %= self._nFrames
             self._animationTimer -= 1 / self._framesPerSecond
             self._image = FRAMES.getFrame(self._imageName, (self._frame, self._row))
-            self._mask = pygame.mask.from_surface(self._image)
+            self._defaultImage = self._image
             
             if self.isFlipped():
                self._image = pygame.transform.flip(self._image, True, False)
             if self.isScaled():
                self.scale(self._scaleValue)
+            if self.isRotated():
+               angle = self._rotation
+               self.setRotation(0)
+               self.rotate(angle)
+
+            self._mask = pygame.mask.from_surface(self._image)
    
    def startAnimation(self):
       self._animate = True

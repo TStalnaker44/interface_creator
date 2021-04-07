@@ -8,9 +8,7 @@ from .particletext import ParticleText
 from .multilinetextbox import MultiLineTextBox
 from .incrementer import Incrementer
 from .panel import Panel
-from .checkbox import Checkbox
 
 __all__ = ["Button","ProgressBar","ScrollBox","Tabs",
            "TextBox","TextInput","ParticleText",
-           "MultiLineTextBox","Incrementer", "Panel",
-           "Checkbox"]
+           "MultiLineTextBox","Incrementer", "Panel"]

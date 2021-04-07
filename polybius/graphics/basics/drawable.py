@@ -8,7 +8,7 @@ A super class with methods for interacting with visual game components
 import pygame
 from polybius.utils import Vector2
 from polybius.managers.frameManager import FRAMES
-from polybius.utils.rectmanager import getRects
+from polybius.utils.rectmanager import getRects, moveRects
 
 class Drawable():
 
@@ -58,6 +58,8 @@ class Drawable():
         self._flippedCollideRects = None
         self._isScaled = False
         self._scaleValue = 1
+        self._isRotated = False
+        self._rotation = 0
 
         # Create wrappers for getWidth and getHeight
         # to make them more consistent with pygame
@@ -108,6 +110,17 @@ class Drawable():
                 self._collideRects = getRects(self._image)
             return self._collideRects
 
+    def collidesWith(self, other):
+        rects = self.getCollideRects()
+        rects = moveRects(rects, self.getPosition())
+        otherRects = other.getCollideRects()
+        otherRects = moveRects(otherRects, other.getPosition())
+        for r1 in rects:
+            for r2 in otherRects:
+                if r1.colliderect(r2):
+                    return True
+        return False
+
     def getTrueBottom(self):
         """Returns the lowest non-transparent
         y-value of the image, ie the distance in
@@ -150,6 +163,29 @@ class Drawable():
         # Update the saved width and height of the image
         self._width  = self.getWidth()
         self._height = self.getHeight()
+
+    def setRotation(self, angle):
+        self._isRotated = True
+        self._rotation = angle
+        image = pygame.transform.rotate(self._defaultImage, angle)
+        center = self._defaultImage.get_rect().center
+        rect = image.get_rect(center=center)
+        #self.setPosition(rect.topleft)
+        self._image = image
+        self._mask = pygame.mask.from_surface(self._image)
+        
+    def rotate(self, angle):
+        self._isRotated = True
+        self._rotation += angle
+        image = pygame.transform.rotate(self._image, angle)
+        center = self._image.get_rect().center
+        rect = image.get_rect(center=center)
+        #self.setPosition(rect.topleft)
+        self._image = image
+        self._mask = pygame.mask.from_surface(self._image)
+        
+    def isRotated(self):
+        return self._isRotated
 
     def getImage(self):
         """Returns the drawable's current image"""

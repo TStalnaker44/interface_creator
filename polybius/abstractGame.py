@@ -28,17 +28,22 @@ class AbstractGame():
         self._levels2names = {}
         self._currentLevel = None
 
+        self._frameRate = 0
+
         self._autoDrawLevels = True
         
         self._running = True
 
     def run(self):
         while self._running:
-            self._gameClock.tick()
+            self._gameClock.tick(self._frameRate)
             self._abstractDraw()
             self._abstractHandleEvents()
             self._abstractUpdate()
         pygame.quit()
+
+    def setFrameRate(self, fps):
+        self._frameRate = fps
 
     def endGame(self):
         self._running = False
