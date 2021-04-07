@@ -14,6 +14,7 @@ from .components.particletext import ParticleText
 from .components.multilinetextbox import MultiLineTextBox
 from .components.incrementer import Incrementer
 from .components.panel import Panel
+from .components.checkbox import Checkbox
 
 from .ui.confirmationwindow import ConfirmationWindow
 from .ui.menu import Menu
@@ -34,7 +35,7 @@ __all__ = ["Banner","Button","Mask","MySurface","Popup","PopupWindow",
            "TextBox","TextInput","Window","ParticleText",
            "ConfirmationWindow","MultiLineTextBox", "Drawable",
            "Animated", "Menu", "AbstractGraphic","TextGraphic",
-           "Incrementer", "Panel", "FileMenu"]
+           "Incrementer", "Panel", "FileMenu", "Checkbox"]
 
 
 
