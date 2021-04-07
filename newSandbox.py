@@ -8,7 +8,7 @@ from polybius.managers import FRAMES
 from polybius.utils.doubleclickevent import DoubleClickEvent
 from polybius.graphics import Tabs
 from polybius.utils import Font
-from polybius.graphics import Checkbox
+from polybius.graphics import Checkbox, Slider
 
 class Sandbox(AbstractGame):
 
@@ -55,6 +55,7 @@ class Main(AbstractLevel):
                           (0,0,0), (600,50), (255,0,0), (0,0,0), maxTabWidth=100)
 
         self._checkbox = Checkbox((200,200),symbol = "X",backgroundColor = (240,120,34),isChecked = True)
+        self._slider = Slider((250,250))
 
     def draw(self, screen):
         self._back.draw(screen)
@@ -62,6 +63,7 @@ class Main(AbstractLevel):
         self._player2.draw(screen)
         self._tabs.draw(screen)
         self._checkbox.draw(screen)
+        self._slider.draw(screen)
 
     def handleEvent(self, event):
         self._player1.handleEvent(event)
@@ -81,6 +83,8 @@ class Main(AbstractLevel):
         self._tabs.handleEvent(event)
         if event.type == pygame.KEYDOWN and event.key==pygame.K_m:
             self._tabs.addTab("Third")
+
+        self._slider.handleEvent(event)
 
     def update(self, ticks):
         self._player1.update(ticks, self.getWorldSize(), "bounce")
