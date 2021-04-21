@@ -1,4 +1,9 @@
+"""
+Author: Trevor Stalnaker
+File: slider.py
 
+A class that models a slider bar.
+"""
 import pygame
 from polybius.graphics.utils.abstractgraphic import AbstractGraphic
 from polybius.graphics import Panel
@@ -21,7 +26,9 @@ class Slider(AbstractGraphic):
         self._backgroundColor = None
         self._borderWidth = 0
         self._borderColor = (0,0,0)
-        self._handle = Panel((defaultValue,0), (5,15), handleColor, borderWidth=1)
+
+        handleX = ((defaultValue - minValue) / (maxValue - minValue)) * railDimensions[0]
+        self._handle = Panel((handleX,0), (5,15), handleColor, borderWidth=1)
 
         self._mouseDown = EventWrapper(pygame.MOUSEBUTTONDOWN, 1)
         self._mouseUp = EventWrapper(pygame.MOUSEBUTTONUP, 1)
@@ -33,12 +40,15 @@ class Slider(AbstractGraphic):
     def calculateValue(self):
         x = self._handle.getX()
         railLength = self._railDims[0]
-        self._value = (x / railLength) * (self._maxValue - self._minValue)
+        self._value = ((x / railLength) * (self._maxValue - self._minValue)) + self._minValue
 
     def getValue(self):
         return self._value
 
     def setValue(self, value):
+        handleX = ((value - self._minValue) / (self._maxValue - self._minValue)) * self._railDims[0]
+        self._handle.setX(handleX)
+        self.updateGraphic()
         self._value = value
 
     def getMinValue(self):

@@ -82,6 +82,14 @@ class Drawable():
         """Updates the position of the drawable to a new position"""
         self._position = newPosition
 
+    def setX(self, newX):
+        """Updates the x coordinate of the drawable"""
+        self._position = Vector2(newX, self._position[1])
+
+    def setY(self, newY):
+        """Updates the y coordinate of the drawable"""
+        self._position = Vector2(self._position[0], newY)
+
     def getX(self):
         """Returns the x coordinate of the current position"""
         return self._position[0]

@@ -55,7 +55,7 @@ class Main(AbstractLevel):
 
         self._checkbox = Checkbox((200,200),symbol = "X",backgroundColor = (240,120,34),isChecked = True)
         self._radioButton = RadioButton((300,300),text = "Test the damn thing",radius = 30,textPadding = 10)
-        self._slider = Slider((250,250))
+        self._slider = Slider((250,250), minValue=0, maxValue=100, defaultValue=50)
 
     def draw(self, screen):
         self._back.draw(screen)
@@ -87,7 +87,10 @@ class Main(AbstractLevel):
             self._tabs.addTab("Third")
 
         self._slider.handleEvent(event)
-        self._slider.getValue()
+        print(self._slider.getValue())
+
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+            self._slider.setValue(67)
 
     def update(self, ticks):
         self._player1.update(ticks, self.getWorldSize(), "bounce")
