@@ -69,6 +69,7 @@ class AbstractGraphic(Drawable):
 
         # Draw the base layer (what will become the border)
         surfBack = pygame.Surface((self._width, self._height))
+            
         surfBack.fill(self._borderColor)
 
         # Draw the primary surface

@@ -1,4 +1,4 @@
-
+    
 from .abstractgraphic import AbstractGraphic
 
 class TextGraphic(AbstractGraphic):

@@ -8,7 +8,7 @@ from polybius.managers import FRAMES
 from polybius.utils.doubleclickevent import DoubleClickEvent
 from polybius.graphics import Tabs
 from polybius.utils import Font
-from polybius.graphics import Checkbox, Slider
+from polybius.graphics import Checkbox, Slider, RadioButton
 
 class Sandbox(AbstractGame):
 
@@ -20,7 +20,6 @@ class Sandbox(AbstractGame):
         self.addLevel("main2", self._level2)
         self.switchTo("main")
         
-
     def handleEvent(self, event):
         code = self._level.checkForExitCode()
         if code != None:
@@ -55,6 +54,7 @@ class Main(AbstractLevel):
                           (0,0,0), (600,50), (255,0,0), (0,0,0), maxTabWidth=100)
 
         self._checkbox = Checkbox((200,200),symbol = "X",backgroundColor = (240,120,34),isChecked = True)
+        self._radioButton = RadioButton((300,300),text = "Test the damn thing",radius = 30,textPadding = 10)
         self._slider = Slider((250,250))
 
     def draw(self, screen):
@@ -64,11 +64,13 @@ class Main(AbstractLevel):
         self._tabs.draw(screen)
         self._checkbox.draw(screen)
         self._slider.draw(screen)
+        self._radioButton.draw(screen)
 
     def handleEvent(self, event):
         self._player1.handleEvent(event)
         self._player2.handleEvent(event)
         self._checkbox.handleEvent(event)
+        self._radioButton.handleEvent(event)
         if event.type == pygame.KEYDOWN and event.key==pygame.K_SPACE:
             current = self.getTrackingObject()
             if current == self._player1:

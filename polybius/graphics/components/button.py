@@ -23,7 +23,8 @@ class Button(TextGraphic):
 
         self.setButtonDimensions(font, text, dims, padding)
         self._dims = dims
-        
+
+        # sets the background color
         self._backgroundColor = backgroundColor
         self._borderColor = borderColor
         self._borderWidth = borderWidth
