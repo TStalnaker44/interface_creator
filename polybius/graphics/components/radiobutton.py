@@ -108,8 +108,6 @@ class RadioButton(TextGraphic):
                     self._fontColor, antialias=self._antialias)
 
         height = t.getHeight() // 2
-
-        t.setPosition((2*self._radius + self._textPadding, self._radius - height))
-    
+        t.setY(self._radius - height)
         t.draw(surf)
 

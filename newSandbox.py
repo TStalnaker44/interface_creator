@@ -66,6 +66,16 @@ class Main(AbstractLevel):
         self._slider.draw(screen)
         self._radioButton.draw(screen)
 
+        x = 100
+        y = 400
+        dims = (100,100)
+        num = 5
+        for i in range(num+1):
+            rect = pygame.Rect((x,y),dims)
+            radius = int((i / num) * (dims[0]/2))
+            pygame.draw.rect(screen, (0,0,0), rect, border_radius=radius)
+            x += dims[0] + 50
+
     def handleEvent(self, event):
         self._player1.handleEvent(event)
         self._player2.handleEvent(event)
@@ -87,7 +97,7 @@ class Main(AbstractLevel):
             self._tabs.addTab("Third")
 
         self._slider.handleEvent(event)
-        print(self._slider.getValue())
+        #print(self._slider.getValue())
 
         if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
             self._slider.setValue(67)
