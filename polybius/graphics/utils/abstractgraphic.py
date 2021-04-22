@@ -122,6 +122,13 @@ class AbstractGraphic(Drawable):
         self._borderWidth = width
         self.updateGraphic()
 
+    def getBorderRadius(self):
+        return self._borderRadius
+
+    def setBorderRadius(self, radius):
+        self._borderRadius = radius
+        self.updateGraphic()
+
     def internalUpdate(self, surf):
         """A placeholder method that can be replaced in child classes"""
         pass

@@ -7,13 +7,13 @@ from polybius.utils import Font
 PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                       "Y Coordinate", "BG Color","Horizontal Padding",
                       "Vertical Padding", "Font Color","Border Color",
-                      "Border Width","Z Index"],
+                      "Border Width","Border Radius","Z Index"],
               TextInput:["Default Text","Font", "Font Size",
                          "X Coordinate", "Y Coordinate",
                          "Height", "Width",
                          "Font Color","BG Color", "Border Color",
-                         "BG Sel.", "Border Sel.", "Border Width", "Max Length",
-                         "Z Index"],
+                         "BG Sel.", "Border Sel.", "Border Width",
+                         "Border Radius", "Max Length", "Z Index"],
               TextBox:["Text","Font","Font Size", "Font Color",
                        "X Coordinate", "Y Coordinate", "Z Index"],
               MultiLineTextBox:["Text","Font","Font Size", "Font Color",
@@ -24,7 +24,8 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                            "Max Stat", "Active Stat", "Border Color", "Border Width",
                            "BG Color", "Bar Color", "Alignment", "Z Index"],
               Panel:["X Coordinate", "Y Coordinate", "Height", "Width",
-                     "BG Color", "Border Color", "Border Width", "Z Index"],
+                     "BG Color", "Border Color", "Border Width",
+                     "Border Radius", "Z Index"],
               Incrementer:["X Coordinate", "Y Coordinate", "Button Font",
                            "Button Font Size", "Value Font", "Value Font Size",
                            "Spacing", "Horizontal Padding", "Vertical Padding",
@@ -68,7 +69,8 @@ VALUES = {"Text":"widget.getText()",
           "Min Value":"widget.getMinValue()",
           "Dec. Color":"widget.getDecrementColor()",
           "Inc. Color":"widget.getIncrementColor()",
-          "Symbol":"widget._symbol"}
+          "Symbol":"widget._symbol",
+          "Border Radius":"widget.getBorderRadius()"}
 
 NORMAL_INPUT = ("Text","Font", "Default Text", "Alignment","Button Font",
                 "Value Font", "Symbol")
@@ -76,7 +78,7 @@ INT_ONLY = ("Font Size","X Coordinate", "Y Coordinate", "Border Width",
             "Horizontal Padding", "Vertical Padding", "Max Length",
             "Height", "Width", "Line Spacing", "Max Stat", "Active Stat",
             "Length", "Z Index","Spacing", "Button Font Size",
-            "Value Font Size", "Max Value", "Min Value")
+            "Value Font Size", "Max Value", "Min Value", "Border Radius")
 COLOR_INPUT = ("BG Color", "Font Color", "Border Color","Border Sel.","BG Sel.",
                "Bar Color", "Dec. Color", "Inc. Color")
 
@@ -213,12 +215,14 @@ class ParameterDisplay():
         borderwidth = int(self._inputFields["Border Width"].getInput())
         width = int(self._inputFields["Width"].getInput())
         height = int(self._inputFields["Height"].getInput())
+        borderRadius = int(self._inputFields["Border Radius"].getInput())
 
         pan.setPosition((xpos,ypos))
         pan.setDimensions((width,height))
         pan.setBackgroundColor(bgcolor)
         pan.setBorderColor(bordercolor)
         pan.setBorderWidth(borderwidth)
+        pan.setBorderRadius(borderRadius)
 
     def updateProgressBar(self, bar):
         xpos = int(self._inputFields["X Coordinate"].getInput())
@@ -297,6 +301,7 @@ class ParameterDisplay():
         fontname = self._inputFields["Font"].getInput()
         fontsize = int(self._inputFields["Font Size"].getInput())
         maxlen = int(self._inputFields["Max Length"].getInput())
+        borderRadius = int(self._inputFields["Border Radius"].getInput())
         
         tinput.setText(text)
         tinput.setPosition((xpos,ypos))
@@ -309,6 +314,7 @@ class ParameterDisplay():
         tinput.setFont(Font(fontname, fontsize))
         tinput._maxLen = maxlen
         tinput.setDimensions((width,height))
+        tinput.setBorderRadius(borderRadius)
             
 
     def updateButton(self, button):
@@ -323,6 +329,7 @@ class ParameterDisplay():
         borderwidth = int(self._inputFields["Border Width"].getInput())
         fontname = self._inputFields["Font"].getInput()
         fontsize = int(self._inputFields["Font Size"].getInput())
+        borderRadius = int(self._inputFields["Border Radius"].getInput())
         
         button.setText(text)
         button.setPosition((xpos,ypos))
@@ -332,6 +339,7 @@ class ParameterDisplay():
         button.setPadding((hpadding, vpadding))
         button.setBorderWidth(borderwidth)
         button.setFont(Font(fontname, fontsize))
+        button.setBorderRadius(borderRadius)
 
 class RGBInput():
 
