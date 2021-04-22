@@ -169,7 +169,10 @@ class Button(TextGraphic):
         """Update the button after parameters have been changed"""
 
         # Use the current background color
-        surf.fill(self._currentBackgroundColor)
+        innerRect = pygame.Rect((0,0),surf.get_size())
+        pygame.draw.rect(surf,self._currentBackgroundColor,
+                         innerRect, border_radius=self._borderRadius)
+        
 
         # Create and draw the internal textbox
         t = MultiLineTextBox(self._text, (0,0), self._font,

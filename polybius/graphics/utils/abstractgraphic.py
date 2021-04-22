@@ -4,10 +4,11 @@ from polybius.graphics.basics.drawable import Drawable
 
 class AbstractGraphic(Drawable):
 
-    def __init__(self, position):
+    def __init__(self, position, border_radius=0):
 
         super().__init__("", position, worldBound=False)
         self._keepCenter = False
+        self._borderRadius = border_radius
 
     def center(self, surface=None, cen_point=(1/2,1/2), multisprite=False):
 
@@ -67,23 +68,27 @@ class AbstractGraphic(Drawable):
     def updateGraphic(self):
         """A default method for updating a graphic"""
 
-        # Draw the base layer (what will become the border)
-        surfBack = pygame.Surface((self._width, self._height))
-            
-        surfBack.fill(self._borderColor)
+        # Create the canvas that everything will be drawn on
+        surfBack = pygame.Surface((self._width, self._height), pygame.SRCALPHA)
+        surfBack.convert_alpha()
 
+        # Draw the base layer (what will become the border)
+        borderRect = pygame.Rect((0,0), (self._width, self._height))
+        pygame.draw.rect(surfBack, self._borderColor, borderRect,
+                         border_radius=self._borderRadius)
+            
         # Draw the primary surface
         w = max(0, self._width-(self._borderWidth*2))
         h = max(0, self._height-(self._borderWidth*2))
-        surf = pygame.Surface((w,h))
-        
-        # Apply the background color or make transparent
-        if self._backgroundColor == None:
-            surf.fill((1,1,1))
-            surfBack.set_colorkey((1,1,1))
-        else:
-            surf.fill(self._backgroundColor)
+        surf = pygame.Surface((w,h), pygame.SRCALPHA)
+        surf.convert_alpha()
 
+        # Apply the background color if not transparent
+        if self._backgroundColor != None:
+            innerRect = pygame.Rect((0,0),(w,h))
+            pygame.draw.rect(surf,self._backgroundColor,
+                             innerRect, border_radius=self._borderRadius)
+        
         # Add widgets to the primary surface according to kind
         self.internalUpdate(surf)
 
