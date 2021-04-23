@@ -22,7 +22,7 @@ PARAMETERS = {Button:["Text","Font","Font Size", "X Coordinate",
                                 "Line Spacing", "Alignment", "Z Index"],
               ProgressBar:["X Coordinate", "Y Coordinate", "Length", "Height",
                            "Max Stat", "Active Stat", "Border Color", "Border Width",
-                           "BG Color", "Bar Color", "Alignment", "Z Index"],
+                           "Border Radius", "BG Color", "Bar Color", "Alignment", "Z Index"],
               Panel:["X Coordinate", "Y Coordinate", "Height", "Width",
                      "BG Color", "Border Color", "Border Width",
                      "Border Radius", "Z Index"],
@@ -236,6 +236,7 @@ class ParameterDisplay():
         height = int(self._inputFields["Height"].getInput())
         maxStat = int(self._inputFields["Max Stat"].getInput())
         actStat = int(self._inputFields["Active Stat"].getInput())
+        borderRadius = int(self._inputFields["Border Radius"].getInput())
 
         bar.setPosition((xpos,ypos))
         if align.lower() in ("left", "right", "center"):
@@ -248,6 +249,7 @@ class ParameterDisplay():
         bar.setHeight(height)
         bar.setMaxStat(maxStat)
         bar.setActiveStat(actStat)
+        bar.setBorderRadius(borderRadius)
 
     def updateMultiTextBox(self, tbox):
         text = self._inputFields["Text"].getInput().replace("\\n","\n")
