@@ -107,7 +107,7 @@ class ProgressBar(AbstractGraphic):
             x = surf.get_width() // 2 - barLength // 2
             pos = (x,0)   
         elif self._alignment == "right":
-            x = surf.get_width() - barLength - self._borderWidth
+            x = surf.get_width() - barLength
             pos = (x, 0)
 
         rect = pygame.Rect(pos, barDims)
