@@ -8,7 +8,7 @@ from polybius.managers import FRAMES
 from polybius.utils.doubleclickevent import DoubleClickEvent
 from polybius.graphics import Tabs
 from polybius.utils import Font
-from polybius.graphics import Checkbox, Slider, RadioButton
+from polybius.graphics import Checkbox, Slider, RadioButton, RadioButtons
 
 class Sandbox(AbstractGame):
 
@@ -54,33 +54,38 @@ class Main(AbstractLevel):
                           (0,0,0), (600,50), (255,0,0), (0,0,0), maxTabWidth=100)
 
         self._checkbox = Checkbox((200,200),symbol = "X",backgroundColor = (240,120,34),isChecked = True)
-        self._radioButton = RadioButton((300,300),text = "Test the damn thing",radius = 30,textPadding = 10)
+        self._radioButton = RadioButton((300,300),text = "Test the damn thing",radius = 30,textPadding = 5,font = font)
         self._slider = Slider((250,250), minValue=0, maxValue=100, defaultValue=50)
+
+        options = ["Cat","Dog","Mouse","Cow"]
+        self._radioButtons = RadioButtons((400,100),options,10,isSelectedIndex = 1)
 
     def draw(self, screen):
         self._back.draw(screen)
         self._player1.draw(screen)
         self._player2.draw(screen)
-        self._tabs.draw(screen)
-        self._checkbox.draw(screen)
-        self._slider.draw(screen)
+##        self._tabs.draw(screen)
+##        self._checkbox.draw(screen)
+##        self._slider.draw(screen)
         self._radioButton.draw(screen)
+        self._radioButtons.draw(screen)
 
-        x = 100
-        y = 400
-        dims = (100,100)
-        num = 5
-        for i in range(num+1):
-            rect = pygame.Rect((x,y),dims)
-            radius = int((i / num) * (dims[0]/2))
-            pygame.draw.rect(screen, (0,0,0), rect, border_radius=radius)
-            x += dims[0] + 50
+##        x = 100
+##        y = 400
+##        dims = (100,100)
+##        num = 5
+##        for i in range(num+1):
+##            rect = pygame.Rect((x,y),dims)
+##            radius = int((i / num) * (dims[0]/2))
+##            pygame.draw.rect(screen, (0,0,0), rect, border_radius=radius)
+##            x += dims[0] + 50
 
     def handleEvent(self, event):
         self._player1.handleEvent(event)
         self._player2.handleEvent(event)
         self._checkbox.handleEvent(event)
         self._radioButton.handleEvent(event)
+        self._radioButtons.handleEvent(event)
         if event.type == pygame.KEYDOWN and event.key==pygame.K_SPACE:
             current = self.getTrackingObject()
             if current == self._player1:

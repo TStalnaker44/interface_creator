@@ -9,9 +9,9 @@ from .multilinetextbox import MultiLineTextBox
 from .incrementer import Incrementer
 from .panel import Panel
 from .checkbox import Checkbox
-from .radiobutton import RadioButton
+from .radiobutton import RadioButton,RadioButtons
 
 __all__ = ["Button","ProgressBar","ScrollBox","Tabs",
            "TextBox","TextInput","ParticleText",
            "MultiLineTextBox","Incrementer", "Panel",
-           "Checkbox","RadioButton"]
+           "Checkbox","RadioButton","RadioButtons"]

@@ -17,6 +17,67 @@ from polybius.graphics.utils.textgraphic import TextGraphic
 from .multilinetextbox import MultiLineTextBox
 from polybius.utils import EventWrapper, Font
 
+
+class RadioButtons(TextGraphic):
+
+    def __init__(self, position, options, radius,
+                 vertical = True,
+                 font = None,
+                 bubbleColor = (255,255,255),
+                 isSelectedIndex = -1, fontColor=(0,0,0), borderColor=(0,0,0),
+                 textPadding = 5,
+                 padding = 5,
+                 antialias=True,
+                 buttonBorderWidth = .1,
+                 selectedCircleRadius = .5,
+                 control=EventWrapper(pygame.MOUSEBUTTONDOWN, 1, []),
+                 cursor=pygame.mouse):
+        """
+        isSelectedIndex is the index of the button that is selected. Inputting a -1 means there
+        are no buttons currently selected. 
+        """
+
+        self._pos = position
+        self._padding = padding
+        font = Font("Arial",16) if font == None else font
+        self._backgroundColor = None
+        self._isSelectedIndex = isSelectedIndex
+        super().__init__(position, "", font, fontColor, antialias)
+
+        self._buttons = list()
+        x, y = position
+        for i,text in enumerate(options):
+            if vertical:
+                button = RadioButton((x,y),text,radius,font,bubbleColor,
+                                     i == self._isSelectedIndex,
+                                     fontColor,borderColor,textPadding,antialias,buttonBorderWidth,
+                                     selectedCircleRadius,control,cursor)
+  
+                self._buttons.append(button)
+                y += button.getHeight() + self._padding
+            else:
+                button = RadioButton((x,y),text,radius,font,bubbleColor,
+                                     i == self._isSelectedIndex,
+                                     fontColor,borderColor,textPadding,antialias,buttonBorderWidth,
+                                     selectedCircleRadius,control,cursor)
+  
+                self._buttons.append(button)
+                x += button.getWidth() + self._padding
+                
+    def draw(self,surf):
+        for button in self._buttons:
+            button.draw(surf)
+
+    def handleEvent(self, event, offset=(0,0)):
+        """Handles events on the check box"""
+        for i,button in enumerate(self._buttons):
+            button.handleEvent(event, offset)
+            if button.isSelected():
+                for b in self._buttons:
+                    if b.isSelected() and b != button:
+                        b.tickButton()         
+                
+
 class RadioButton(TextGraphic):
 
     def __init__(self, position, text = "", radius = 10, font = None,
@@ -40,13 +101,13 @@ class RadioButton(TextGraphic):
 
         self._pos = position
         font = Font("Arial",16) if font == None else font
-        self._backgroundColor = None
+        self._backgroundColor = (125,125,125)
         super().__init__(position, text, font, fontColor, antialias)
 
         w,h = self._font.size(text)
         self._textPadding = textPadding
         
-        self._height = 2*radius + h
+        self._height = max(2*radius,h)
         self._width = 2*radius + w + self._textPadding
         self._radius = radius
         
@@ -72,13 +133,13 @@ class RadioButton(TextGraphic):
         self._width = radius
         self.updateGraphic()
 
-    def tickCheckbox(self):
+    def tickButton(self):
         """
         Checks or unchecks the check box
         """
         self._isSelected = not self._isSelected
         self.updateGraphic()
-            
+        
     def isSelected(self):
         """Returns ticked status of check box."""
         return self._isSelected
@@ -89,7 +150,8 @@ class RadioButton(TextGraphic):
         rect = rect.move(offset[0],offset[1])
         if self._press.check(event):
             if rect.collidepoint(self._cursor.get_pos()):
-                self.tickCheckbox()
+                if not self.isSelected():
+                    self.tickButton()
 
     def internalUpdate(self, surf):
         """Update the button after parameters have been changed"""
