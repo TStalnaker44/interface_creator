@@ -58,7 +58,11 @@ class Main(AbstractLevel):
         self._slider = Slider((250,250), minValue=0, maxValue=100, defaultValue=50)
 
         options = ["Cat","Dog","Mouse","Cow"]
-        self._radioButtons = RadioButtons((400,100),options,10,isSelectedIndex = 1)
+        self._radioButtons = RadioButtons((400,100),options,isSelectedIndex = 1,
+                                          vertical=False, padding=15)
+        self._radioButtons.setSelectedColor((255,0,0))
+        self._radioButtons.setFont(font)
+        self._radioButtons.addButton("Horse")
 
     def draw(self, screen):
         self._back.draw(screen)

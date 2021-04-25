@@ -9,7 +9,7 @@ TO DO
 Set the text will need to update the width and the height of the
 actual image when the text is changed as that changes the size.
 
-Setting the demensions have to take that into account.
+Setting the dimensions have to take that into account.
 """
 
 import pygame
@@ -17,10 +17,10 @@ from polybius.graphics.utils.textgraphic import TextGraphic
 from .multilinetextbox import MultiLineTextBox
 from polybius.utils import EventWrapper, Font
 
+class RadioButtons():
 
-class RadioButtons(TextGraphic):
-
-    def __init__(self, position, options, radius,
+    def __init__(self, position, options,
+                 radius = 10,
                  vertical = True,
                  font = None,
                  bubbleColor = (255,255,255),
@@ -30,6 +30,7 @@ class RadioButtons(TextGraphic):
                  antialias=True,
                  buttonBorderWidth = .1,
                  selectedCircleRadius = .5,
+                 selectedColor = (0,0,0),
                  control=EventWrapper(pygame.MOUSEBUTTONDOWN, 1, []),
                  cursor=pygame.mouse):
         """
@@ -37,33 +38,51 @@ class RadioButtons(TextGraphic):
         are no buttons currently selected. 
         """
 
-        self._pos = position
+        
+        # Attributes for the collection of radio buttons
+        self._position = position
+        self._options = options
         self._padding = padding
-        font = Font("Arial",16) if font == None else font
-        self._backgroundColor = None
         self._isSelectedIndex = isSelectedIndex
-        super().__init__(position, "", font, fontColor, antialias)
+        self._vertical = vertical
+        
+        # Attributes for individual radio buttons
+        self._font = Font("Arial",16) if font == None else font
+        self._radius = radius
+        self._bubbleColor = bubbleColor
+        self._fontColor = fontColor
+        self._borderColor = borderColor
+        self._textPadding = textPadding
+        self._antialias = antialias
+        self._buttonBorderWidth = buttonBorderWidth
+        self._selectedCircleRadius = selectedCircleRadius
+        self._selectedColor = selectedColor
+        self._control = control
+        self._cursor = cursor
 
+        self.createButtons()
+
+    def createButtons(self):
         self._buttons = list()
-        x, y = position
-        for i,text in enumerate(options):
-            if vertical:
-                button = RadioButton((x,y),text,radius,font,bubbleColor,
-                                     i == self._isSelectedIndex,
-                                     fontColor,borderColor,textPadding,antialias,buttonBorderWidth,
-                                     selectedCircleRadius,control,cursor)
-  
-                self._buttons.append(button)
+        x, y = self.getPosition()
+        for i,text in enumerate(self._options):
+            button = RadioButton((x,y), text, self._radius,
+                                 self._font, self._bubbleColor,
+                                 i == self._isSelectedIndex,
+                                 self._fontColor, self._borderColor,
+                                 self._textPadding, self._antialias,
+                                 self._buttonBorderWidth, self._selectedCircleRadius,
+                                 self._selectedColor, self._control, self._cursor)
+            self._buttons.append(button)
+            if self._vertical:
                 y += button.getHeight() + self._padding
             else:
-                button = RadioButton((x,y),text,radius,font,bubbleColor,
-                                     i == self._isSelectedIndex,
-                                     fontColor,borderColor,textPadding,antialias,buttonBorderWidth,
-                                     selectedCircleRadius,control,cursor)
-  
-                self._buttons.append(button)
                 x += button.getWidth() + self._padding
-                
+
+    def addButton(self, buttonText):
+        self._options.append(buttonText)
+        self.createButtons()
+
     def draw(self,surf):
         for button in self._buttons:
             button.draw(surf)
@@ -75,8 +94,97 @@ class RadioButtons(TextGraphic):
             if button.isSelected():
                 for b in self._buttons:
                     if b.isSelected() and b != button:
-                        b.tickButton()         
-                
+                        b.tickButton()
+                        
+    def getFont(self):
+        return self._font
+
+    def setFont(self, font):
+        self._font = font
+        for b in self._buttons:
+            b.setFont(font)
+        self.createButtons()
+
+    def getBubbleRadius(self, radius):
+        return self._radius
+
+    def setBubbleRadius(self, radius):
+        self._raduis = radius
+        for b in self._buttons:
+            b.setBubbleRadius(radius)
+        self.createButtons()
+
+    def getBubbleColor(self):
+        return self._bubbleColor
+
+    def setBubbleColor(self, color):
+        self._bubbleColor = color
+        for b in self._buttons:
+            b.setBackgroundColor(color)
+
+    def getFontColor(self):
+        return self._fontColor
+
+    def setFontColor(self, color):
+        self._fontColor = color
+        for b in self._buttons:
+            b.setFontColor(color)
+
+    def getBorderColor(self):
+        return self._borderColor
+
+    def setBorderColor(self, color):
+        self._borderColor = self._borderColor
+        for b in self._buttons:
+            b.setBorderColor(color)
+
+    def getTextPadding(self):
+        return self._textPadding
+
+    def setTextPadding(self, padding):
+        self._textPadding = padding
+        for b in self._buttons:
+            b.setTextPadding(padding)
+        self.createButtons()
+
+    def getButtonBorderWidth(self):
+        return self._buttonBorderWidth
+
+    def setButtonBorderWidth(self, width):
+        self._buttonBorderWidth = width
+        for b in self._buttons:
+            b.setBorderWidth(width)
+
+    def getSelectedCircleRadius(self):
+        return self._selectedCircleRadius
+
+    def setSelectedCircleRadius(self, radius):
+        self._selectedCircleRadius = radius
+        for b in self._buttons:
+            b.setSelectedCircleRadius(radius)
+
+    def getSelectedColor(self):
+        return self._selectedColor
+
+    def setSelectedColor(self, color):
+        self._selectedColor = color
+        for b in self._buttons:
+            b.setSelectedColor(color)
+
+    def getPosition(self):
+        return self._position
+
+    def setPosition(self, pos):
+        self._position = pos
+
+    def getOptions(self):
+        return self._options
+
+    def setOptions(self, options):
+        self._options = options
+        self.createButtons()
+
+    # TO-DO: Add methods that calculate the height and width of the multisprite
 
 class RadioButton(TextGraphic):
 
@@ -87,6 +195,7 @@ class RadioButton(TextGraphic):
                  antialias=True,
                  buttonBorderWidth = .1,
                  selectedCircleRadius = .5,
+                 selectedColor = (0,0,0),
                  control=EventWrapper(pygame.MOUSEBUTTONDOWN, 1, []),
                  cursor=pygame.mouse):
         """
@@ -99,23 +208,19 @@ class RadioButton(TextGraphic):
         be 50% of the larger circle it should be set to 0.5
         """
 
-        self._pos = position
         font = Font("Arial",16) if font == None else font
-        self._backgroundColor = (125,125,125)
         super().__init__(position, text, font, fontColor, antialias)
 
-        w,h = self._font.size(text)
-        self._textPadding = textPadding
-        
-        self._height = max(2*radius,h)
-        self._width = 2*radius + w + self._textPadding
+        # Set the initial size of the surface
         self._radius = radius
-        
-        self._bubbleColor = bubbleColor
+        self._textPadding = textPadding
+        self.updateDimensions()
+
+        self._backgroundColor = bubbleColor
         self._borderColor = borderColor
-        self._borderWidth = 0
-        self._buttonBorderWidth = buttonBorderWidth
+        self._borderWidth = buttonBorderWidth
         self._selectedCircleRadius = selectedCircleRadius
+        self._selectedColor = selectedColor
         
         # Set the controls for interacting with the button
         self._press = control
@@ -153,17 +258,22 @@ class RadioButton(TextGraphic):
                 if not self.isSelected():
                     self.tickButton()
 
-    def internalUpdate(self, surf):
+    def updateGraphic(self):
         """Update the button after parameters have been changed"""
 
-        # Draws the circles
-        # this is the outline circle
-        pygame.draw.circle(surf,(0,0,0),(self._radius,self._radius),self._radius)
-        # this is the inner non clicked circle
-        pygame.draw.circle(surf,self._bubbleColor,(self._radius,self._radius),self._radius*(1-self._buttonBorderWidth))
-        # draws selected circle if clicked
+        # Create Initial Surface
+        surf = pygame.Surface((self._width, self._height), pygame.SRCALPHA)
+        surf.convert_alpha()
+                                  
+        # Draw the Circle Border                     
+        pygame.draw.circle(surf,self._borderColor,(self._radius,self._radius),self._radius)
+                              
+        # Draw the Inner Circle
+        pygame.draw.circle(surf,self._backgroundColor,(self._radius,self._radius),self._radius*(1-self._borderWidth))
+                              
+        # Draw the Selected Circle Icon
         if self._isSelected:
-            pygame.draw.circle(surf,(12,233,89),(self._radius,self._radius),self._radius*self._selectedCircleRadius)
+            pygame.draw.circle(surf,self._selectedColor,(self._radius,self._radius),self._radius*self._selectedCircleRadius)
 
         # Create and draw the internal textbox
         t = MultiLineTextBox(self._text, (2*self._radius + self._textPadding,0), self._font,
@@ -172,4 +282,42 @@ class RadioButton(TextGraphic):
         height = t.getHeight() // 2
         t.setY(self._radius - height)
         t.draw(surf)
+
+        self._image = surf
+
+    def updateDimensions(self):
+        w,h = self._font.size(self._text)
+        self._height = max(2*self._radius,h)
+        self._width = 2*self._radius + w + self._textPadding
+        
+    def getSelectedCircleRadius(self):
+        return self._selectedCircleRadius
+
+    def setSelectedCircleRadius(self, radius):
+        self._selectedCircleRadius = radius
+        self.updateGraphic()
+
+    def getTextPadding(self):
+        return self._textPadding
+
+    def setTextPadding(self, padding):
+        self._textPadding = padding
+        self.updateGraphic()
+
+    def getBubbleRadius(self):
+        return self._radius
+
+    def setBubbleRadius(self, radius):
+        self._raduis = radius
+        self.updateDimensions()
+        self.updateGraphic()
+
+    def getSelectedColor(self):
+        return self._selectedColor
+
+    def setSelectedColor(self, color):
+        self._selectedColor = color
+        self.updateGraphic()
+    
+        
 
