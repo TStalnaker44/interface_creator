@@ -1,6 +1,10 @@
 """
 Author: Trevor Stalnaker
 File: imagebutton.py
+
+TO-DO
+Factor out common code between ImageButton and Button into
+an abstract button class
 """
 
 import pygame
