@@ -98,12 +98,6 @@ class DropDownList():
         if self._isClicked:
             for b in self._buttons:
                 b.handleEvent(event, self._changeHeader, args=(b.getText(),))
-##        for i,button in enumerate(self._buttons):
-##            button.handleEvent(event, offset)
-##            if button.isSelected():
-##                for b in self._buttons:
-##                    if b.isSelected() and b != button:
-##                        b.tickButton()
 
     def toggleMenu(self):
         self._isClicked = not self._isClicked
