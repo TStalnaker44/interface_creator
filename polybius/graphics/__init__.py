@@ -17,6 +17,7 @@ from .components.panel import Panel
 from .components.checkbox import Checkbox
 from .components.slider import Slider
 from .components.radiobutton import RadioButton,RadioButtons
+from .components.imagebutton import ImageButton
 
 from .ui.confirmationwindow import ConfirmationWindow
 from .ui.menu import Menu
@@ -38,7 +39,7 @@ __all__ = ["Banner","Button","Mask","MySurface","Popup","PopupWindow",
            "ConfirmationWindow","MultiLineTextBox", "Drawable",
            "Animated", "Menu", "AbstractGraphic","TextGraphic",
            "Incrementer", "Panel", "FileMenu", "Checkbox", "Slider",
-           "RadioButton","RadioButtons"]
+           "RadioButton","RadioButtons","ImageButton"]
 
 
 

@@ -9,6 +9,7 @@ from polybius.utils.doubleclickevent import DoubleClickEvent
 from polybius.graphics import Tabs
 from polybius.utils import Font
 from polybius.graphics import Checkbox, Slider, RadioButton, RadioButtons
+from polybius.graphics import ImageButton
 
 class Sandbox(AbstractGame):
 
@@ -64,6 +65,19 @@ class Main(AbstractLevel):
         self._radioButtons.setFont(font)
         self._radioButtons.addButton("Horse")
 
+
+        FRAMES.prepareImage("buttonImages/playButton.png", colorKey=True)
+        FRAMES.prepareImage("buttonImages/playButtonPressed.png", colorKey=True)
+        self._imageButton = ImageButton((350,500), "playButton.png",
+                                        pressedImage="playButtonPressed.png")
+
+
+        FRAMES.prepareImage("buttonImages/watchButton.png", colorKey=True)
+        FRAMES.prepareImage("buttonImages/pressedWatchButton.png", colorKey=True)
+        FRAMES.prepareImage("buttonImages/watchButtonHover.png", colorKey=True)
+        self._imageButton2 = ImageButton((600,250), "watchButton.png",
+                                        pressedImage="pressedWatchButton.png",
+                                         hoverImage="watchButtonHover.png")
     def draw(self, screen):
         self._back.draw(screen)
         self._player1.draw(screen)
@@ -73,6 +87,8 @@ class Main(AbstractLevel):
 ##        self._slider.draw(screen)
         self._radioButton.draw(screen)
         self._radioButtons.draw(screen)
+        self._imageButton.draw(screen)
+        self._imageButton2.draw(screen)
 
 ##        x = 100
 ##        y = 400
@@ -110,6 +126,12 @@ class Main(AbstractLevel):
 
         if event.type == pygame.KEYDOWN and event.key == pygame.K_h:
             self._slider.setValue(67)
+
+        self._imageButton.handleEvent(event, self.doNothing)
+        self._imageButton2.handleEvent(event, self.doNothing)
+
+    def doNothing(self):
+        pass
 
     def update(self, ticks):
         self._player1.update(ticks, self.getWorldSize(), "bounce")

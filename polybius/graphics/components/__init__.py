@@ -10,8 +10,10 @@ from .incrementer import Incrementer
 from .panel import Panel
 from .checkbox import Checkbox
 from .radiobutton import RadioButton,RadioButtons
+from .imagebutton import ImageButton
 
 __all__ = ["Button","ProgressBar","ScrollBox","Tabs",
            "TextBox","TextInput","ParticleText",
            "MultiLineTextBox","Incrementer", "Panel",
-           "Checkbox","RadioButton","RadioButtons"]
+           "Checkbox","RadioButton","RadioButtons",
+           "ImageButton"]

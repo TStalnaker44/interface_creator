@@ -129,6 +129,14 @@ class Drawable():
                     return True
         return False
 
+    def collidesWithPoint(self, point):
+        rects = self.getCollideRects()
+        rects = moveRects(rects, self.getPosition())
+        for r in rects:
+            if r.collidepoint(point):
+                return True
+        return False
+
     def getTrueBottom(self):
         """Returns the lowest non-transparent
         y-value of the image, ie the distance in
