@@ -99,7 +99,7 @@ class Drawable():
         return self._position[1]
 
     def getSize(self):
-        """Returns the size of the image surface"""
+        """Returns the size of the image surface. Returns a tuple"""
         return self._image.get_rect().size
 
     def getCollideRect(self):
@@ -191,6 +191,9 @@ class Drawable():
         self._mask = pygame.mask.from_surface(self._image)
         
     def rotate(self, angle):
+        """
+        Angle is in degrees.
+        """
         self._isRotated = True
         self._rotation += angle
         image = pygame.transform.rotate(self._image, angle)

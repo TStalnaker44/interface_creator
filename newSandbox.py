@@ -8,7 +8,8 @@ from polybius.managers import FRAMES
 from polybius.utils.doubleclickevent import DoubleClickEvent
 from polybius.graphics import Tabs
 from polybius.utils import Font
-from polybius.graphics import Checkbox, Slider, RadioButton, RadioButtons
+from polybius.graphics import Checkbox, Slider, RadioButton, \
+     RadioButtons,DropDownList, Button
 from polybius.graphics import ImageButton
 
 class Sandbox(AbstractGame):
@@ -59,11 +60,13 @@ class Main(AbstractLevel):
         self._slider = Slider((250,250), minValue=0, maxValue=100, defaultValue=50)
 
         options = ["Cat","Dog","Mouse","Cow"]
-        self._radioButtons = RadioButtons((400,100),options,isSelectedIndex = 1,
+        self._radioButtons = RadioButtons((400,100),options,selectedIndex = 1,
                                           vertical=False, padding=15)
         self._radioButtons.setSelectedColor((255,0,0))
         self._radioButtons.setFont(font)
         self._radioButtons.addButton("Horse")
+
+        self._dropdownlist = DropDownList((100,400),options)
 
 
         FRAMES.prepareImage("buttonImages/playButton.png", colorKey=True)
@@ -87,6 +90,9 @@ class Main(AbstractLevel):
 ##        self._slider.draw(screen)
         self._radioButton.draw(screen)
         self._radioButtons.draw(screen)
+
+        self._dropdownlist.draw(screen)
+        
         self._imageButton.draw(screen)
         self._imageButton2.draw(screen)
 
@@ -106,6 +112,7 @@ class Main(AbstractLevel):
         self._checkbox.handleEvent(event)
         self._radioButton.handleEvent(event)
         self._radioButtons.handleEvent(event)
+        self._dropdownlist.handleEvent(event)
         if event.type == pygame.KEYDOWN and event.key==pygame.K_SPACE:
             current = self.getTrackingObject()
             if current == self._player1:

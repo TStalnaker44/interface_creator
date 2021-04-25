@@ -24,7 +24,7 @@ class RadioButtons():
                  vertical = True,
                  font = None,
                  bubbleColor = (255,255,255),
-                 isSelectedIndex = -1, fontColor=(0,0,0), borderColor=(0,0,0),
+                 selectedIndex = -1, fontColor=(0,0,0), borderColor=(0,0,0),
                  textPadding = 5,
                  padding = 5,
                  antialias=True,
@@ -34,7 +34,7 @@ class RadioButtons():
                  control=EventWrapper(pygame.MOUSEBUTTONDOWN, 1, []),
                  cursor=pygame.mouse):
         """
-        isSelectedIndex is the index of the button that is selected. Inputting a -1 means there
+        selectedIndex is the index of the button that is selected. Inputting a -1 means there
         are no buttons currently selected. 
         """
 
@@ -43,7 +43,7 @@ class RadioButtons():
         self._position = position
         self._options = options
         self._padding = padding
-        self._isSelectedIndex = isSelectedIndex
+        self._selectedIndex = selectedIndex
         self._vertical = vertical
         
         # Attributes for individual radio buttons
@@ -68,7 +68,7 @@ class RadioButtons():
         for i,text in enumerate(self._options):
             button = RadioButton((x,y), text, self._radius,
                                  self._font, self._bubbleColor,
-                                 i == self._isSelectedIndex,
+                                 i == self._selectedIndex,
                                  self._fontColor, self._borderColor,
                                  self._textPadding, self._antialias,
                                  self._buttonBorderWidth, self._selectedCircleRadius,
