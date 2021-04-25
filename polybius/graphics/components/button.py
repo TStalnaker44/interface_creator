@@ -21,13 +21,13 @@ class Button(TextGraphic):
  
         super().__init__(position, text, font, fontColor, antialias)
 
-        self.setButtonDimensions(font, text, dims, padding)
-        self._dims = dims
-
         # sets the background color
         self._backgroundColor = backgroundColor
         self._borderColor = borderColor
         self._borderWidth = borderWidth
+
+        self.setButtonDimensions(font, text, dims, padding)
+        self._dims = dims
 
         # Current button colors
         self._currentFontColor = fontColor

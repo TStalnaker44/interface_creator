@@ -25,7 +25,7 @@ class DropDownList():
                  backgroundColor = (255,255,255),
                  selectedIndex = 0, fontColor=(0,0,0), borderColor=(0,0,0),
                  antialias=True,
-                 buttonBorderWidth = .1,
+                 buttonBorderWidth = 1,
                  selectedColor = (0,0,0),
                  control=EventWrapper(pygame.MOUSEBUTTONDOWN, 1, []),
                  cursor=pygame.mouse):
