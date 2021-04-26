@@ -76,7 +76,7 @@ class AbstractGraphic(Drawable):
         borderRect = pygame.Rect((0,0), (self._width, self._height))
         pygame.draw.rect(surfBack, self._borderColor, borderRect,
                          border_radius=self._borderRadius)
-            
+
         # Draw the primary surface
         w = max(0, self._width-(self._borderWidth*2))
         h = max(0, self._height-(self._borderWidth*2))
