@@ -85,7 +85,7 @@ class Main(AbstractLevel):
 
         self._borderSurf = pygame.Surface((200,200))
         self._borderSurf.fill((244, 244, 115))
-        self._borders = Borders([3,3,5,3],[(0,0,255),(0,0,0),(0,0,0),(0,0,0)])
+        self._borders = Borders([2,2,2,2],[(0,0,255),(0,0,0),(0,0,0),(0,0,0)])
     def draw(self, screen):
         self._back.draw(screen)
         self._player1.draw(screen)
