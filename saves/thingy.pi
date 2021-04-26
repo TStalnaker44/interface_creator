@@ -1,0 +1,3 @@
+Panel((86,134),dims=(176,301),color=(120, 120, 120),borderColor=(0, 0, 0),borderWidth=0)
+TextBox('Text',(159,273),Font('Arial',20))
+ProgressBar((288,251),220,100,50,borderWidth=1,borderColor=(0, 0, 0),backgroundColor=(120, 120, 120),barColor=(255, 0, 0),height=64,alignment='left')

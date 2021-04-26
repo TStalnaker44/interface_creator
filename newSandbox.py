@@ -11,6 +11,7 @@ from polybius.utils import Font
 from polybius.graphics import Checkbox, Slider, RadioButton, \
      RadioButtons,DropDownList, Button
 from polybius.graphics import ImageButton
+from polybius.graphics.utils.borders import Borders
 
 class Sandbox(AbstractGame):
 
@@ -81,6 +82,10 @@ class Main(AbstractLevel):
         self._imageButton2 = ImageButton((600,250), "watchButton.png",
                                         pressedImage="pressedWatchButton.png",
                                          hoverImage="watchButtonHover.png")
+
+        self._borderSurf = pygame.Surface((200,200))
+        self._borderSurf.fill((244, 244, 115))
+        self._borders = Borders([3,3,5,3],[(0,0,255),(0,0,0),(0,0,0),(0,0,0)])
     def draw(self, screen):
         self._back.draw(screen)
         self._player1.draw(screen)
@@ -95,6 +100,9 @@ class Main(AbstractLevel):
         
         self._imageButton.draw(screen)
         self._imageButton2.draw(screen)
+
+        self._borders.draw(self._borderSurf)
+        screen.blit(self._borderSurf, (300, 100))
 
 ##        x = 100
 ##        y = 400
