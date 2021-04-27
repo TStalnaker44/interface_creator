@@ -71,9 +71,10 @@ class Borders():
         left.draw(surf, points)
 
         # Right Line
-        points = [(width,0),(width,height),
-                  (width-right.getWidth(), height-bottom.getWidth()),
-                  (width-right.getWidth(), top.getWidth())]
+        points = [(width-right.getWidth(), top.getWidth()),
+                  (width,0),
+                  (width,height),
+                  (width-right.getWidth(), height-bottom.getWidth())]
         right.draw(surf, points)
 
 class Border():
@@ -116,21 +117,7 @@ class Border():
         elif self.getBorderStyle() == "dashed":
             self._drawSegments(surf, points)
         elif self.getBorderStyle() == "double":
-            if self.getBorderType() == BorderTypes.LEFT:
-                ul,ur,br,bl = points
-                midX = (ur[0]-ul[0])//2
-                spacing = 2
-                firstPoints = [ul,
-                               (midX-spacing, ur[1]),
-                               (midX-spacing, br[1]),
-                               bl]
-                secondPoints = [(midX+spacing,ul[1]),
-                                ur,
-                                br,
-                                ((midX+spacing,bl[1]))]
-                pygame.draw.polygon(surf, self.getColor(), firstPoints)
-                pygame.draw.polygon(surf, self.getColor(), secondPoints)
-                
+            self._drawDouble(surf, points)
         elif self.getBorderStyle() == "dotted":
             pass
 
@@ -161,5 +148,49 @@ class Border():
                 y = surf.get_height() - self.getWidth()
             for x in range(0, span, dash_unit*3):
                 surf.blit(s, (x-shiftAmount,y))
+
+    def _drawDouble(self, surf, points):
+        height = surf.get_height()
+        width = surf.get_height()
+        ul,ur,br,bl = points
+        if self._vertical:
+            q1X = (ur[0]-ul[0])//4
+            q3X = (3 * (ur[0]-ul[0]))//4
+            q1Y = (ur[1]-ul[1])//4
+            q3Y = (3 * (ur[1]-ul[1]))//4
+            if self.getBorderType() == BorderTypes.LEFT:
+                firstPoints = [ul,
+                               (q1X,q1Y),
+                               (q1X, height - q1Y),
+                               bl]
+                secondPoints = [(q3X,q3Y),
+                                ur,
+                                br,
+                                (q3X, height-q3Y)]
+            else:
+                firstPoints = [ul,
+                               (ul[0]+q1X,ul[1]+q1Y),
+                               (ul[0]+q1X, bl[1]-q1Y),
+                               bl]
+                secondPoints = [(ul[0]+q3X,ul[1]+q3Y),
+                                ur,
+                                br,
+                                (ul[0]+q3X, bl[1]-q3Y)]
+        else:
+            q1X = (bl[0]-ul[0])//4
+            q3X = (3 * (bl[0]-ul[0]))//4
+            q1Y = (bl[1]-ul[1])//4
+            q3Y = (3 * (bl[1]-ul[1]))//4
+            if self.getBorderType() == BorderTypes.TOP:
+                
+                firstPoints = [ul,ur,
+                               (ur[0]-q1X, ur[1]+q1Y),
+                               (q1X, ur[1]+q1Y)]
+                secondPoints = [(q3X, ur[1]+q3Y),
+                                (ur[0]-q3X, ur[1]+q3Y),
+                                br,bl]
+                
+        pygame.draw.polygon(surf, self.getColor(), firstPoints)
+        pygame.draw.polygon(surf, self.getColor(), secondPoints)
             
       
