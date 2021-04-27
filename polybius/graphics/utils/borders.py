@@ -18,9 +18,9 @@ class Borders():
                 "right":BorderTypes.RIGHT,
                 "bottom":BorderTypes.BOTTOM}
 
-    def __init__(self, widths, colors):#, styles):
+    def __init__(self, widths, colors, styles):
 
-        assert len(widths)==len(colors)==4#==len(styles)
+        assert len(widths)==len(colors)==4==len(styles)
 
         self._borders = {}
         labels = ["left","top","right","bottom"]
@@ -29,7 +29,9 @@ class Borders():
             color = colors[i]
             vertical = label in ("left", "right")
             borderType = Borders.stringToType[label]
-            self._borders[label] = Border(width, color, vertical, borderType)
+            borderStyle = styles[i]
+            self._borders[label] = Border(width, color, vertical,
+                                          borderType, borderStyle)
 
     def getBorders(self):
         return self._borders
@@ -138,7 +140,8 @@ class Border():
         if self.getBorderStyle() == "solid":
             pygame.draw.polygon(surf, self.getColor(), points)
             
-        if self.getBorderStyle() == "dashed":
+        elif self.getBorderStyle() == "dashed":
+            #TO-DO Improve border join meetings
             if self._vertical:
                 span = surf.get_height()
             else:
@@ -164,5 +167,9 @@ class Border():
                     y = surf.get_height() - self.getWidth()
                 for x in range(0, span, dash_unit*3):
                     surf.blit(s, (x-shiftAmount,y))
+        elif self.getBorderStyle() == "double":
+            pass
+        elif self.getBorderStyle() == "dotted":
+            pass
             
       
