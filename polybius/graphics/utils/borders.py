@@ -39,10 +39,6 @@ class Borders():
     def getBorder(self, side):
         return self._borders[side.lower()]
 
-##    def draw(self, surf):
-##        for border in self._borders.values():
-##            border.draw(surf)
-
     def draw(self, surf):
 
         width = surf.get_width()
@@ -114,62 +110,56 @@ class Border():
     def setBorderStyle(self, style):
         self._borderStyle = style.lower()
 
-##    def draw(self, surf):
-##        
-##        if self._vertical:
-##            dims = (self.getWidth(), surf.get_height())
-##        else:
-##            dims = (surf.get_width(), self.getWidth())
-##            
-##        border = pygame.Surface(dims)
-##        border.fill(self.getColor())
-##        
-##        btype = self.getBorderType()
-##        if btype in (BorderTypes.LEFT, BorderTypes.TOP):
-##            pos = (0,0)
-##        elif btype == BorderTypes.RIGHT:
-##            x = surf.get_width() - self.getWidth()
-##            pos = (x,0)
-##        elif btype == BorderTypes.BOTTOM:
-##            y = surf.get_height() - self.getWidth()
-##            pos = (0,y)
-##            
-##        surf.blit(border, pos)
-
     def draw(self, surf, points):
         if self.getBorderStyle() == "solid":
             pygame.draw.polygon(surf, self.getColor(), points)
-            
         elif self.getBorderStyle() == "dashed":
-            #TO-DO Improve border join meetings
-            if self._vertical:
-                span = surf.get_height()
-            else:
-                span = surf.get_width()
-            dash_unit = 4
-            dashes = (span + dash_unit) // (3 * dash_unit)
-            shiftAmount = (abs(span - (dashes * dash_unit * 3)) // 2)-1
-            if self._vertical:
-                s = pygame.Surface((self.getWidth(),2*dash_unit))
-                s.fill(self.getColor())
-                if self.getBorderType() == BorderTypes.LEFT:
-                    x = 0
-                else:
-                    x = surf.get_width() - self.getWidth()
-                for y in range(0, span, dash_unit*3):
-                    surf.blit(s, (x,y-shiftAmount))
-            else:
-                s = pygame.Surface((2*dash_unit,self.getWidth()))
-                s.fill(self.getColor())
-                if self.getBorderType() == BorderTypes.TOP:
-                    y = 0
-                else:
-                    y = surf.get_height() - self.getWidth()
-                for x in range(0, span, dash_unit*3):
-                    surf.blit(s, (x-shiftAmount,y))
+            self._drawSegments(surf, points)
         elif self.getBorderStyle() == "double":
-            pass
+            if self.getBorderType() == BorderTypes.LEFT:
+                ul,ur,br,bl = points
+                midX = (ur[0]-ul[0])//2
+                spacing = 2
+                firstPoints = [ul,
+                               (midX-spacing, ur[1]),
+                               (midX-spacing, br[1]),
+                               bl]
+                secondPoints = [(midX+spacing,ul[1]),
+                                ur,
+                                br,
+                                ((midX+spacing,bl[1]))]
+                pygame.draw.polygon(surf, self.getColor(), firstPoints)
+                pygame.draw.polygon(surf, self.getColor(), secondPoints)
+                
         elif self.getBorderStyle() == "dotted":
             pass
+
+    def _drawSegments(self, surf, points):
+        #TO-DO Improve border join meetings
+        if self._vertical:
+            span = surf.get_height()
+        else:
+            span = surf.get_width()
+        dash_unit = 4
+        dashes = (span + dash_unit) // (3 * dash_unit)
+        shiftAmount = (abs(span - (dashes * dash_unit * 3)) // 2)-1
+        if self._vertical:
+            s = pygame.Surface((self.getWidth(),2*dash_unit))
+            s.fill(self.getColor())
+            if self.getBorderType() == BorderTypes.LEFT:
+                x = 0
+            else:
+                x = surf.get_width() - self.getWidth()
+            for y in range(0, span, dash_unit*3):
+                surf.blit(s, (x,y-shiftAmount))
+        else:
+            s = pygame.Surface((2*dash_unit,self.getWidth()))
+            s.fill(self.getColor())
+            if self.getBorderType() == BorderTypes.TOP:
+                y = 0
+            else:
+                y = surf.get_height() - self.getWidth()
+            for x in range(0, span, dash_unit*3):
+                surf.blit(s, (x-shiftAmount,y))
             
       
