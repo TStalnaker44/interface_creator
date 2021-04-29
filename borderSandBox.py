@@ -10,9 +10,9 @@ class Sandbox(AbstractGame):
         
         self._borderSurf = pygame.Surface((400,200))
         self._borderSurf.fill((244, 244, 115))
-        self._borders = Borders([10,10,10,8],
+        self._borders = Borders([2,2,2,2],
                                 [(0,0,0),(0,0,0),(0,0,0),(0,0,0)],
-                                ["double","double","double","solid"])
+                                ["solid","solid","solid","solid"])
         self._borders.draw(self._borderSurf)
 
     def draw(self, screen):

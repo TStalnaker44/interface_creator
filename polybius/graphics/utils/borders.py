@@ -57,10 +57,10 @@ class Borders():
         top.draw(surf, points)
 
         # Bottom Line
-        points = [(0,height),
-                  (left.getWidth(),height - bottom.getWidth()),
+        points = [(left.getWidth(),height - bottom.getWidth()),
                   (width-right.getWidth(), height - bottom.getWidth()),
-                  (width, height)]
+                  (width, height),
+                  (0,height)]
         bottom.draw(surf, points)
 
         # Left Line
@@ -165,8 +165,8 @@ class Border():
                                bl]
                 secondPoints = [(q3X,q3Y),
                                 ur,
-                                br,
-                                (q3X, height-q3Y)]
+                                (br[0],height-q3Y),
+                                (q3X, br[1])]
             else:
                 firstPoints = [ul,
                                (ul[0]+q1X,ul[1]+q1Y),
@@ -183,6 +183,14 @@ class Border():
             q3Y = (3 * (bl[1]-ul[1]))//4
             if self.getBorderType() == BorderTypes.TOP:
                 
+                firstPoints = [ul,ur,
+                               (ur[0]-q1X, ur[1]+q1Y),
+                               (q1X, ur[1]+q1Y)]
+                secondPoints = [(q3X, ur[1]+q3Y),
+                                (ur[0]-q3X-1, ur[1]+q3Y),
+                                br,bl]
+            else:
+
                 firstPoints = [ul,ur,
                                (ur[0]-q1X, ur[1]+q1Y),
                                (q1X, ur[1]+q1Y)]
