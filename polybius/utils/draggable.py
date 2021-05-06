@@ -6,8 +6,18 @@ class Draggable():
 
     def __init__(self):
         if not isinstance(self, Drawable):
-            raise Exception("Class must also inherit from Drawable")
+            raise Exception("Class must also inherit from Drawable or one of its descendents")
         self._dragging = False
+        self._draggingOn = True
+
+    def turnDraggingOn(self):
+        self._draggingOn = True
+
+    def turnDraggingOff(self):
+        self._draggingOn = False
+
+    def isDraggingOn(self):
+        return self._draggingOn
         
     def drag(self):
         previous = self._previous
@@ -19,16 +29,17 @@ class Draggable():
         self._previous = current
 
     def handleDraggingEvent(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                if self.collidesWithPoint(event.pos):
-                    self._previous = pygame.mouse.get_pos()
-                    self._dragging = True
-        elif event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 1:
-                self._dragging = False
-        if self._dragging:
-            self.drag()
+        if self._draggingOn:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if self.collidesWithPoint(event.pos):
+                        self._previous = pygame.mouse.get_pos()
+                        self._dragging = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    self._dragging = False
+            if self._dragging:
+                self.drag()
         
         
         
