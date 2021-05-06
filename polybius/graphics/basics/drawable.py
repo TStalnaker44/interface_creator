@@ -80,7 +80,10 @@ class Drawable():
 
     def setPosition(self, newPosition):
         """Updates the position of the drawable to a new position"""
-        self._position = newPosition
+        if type(newPosition) == tuple:
+            self._position = Vector2(*newPosition)
+        else:
+            self._position = newPosition
 
     def setX(self, newX):
         """Updates the x coordinate of the drawable"""

@@ -12,6 +12,7 @@ from polybius.graphics import Checkbox, Slider, RadioButton, \
      RadioButtons,DropDownList, Button
 from polybius.graphics import ImageButton
 from polybius.graphics.utils.borders import Borders
+from polybius.utils.draggable import Draggable
 
 class Sandbox(AbstractGame):
 
@@ -83,9 +84,9 @@ class Main(AbstractLevel):
                                         pressedImage="pressedWatchButton.png",
                                          hoverImage="watchButtonHover.png")
 
-        self._borderSurf = pygame.Surface((200,200))
-        self._borderSurf.fill((244, 244, 115))
-        self._borders = Borders([2,2,2,2],[(0,0,255),(0,0,0),(0,0,0),(0,0,0)])
+##        self._borderSurf = pygame.Surface((200,200))
+##        self._borderSurf.fill((244, 244, 115))
+##        self._borders = Borders([2,2,2,2],[(0,0,255),(0,0,0),(0,0,0),(0,0,0)])
     def draw(self, screen):
         self._back.draw(screen)
         self._player1.draw(screen)
@@ -101,8 +102,8 @@ class Main(AbstractLevel):
         self._imageButton.draw(screen)
         self._imageButton2.draw(screen)
 
-        self._borders.draw(self._borderSurf)
-        screen.blit(self._borderSurf, (300, 100))
+##        self._borders.draw(self._borderSurf)
+##        screen.blit(self._borderSurf, (300, 100))
 
 ##        x = 100
 ##        y = 400
@@ -152,11 +153,16 @@ class Main(AbstractLevel):
         self._player1.update(ticks, self.getWorldSize(), "bounce")
         self._player2.update(ticks, self.getWorldSize(), "torus")
 
-class StickMan(AbstractPlayer):
+class StickMan(AbstractPlayer, Draggable):
 
     def __init__(self, pos):
         movement = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
-        super().__init__("dude.png", pos, movement, True)
+        AbstractPlayer.__init__(self, "dude.png", pos, movement, True)
+        Draggable.__init__(self)
+
+    def handleEvent(self, event):
+        AbstractPlayer.handleEvent(self, event)
+        self.handleDraggingEvent(event)
 
     def manageAnimations(self, ticks):
         state = self.getCurrentState()
