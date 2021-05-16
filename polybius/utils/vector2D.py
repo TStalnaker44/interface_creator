@@ -1,6 +1,8 @@
 import math
 from pygame import Rect
 
+## Rewrite this file!!!  And improve on it's short comings
+
 class Vector2(object):
    def __init__(self, x, y):
       self.x = x
