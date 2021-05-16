@@ -12,7 +12,7 @@ from polybius.graphics import Checkbox, Slider, RadioButton, \
      RadioButtons,DropDownList, Button
 from polybius.graphics import ImageButton
 from polybius.graphics.utils.borders import Borders
-from polybius.utils.draggable import Draggable
+from polybius.utils.draggable import makeDraggable
 
 class Sandbox(AbstractGame):
 
@@ -153,16 +153,15 @@ class Main(AbstractLevel):
         self._player1.update(ticks, self.getWorldSize(), "bounce")
         self._player2.update(ticks, self.getWorldSize(), "torus")
 
-class StickMan(AbstractPlayer, Draggable):
+@makeDraggable
+class StickMan(AbstractPlayer):
 
     def __init__(self, pos):
         movement = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
         AbstractPlayer.__init__(self, "dude.png", pos, movement, True)
-        Draggable.__init__(self)
 
     def handleEvent(self, event):
         AbstractPlayer.handleEvent(self, event)
-        self.handleDraggingEvent(event)
 
     def manageAnimations(self, ticks):
         state = self.getCurrentState()

@@ -2,22 +2,32 @@
 import pygame
 from polybius.graphics import Drawable
 
-class Draggable():
+##TO-DO: This works with the absolute positions of objects in game, not their literal positions on the
+## screen.  This will need to be fixed before deployment!
 
-    def __init__(self):
-        if not isinstance(self, Drawable):
-            raise Exception("Class must also inherit from Drawable or one of its descendents")
-        self._dragging = False
-        self._draggingOn = True
+def makeDraggable(cls):
+
+    if not issubclass(cls, Drawable):
+        raise Exception("Class must inherit from Drawable or one of its subclasses")
+
+    og_init = cls.__init__
+    def newInit(self, *args, **kwargs):
+        setattr(self, "_dragging", False)
+        setattr(self, "_draggingOn", True)
+        og_init(self, *args, **kwargs)
+    cls.__init__ = newInit
 
     def turnDraggingOn(self):
         self._draggingOn = True
+    cls.turnDraggingOn = turnDraggingOn
 
     def turnDraggingOff(self):
         self._draggingOn = False
+    cls.turnDraggingOff = turnDraggingOff
 
     def isDraggingOn(self):
         return self._draggingOn
+    cls.isDraggingOn = isDraggingOn
         
     def drag(self):
         previous = self._previous
@@ -27,11 +37,15 @@ class Draggable():
         self.setPosition((self.getX()+delta_x,
                           self.getY()+delta_y))
         self._previous = current
+    cls.drag = drag
 
-    def handleDraggingEvent(self, event):
+    og_handleEvent = cls.handleEvent
+    def handleDraggingEvent(self, event, *args, **kwargs):
+        og_handleEvent(self, event, *args, **kwargs)
         if self._draggingOn:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
+                    print("It's happening")
                     if self.collidesWithPoint(event.pos):
                         self._previous = pygame.mouse.get_pos()
                         self._dragging = True
@@ -40,8 +54,6 @@ class Draggable():
                     self._dragging = False
             if self._dragging:
                 self.drag()
-        
-        
-        
+    cls.handleEvent = handleDraggingEvent
 
-    
+    return cls
