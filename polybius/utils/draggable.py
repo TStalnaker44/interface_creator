@@ -2,8 +2,7 @@
 import pygame
 from polybius.graphics import Drawable
 
-##TO-DO: This works with the absolute positions of objects in game, not their literal positions on the
-## screen.  This will need to be fixed before deployment!
+##TO-DO: This still doesn't work perfectly, but for stationary game worlds, it's good
 
 def makeDraggable(cls):
 
@@ -45,8 +44,9 @@ def makeDraggable(cls):
         if self._draggingOn:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
-                    print("It's happening")
-                    if self.collidesWithPoint(event.pos):
+                    mousePos = Drawable.adjustMousePos(event.pos)
+                    print(mousePos)
+                    if self.collidesWithPoint((mousePos[0], mousePos[1])):
                         self._previous = pygame.mouse.get_pos()
                         self._dragging = True
             elif event.type == pygame.MOUSEBUTTONUP:
