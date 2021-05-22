@@ -153,7 +153,6 @@ class Main(AbstractLevel):
         self._player1.update(ticks, self.getWorldSize(), "bounce")
         self._player2.update(ticks, self.getWorldSize(), "torus")
 
-@makeDraggable
 class StickMan(AbstractPlayer):
 
     def __init__(self, pos):
