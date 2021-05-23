@@ -5,21 +5,19 @@ File: rectmanager.py
 Manages more complicated collide rectangles for sprites
 """
 
-import copy, pygame
+import copy, pygame, time
 
 def getRects(image):
     """This fucntion gets the rects for an image."""
-    pxa = pygame.PixelArray(image)
-    transparent = pxa[0,0]
-    rects = []
+    t1 = time.time()
+    transparent = image.get_colorkey()
     scale = 1
     rects, flag, count = [], False, 0
-
-    for h in range(pxa.shape[1]):
+    for h in range(image.get_height()):
         leftBound = 0
         inRect = False
-        for w in range(pxa.shape[0]):
-            if pxa[w, h] == transparent:
+        for w in range(image.get_width()):
+            if image.get_at((w,h)) == transparent:
                 if inRect:
                     inRect = False
                     width = w-leftBound
@@ -30,11 +28,12 @@ def getRects(image):
                 if not inRect:
                     inRect = True
                     leftBound = w
-                if w == pxa.shape[0]-1: #End of row
+                if w == image.get_width()-1: #End of row
                     width = w - (leftBound-1)
                     rect = pygame.Rect(leftBound, h, width, 1)
                     rects.append(rect)
     return rects
+
 
 def moveRects(rects, pos):
     """This function moves the rects to a certain position."""
