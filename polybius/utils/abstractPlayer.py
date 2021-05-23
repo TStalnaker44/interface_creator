@@ -19,7 +19,7 @@ class AbstractPlayer(Animated):
         self._velocity = Vector2(0,0)
         self._maxVelocity = 100
         self._acceleration = 0.5
-        self._movementKeys = movementKeys ##[l,r,u,d]
+        self._movementKeys = movementKeys ##[left,right,up,down]
         self._movement = {key:False for key in movementKeys}
 
         self._asymmetrical = asymmetrical
