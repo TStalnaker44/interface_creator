@@ -45,7 +45,6 @@ def makeDraggable(cls):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     mousePos = Drawable.adjustMousePos(event.pos)
-                    print(mousePos)
                     if self.collidesWithPoint((mousePos[0], mousePos[1])):
                         self._previous = pygame.mouse.get_pos()
                         self._dragging = True
